@@ -12,9 +12,17 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.18.1",
+    "@hono/node-ws": "^1.2.0",
+    "@hono/zod-openapi": "^1.1.0",
+    "@hono/zod-validator": "^0.7.2",
+    "@scalar/hono-api-reference": "^0.9.13",
+    "@scalar/openapi-to-markdown": "^0.2.26",
     "figlet": "^1.8.2",
     "gradient-string": "^3.0.0",
-    "hono": "^4.8.12"
+    "hono": "^4.8.12",
+    "hono-openapi": "^0.4.8",
+    "zod": "^4.0.15",
+    "zod-openapi": "^5.3.0"
   },
   "devDependencies": {
     "@types/figlet": "^1.7.0",

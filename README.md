@@ -3,7 +3,7 @@
 > [!IMPORTANT]
 > [https://scratchstats.com](https://scratchstats.com) プロジェクトとは関係ありません。
 
-このプロジェクトは、[Scratch](https://scratch.mit.edu) サービスの様々な機能の稼働状況を監視して、ユーザーにわかりやすく伝えることをもう的としています。
+このプロジェクトは、[Scratch](https://scratch.mit.edu) サービスの様々な機能の稼働状況を監視して、ユーザーにわかりやすく伝えることを目的としています。
 
 ## Backend
 
