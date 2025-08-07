@@ -1,0 +1,16 @@
+{
+  "terminals": [
+    {
+      "name": "root",
+      "cwd": "."
+    },
+    {
+      "name": "backend",
+      "cwd": "./backend"
+    },
+    {
+      "name": "frontend",
+      "cwd": "./frontend"
+    }
+  ]
+}
