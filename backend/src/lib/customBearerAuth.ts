@@ -14,7 +14,7 @@ export const customBearerAuth = (expectedToken?: string): MiddlewareHandler => {
             success: false,
             message: "認証情報が不足しています。",
           },
-          401
+          401,
         );
       }
     } else {
@@ -33,7 +33,7 @@ export const customBearerAuth = (expectedToken?: string): MiddlewareHandler => {
           success: false,
           message: "トークンが無効です。",
         },
-        401
+        401,
       );
     }
 

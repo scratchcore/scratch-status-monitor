@@ -29,7 +29,7 @@ examplesWelcome.get(
               z.union([
                 examplesWelcomeQuerySchema,
                 examplesWelcomeResponseSchema,
-              ])
+              ]),
             ),
           },
         },
@@ -40,5 +40,5 @@ examplesWelcome.get(
   (c) => {
     const query = c.req.valid("query");
     return c.text(`Hello ${query?.name ?? "Hono"}!`);
-  }
+  },
 );

@@ -43,7 +43,7 @@ app.use(
   languageDetector({
     supportedLanguages: ["ja", "en"], // Must include fallback
     fallbackLanguage: "ja", // Required
-  })
+  }),
 );
 
 // CORS: (https://hono.dev/docs/middleware/builtin/cors)
@@ -56,14 +56,14 @@ app.use(
     exposeHeaders: ["Content-Length", "X-Kuma-Revision"],
     maxAge: 600,
     credentials: true,
-  })
+  }),
 );
 
 // CSRF保護 (https://hono.dev/docs/middleware/builtin/csrf)
 app.use(
   csrf({
     origin: projectConfig.origin,
-  })
+  }),
 );
 
 // 例外処理: (https://hono.dev/docs/api/exception)
@@ -83,7 +83,7 @@ app.onError((err, c) => {
           message: issue.message,
         })),
       },
-      400
+      400,
     );
   }
   return c.json(
@@ -92,7 +92,7 @@ app.onError((err, c) => {
       message: "Internal Server Error",
       error: err instanceof Error ? err.message : String(err),
     },
-    500
+    500,
   );
 });
 
@@ -157,7 +157,7 @@ app.get(
         url: "https://guides.scalar.com/scalar/introduction",
       },
     },
-  })
+  }),
 );
 
 serve(
@@ -171,7 +171,7 @@ serve(
     showRoutes(app, {
       verbose: true,
     });
-    console.log()
+    console.log();
     log.info(`Server is running on http://localhost:${info.port}`);
-  }
+  },
 );

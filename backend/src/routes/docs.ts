@@ -67,5 +67,5 @@ docsRoute.get(
       "wget",
       "xhr",
     ],
-  })
+  }),
 );
