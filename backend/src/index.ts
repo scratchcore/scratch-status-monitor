@@ -1,7 +1,5 @@
 // 設定/システム
 import "dotenv/config";
-import path from "node:path";
-import fs from "node:fs";
 import { projectConfig } from "project.config.js";
 import { LogoText } from "@/utils/logo.js";
 import { makeLog } from "@/utils/logger.js";
@@ -9,6 +7,7 @@ import { makeLog } from "@/utils/logger.js";
 // Hono
 import { Hono } from "hono";
 import { showRoutes } from "hono/dev";
+import { contextStorage } from "hono/context-storage";
 
 // サーバー関係
 import { serve } from "@hono/node-server";
@@ -18,6 +17,7 @@ import { except } from "hono/combine";
 import { HTTPException } from "hono/http-exception";
 
 // APIルートなど
+import { customBearerAuth } from "./lib/customBearerAuth.js";
 import { logger, responseTime } from "./utils/middleware.js";
 import { ZodError } from "zod";
 import { MainRoutes } from "./routes/main.js";
@@ -33,9 +33,7 @@ import { prettyJSON } from "hono/pretty-json";
 import { trimTrailingSlash } from "hono/trailing-slash";
 
 // ドキュメント関係
-import { openAPISpecs } from "hono-openapi";
-import { customBearerAuth } from "./lib/customBearerAuth.js";
-import { contextStorage } from "hono/context-storage";
+import { generateOpenAPISpecs } from "./openapi.js";
 
 const log = makeLog();
 
@@ -106,66 +104,9 @@ app.onError((err, c) => {
 app.use(contextStorage());
 
 // 認証ルート: (https://hono.dev/docs/middleware/builtin/bearer-auth)
-app.use("/*", except(["/docs/*", "/openapi", "/test/*"], customBearerAuth()));
+app.use("/*", except(["/docs/*", "/openapi", "/llms.txt"], customBearerAuth()));
 
 app.route("/", MainRoutes);
-
-// ドキュメント内容の生成
-app.get(
-  "/openapi",
-  openAPISpecs(app, {
-    documentation: {
-      info: {
-        title: projectConfig.title,
-        version: projectConfig.version,
-        description: fs.readFileSync(path.resolve("openapi.docs.md"), "utf-8"),
-        contact: {
-          name: "Developer",
-          url: "https://github.com/scratchcore",
-          email: "contact@scratchcore.org",
-        },
-        license: {
-          name: "GNU AGPLv3",
-          url: "https://choosealicense.com/licenses/agpl-3.0",
-        },
-      },
-      components: {
-        securitySchemes: {
-          bearerAuth: {
-            type: "http",
-            scheme: "bearer",
-            bearerFormat: "TXT",
-            description: "Bearer Token",
-          },
-        },
-      },
-      security: [
-        {
-          bearerAuth: [],
-        },
-      ],
-      servers: [
-        {
-          url: `http://localhost:${projectConfig.port || 3000}`,
-          description: "Local Server",
-        },
-      ],
-      tags: [
-        {
-          name: "Examples",
-          description: fs.readFileSync(
-            path.resolve("src/tags/Examples.md"),
-            "utf8",
-          ),
-        },
-      ],
-      externalDocs: {
-        description: "Hello",
-        url: "https://guides.scalar.com/scalar/introduction",
-      },
-    },
-  }),
-);
 
 serve(
   {
@@ -173,6 +114,9 @@ serve(
     port: projectConfig.port,
   },
   async (info) => {
+    // ドキュメント内容の生成
+    await generateOpenAPISpecs();
+    // コンソールにロゴの表示
     await LogoText("ScratchCore");
     // ルートのログ出力
     showRoutes(app, {

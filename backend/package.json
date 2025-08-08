@@ -27,11 +27,13 @@
     "gradient-string": "^3.0.0",
     "hono": "^4.8.12",
     "hono-openapi": "^0.4.8",
+    "js-yaml": "^4.1.0",
     "zod": "^4.0.15",
     "zod-openapi": "^5.3.0"
   },
   "devDependencies": {
     "@types/figlet": "^1.7.0",
+    "@types/js-yaml": "^4.0.9",
     "@types/node": "^20.11.17",
     "@vitest/coverage-v8": "^3.2.4",
     "@vitest/ui": "^3.2.4",
