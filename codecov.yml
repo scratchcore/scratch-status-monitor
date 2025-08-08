@@ -1,0 +1,21 @@
+# Edit "test.coverage.exclude" option in vitest.config.ts to exclude specific files from coverage reports.
+# We can also use "ignore" option in codecov.yml, but it is not recognized by vitest, so results may differ on local.
+
+codecov:
+  require_ci_to_pass: yes
+
+coverage:
+  status:
+    project:
+      default:
+        target: 80%
+        threshold: 2%
+    patch:
+      default:
+        target: 70%
+        threshold: 5%
+
+comment:
+  layout: "reach, diff, files"
+  behavior: default
+  require_changes: true
