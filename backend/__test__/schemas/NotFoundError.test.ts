@@ -1,8 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  NotFoundError,
-  createNotFoundError
-} from "@/schemas/NotFoundError.js";
+import { NotFoundError, createNotFoundError } from "@/schemas/NotFoundError.js";
 
 describe("NotFoundError", () => {
   it("バリデーションが通る（正常系）", () => {

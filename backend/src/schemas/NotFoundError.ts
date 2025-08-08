@@ -44,7 +44,8 @@ export const NotFoundError = z
   .loose() // ← 拡張用フィールドを受け入れる
   .meta({
     id: "NotFoundError",
-    description: "RFC 9457 (https://datatracker.ietf.org/doc/rfc9457) リソースが見つからないエラー",
+    description:
+      "RFC 9457 (https://datatracker.ietf.org/doc/rfc9457) リソースが見つからないエラー",
     example: {
       type: "https://datatracker.ietf.org/doc/rfc9457",
       status: 404,

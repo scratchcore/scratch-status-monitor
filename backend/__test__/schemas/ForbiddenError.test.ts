@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   ForbiddenError,
-  createForbiddenError
+  createForbiddenError,
 } from "@/schemas/ForbiddenError.js";
 
 describe("ForbiddenError", () => {

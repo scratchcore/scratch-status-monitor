@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   UnauthorizedError,
-  createUnauthorizedError
+  createUnauthorizedError,
 } from "@/schemas/UnauthorizedError.js";
 
 describe("UnauthorizedError", () => {
