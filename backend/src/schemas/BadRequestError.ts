@@ -44,7 +44,8 @@ export const BadRequestError = z
   .loose() // ← 拡張用フィールドを受け入れる
   .meta({
     id: "BadRequestError",
-    description: "RFC 9457 (https://datatracker.ietf.org/doc/rfc9457) リクエストエラー",
+    description:
+      "RFC 9457 (https://datatracker.ietf.org/doc/rfc9457) リクエストエラー",
     example: {
       type: "https://datatracker.ietf.org/doc/rfc9457",
       status: 400,

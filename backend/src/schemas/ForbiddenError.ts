@@ -44,7 +44,8 @@ export const ForbiddenError = z
   .loose() // ← 拡張用フィールドを受け入れる
   .meta({
     id: "ForbiddenError",
-    description: "RFC 9457 (https://datatracker.ietf.org/doc/rfc9457) アクセス権限エラー",
+    description:
+      "RFC 9457 (https://datatracker.ietf.org/doc/rfc9457) アクセス権限エラー",
     example: {
       type: "https://datatracker.ietf.org/doc/rfc9457",
       status: 403,
