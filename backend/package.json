@@ -1,16 +1,19 @@
 {
   "name": "backend",
   "type": "module",
+  "version": "0.0.1",
+  "license": "AGPL-3.0-only",
   "scripts": {
+    "clean": "node ./scripts/cleanMacJunkFiles.mjs",
     "ghlangstats": "pnpm dlx ghlangstats --directory ./",
-    "prettier": "pnpm dlx prettier . --write",
+    "prettier": "pnpm clean && pnpm dlx prettier . --write",
     "dev": "tsx watch src/index.ts",
-    "test": "vitest run",
-    "test:watch": "vitest --ui",
-    "coverage": "vitest run --coverage",
-    "coverage:preview": "node ./scripts/preview-coverage.mjs",
-    "build": "tsc",
-    "start": "node dist/index.js"
+    "test": "pnpm clean && vitest run",
+    "test:watch": "pnpm clean && vitest --ui",
+    "coverage": "pnpm clean && vitest run --coverage",
+    "coverage:preview": "pnpm clean && node ./scripts/preview-coverage.mjs",
+    "build": "pnpm clean && tsc",
+    "start": "pnpm clean && node dist/index.js"
   },
   "dependencies": {
     "@hono/node-server": "^1.18.1",
@@ -19,6 +22,7 @@
     "@hono/zod-validator": "^0.7.2",
     "@scalar/hono-api-reference": "^0.9.13",
     "@scalar/openapi-to-markdown": "^0.2.26",
+    "dotenv": "^17.2.1",
     "figlet": "^1.8.2",
     "gradient-string": "^3.0.0",
     "hono": "^4.8.12",

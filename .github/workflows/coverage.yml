@@ -50,13 +50,19 @@ jobs:
         with:
           node-version: 20
 
+      - name: Set up pnpm
+        if: env.skip != 'true'
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
       - name: Install dependencies
         if: env.skip != 'true'
-        run: npm install
+        run: pnpm install
 
       - name: Run tests with coverage
         if: env.skip != 'true'
-        run: npm run coverage
+        run: pnpm coverage
 
       - name: Upload coverage to Codecov
         if: env.skip != 'true'

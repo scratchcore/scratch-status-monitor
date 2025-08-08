@@ -1,10 +1,10 @@
 // 設定/システム
+import "dotenv/config";
 import path from "node:path";
 import fs from "node:fs";
 import { projectConfig } from "project.config.js";
 import { LogoText } from "@/utils/logo.js";
 import { makeLog } from "@/utils/logger.js";
-import { envInjector } from "./env.js";
 
 // Hono
 import { Hono } from "hono";
@@ -16,18 +16,26 @@ import { cors } from "hono/cors";
 import { csrf } from "hono/csrf";
 import { except } from "hono/combine";
 import { HTTPException } from "hono/http-exception";
-import { customBearerAuth } from "./lib/customBearerAuth.js";
 
 // APIルートなど
 import { logger, responseTime } from "./utils/middleware.js";
 import { ZodError } from "zod";
+import { MainRoutes } from "./routes/main.js";
+
+// スキーマ
+import { createBadRequestError } from "./schemas/BadRequestError.js";
+import { createNotFoundError } from "@/schemas/NotFoundError.js";
+import { createUnprocessableEntityError } from "./schemas/UnprocessableEntity.js";
 
 // ユーザー体系関係
 import { languageDetector } from "hono/language";
 import { prettyJSON } from "hono/pretty-json";
 import { trimTrailingSlash } from "hono/trailing-slash";
-import { MainRoutes } from "./routes/main.js";
+
+// ドキュメント関係
 import { openAPISpecs } from "hono-openapi";
+import { customBearerAuth } from "./lib/customBearerAuth.js";
+import { contextStorage } from "hono/context-storage";
 
 const log = makeLog();
 
@@ -67,7 +75,7 @@ app.use(
 );
 
 // 例外処理: (https://hono.dev/docs/api/exception)
-app.notFound((c) => c.json({ message: "Not Found", success: false }, 404));
+app.notFound((c) => c.json(createNotFoundError(), 404));
 
 app.onError((err, c) => {
   if (err instanceof HTTPException) {
@@ -75,33 +83,30 @@ app.onError((err, c) => {
   }
   if (err instanceof ZodError) {
     return c.json(
-      {
-        success: false,
-        message: "バリデーションエラーが発生しました。",
-        issues: err.issues.map((issue) => ({
+      createUnprocessableEntityError({
+        title: "バリデーションエラーが発生しました。",
+        errors: err.issues.map((issue) => ({
           path: issue.path.join("."),
           message: issue.message,
         })),
-      },
-      400,
+      }),
+      422,
     );
   }
   return c.json(
-    {
-      success: false,
-      message: "Internal Server Error",
-      error: err instanceof Error ? err.message : String(err),
-    },
+    createBadRequestError({
+      title: "Internal Server Error",
+      detail: err instanceof Error ? err.message : String(err),
+    }),
     500,
   );
 });
 
-// 拡張環境変数コンテキスト
-app.use(envInjector);
-const SECRET_TOKEN = process.env.SECRET_TOKEN;
+// コンテキストストレージ
+app.use(contextStorage());
 
 // 認証ルート: (https://hono.dev/docs/middleware/builtin/bearer-auth)
-app.use("/*", except(["/docs/*", "/openapi"], customBearerAuth(SECRET_TOKEN)));
+app.use("/*", except(["/docs/*", "/openapi", "/test/*"], customBearerAuth()));
 
 app.route("/", MainRoutes);
 
@@ -117,9 +122,11 @@ app.get(
         contact: {
           name: "Developer",
           url: "https://github.com/scratchcore",
+          email: "contact@scratchcore.org",
         },
         license: {
-          name: "MIT",
+          name: "GNU AGPLv3",
+          url: "https://choosealicense.com/licenses/agpl-3.0",
         },
       },
       components: {
@@ -128,7 +135,7 @@ app.get(
             type: "http",
             scheme: "bearer",
             bearerFormat: "TXT",
-            description: "開発モードではこの認証はスキップされまず。",
+            description: "Bearer Token",
           },
         },
       },
@@ -144,13 +151,13 @@ app.get(
         },
       ],
       tags: [
-        // {
-        //   name: "Examples",
-        //   description: fs.readFileSync(
-        //     path.resolve("src/tags/Examples.md"),
-        //     "utf8"
-        //   ),
-        // },
+        {
+          name: "Examples",
+          description: fs.readFileSync(
+            path.resolve("src/tags/Examples.md"),
+            "utf8",
+          ),
+        },
       ],
       externalDocs: {
         description: "Hello",

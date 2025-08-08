@@ -28,4 +28,20 @@ describe("LogoText", () => {
     await LogoText("Hello", true);
     expect(consoleSpy).not.toHaveBeenCalled();
   });
+
+  it("figletでエラーが発生した場合はrejectされる", async () => {
+    // figletのモックを一時的にエラーを返すように上書き
+    const figlet = await import("figlet");
+    const originalFiglet = figlet.default;
+    vi.spyOn(figlet, "default").mockImplementation((_text, cb: any) => {
+      cb(new Error("figlet error"), undefined);
+    });
+
+    await expect(LogoText("Hello")).rejects.toThrow("figlet error");
+
+    // モックを元に戻す
+    (figlet.default as any).mockRestore &&
+      (figlet.default as any).mockRestore();
+    figlet.default = originalFiglet;
+  });
 });
