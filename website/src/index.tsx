@@ -25,7 +25,7 @@ app.use(
   languageDetector({
     supportedLanguages: ["ja", "en"], // Must include fallback
     fallbackLanguage: "ja", // Required
-  })
+  }),
 );
 
 // CORS: (https://hono.dev/docs/middleware/builtin/cors)
@@ -38,14 +38,14 @@ app.use(
     exposeHeaders: ["Content-Length", "X-Kuma-Revision"],
     maxAge: 600,
     credentials: true,
-  })
+  }),
 );
 
 // CSRF保護 (https://hono.dev/docs/middleware/builtin/csrf)
 app.use(
   csrf({
     origin: projectConfig.origin,
-  })
+  }),
 );
 
 // 例外処理: (https://hono.dev/docs/api/exception)
@@ -64,7 +64,7 @@ app.onError((err, c) => {
           message: issue.message,
         })),
       }),
-      422
+      422,
     );
   }
   return c.json(
@@ -72,7 +72,7 @@ app.onError((err, c) => {
       title: "Internal Server Error",
       detail: err instanceof Error ? err.message : String(err),
     }),
-    500
+    500,
   );
 });
 

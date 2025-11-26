@@ -36,7 +36,7 @@ export const ForbiddenError = z
             .string()
             .optional()
             .meta({ description: "パラメータの位置", example: "header" }),
-        })
+        }),
       )
       .optional()
       .meta({ description: "不正なパラメータの詳細リスト" }),

@@ -19,7 +19,7 @@ export const customBearerAuth = (): MiddlewareHandler => {
         createUnauthorizedError({
           detail: "認証情報が不足しています。",
         }),
-        401
+        401,
       );
     }
 
@@ -30,7 +30,7 @@ export const customBearerAuth = (): MiddlewareHandler => {
         createUnauthorizedError({
           detail: "トークンが無効です。",
         }),
-        401
+        401,
       );
     }
 
