@@ -78,4 +78,47 @@ app.onError((err, c) => {
 
 app.route("/", MainRoutes);
 
-export default app;
+// Cloudflare Cron Triggers scheduled handler
+async function scheduled(_controller: any, env?: any, _ctx?: any) {
+  try {
+    const { checkStatus } = await import("~/src/routes/v1/api/status");
+    const { getStatusCache, setStatusCache } = await import(
+      "~/src/lib/statusCache"
+    );
+    const cache = await getStatusCache(env);
+    const cacheMinutes = cache.cacheMinutes || 3;
+    // Determine cron interval minutes once: prefer previously detected value,
+    // otherwise estimate from the previous cache timestamp if available.
+    let cronIntervalMinutes: number | null = cache.cronIntervalMinutes ?? null;
+    if (!cronIntervalMinutes && cache.ts && cache.ts > 0) {
+      const estimated = Math.max(1, Math.round((Date.now() - cache.ts) / 60000));
+      // Accept estimation only if reasonable (<= 60 minutes)
+      if (estimated > 0 && estimated <= 60) cronIntervalMinutes = estimated;
+    }
+
+    const monitors = await checkStatus();
+    // Compute explicit nextGenTs aligned to the detected/estimated interval so
+    // clients can rely on an exact timestamp for their countdowns.
+    let nextGenTs: number | null = null;
+    const now = Date.now();
+    const stepMinutes = cronIntervalMinutes ?? cacheMinutes;
+    if (stepMinutes && stepMinutes > 0) {
+      const minuteIndex = Math.floor(now / 60000);
+      const nextMultiple = Math.floor(minuteIndex / stepMinutes) * stepMinutes + stepMinutes;
+      nextGenTs = nextMultiple * 60000;
+      if (nextGenTs <= now) nextGenTs += stepMinutes * 60 * 1000;
+    }
+
+    // Pass both nextGenTs and cronIntervalMinutes so KV stores exact timestamp
+    // and the detected interval for future alignment.
+    await setStatusCache(monitors, Date.now(), cacheMinutes, env, nextGenTs, cronIntervalMinutes);
+    console.log("scheduled: refreshed status cache");
+  } catch (e) {
+    console.error("scheduled handler failed", e);
+  }
+}
+
+export default {
+  fetch: app.fetch,
+  scheduled,
+};
