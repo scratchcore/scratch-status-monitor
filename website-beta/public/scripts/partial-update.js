@@ -7,7 +7,7 @@
   if (!app) return;
 
   let lastUpdated = Number(app.dataset.lastUpdated || 0);
-  const cacheMinutes = Number(app.dataset.cacheMinutes || 1);
+  const cacheMinutes = Number(app.dataset.cacheMinutes || 3);
   let nextGenTs = Number(app.dataset.nextGenTs || 0) || null;
 
   const metaUrl = "/v1/api/status/meta";
