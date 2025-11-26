@@ -48,7 +48,7 @@ export function RenderPage({
       </script>
     </head>
     <body>
-      <div id="app" data-last-updated="${lastUpdated}" data-next-gen-ts="${nextGenTs ?? ''}" data-cache-minutes="${cacheMinutes}">${content}</div>
+      <div id="app" data-last-updated="${lastUpdated}" data-next-gen-ts="${nextGenTs ?? ""}" data-cache-minutes="${cacheMinutes}">${content}</div>
       <script>window.__INITIAL_DATA__ = ${initialPayload};</script>
       <script src="/scripts/partial-update.js" defer></script>
       <script>
@@ -72,6 +72,11 @@ export function RenderFragment({
   cacheMinutes: number;
 }) {
   return renderToString(
-    <StatusPage monitors={monitors} lastUpdated={lastUpdated} nextGenTs={nextGenTs} cacheMinutes={cacheMinutes} />,
+    <StatusPage
+      monitors={monitors}
+      lastUpdated={lastUpdated}
+      nextGenTs={nextGenTs}
+      cacheMinutes={cacheMinutes}
+    />,
   );
 }

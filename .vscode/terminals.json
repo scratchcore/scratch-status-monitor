@@ -9,6 +9,10 @@
     {
       "name": "website",
       "cwd": "./website"
+    },
+    {
+      "name": "website-beta",
+      "cwd": "./website-beta"
     }
   ]
 }

@@ -7,7 +7,6 @@ import { RenderFragment } from "~/src/ssr/render";
 
 export const statusRoute = new Hono();
 
-
 // The /check route has been removed as per the new requirements.
 
 // Lightweight meta endpoint used by clients to decide whether to fetch a fragment
@@ -20,23 +19,25 @@ statusRoute.get("/meta", async (c) => {
   let nextGenTs: number | null = current.nextGenTs ?? null;
   if (nextGenTs === null && lastUpdated > 0) {
     const minuteIndex = Math.floor(lastUpdated / 60000);
-    const nextMultiple = Math.floor(minuteIndex / cacheMinutes) * cacheMinutes + cacheMinutes;
+    const nextMultiple =
+      Math.floor(minuteIndex / cacheMinutes) * cacheMinutes + cacheMinutes;
     nextGenTs = nextMultiple * 60000;
     if (nextGenTs <= lastUpdated) nextGenTs += cacheMinutes * 60 * 1000;
   }
 
   // ETag based on lastUpdated and nextGenTs to allow conditional requests
-  const etag = `W/"${lastUpdated}-${nextGenTs ?? 'null'}"`;
-  const ifNoneMatch = c.req.header('if-none-match');
+  const etag = `W/"${lastUpdated}-${nextGenTs ?? "null"}"`;
+  const ifNoneMatch = c.req.header("if-none-match");
 
   // Compute TTL (seconds) for s-maxage from nextGenTs or fallback to cacheMinutes
   const now = Date.now();
   let ttlSeconds = cacheMinutes * 60;
-  if (nextGenTs && nextGenTs > now) ttlSeconds = Math.max(1, Math.floor((nextGenTs - now) / 1000));
+  if (nextGenTs && nextGenTs > now)
+    ttlSeconds = Math.max(1, Math.floor((nextGenTs - now) / 1000));
 
   const headers = {
-    'content-type': 'application/json; charset=utf-8',
-    'cache-control': `public, s-maxage=${ttlSeconds}, stale-while-revalidate=5`,
+    "content-type": "application/json; charset=utf-8",
+    "cache-control": `public, s-maxage=${ttlSeconds}, stale-while-revalidate=5`,
     etag,
   } as Record<string, string>;
 
@@ -55,22 +56,29 @@ statusRoute.get("/fragment", async (c) => {
   const lastUpdated = cache.ts || 0;
   // If cache is empty, respond with 503 to indicate not ready
   if (!monitors || lastUpdated === 0) {
-    const errHeaders = { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'public, s-maxage=5, stale-while-revalidate=1' };
-    return new Response(JSON.stringify({ error: 'cache not ready' }), { status: 503, headers: errHeaders });
+    const errHeaders = {
+      "content-type": "application/json; charset=utf-8",
+      "cache-control": "public, s-maxage=5, stale-while-revalidate=1",
+    };
+    return new Response(JSON.stringify({ error: "cache not ready" }), {
+      status: 503,
+      headers: errHeaders,
+    });
   }
 
   const nextGenTs = cache.nextGenTs ?? null;
   const etag = `W/"${lastUpdated}"`;
-  const ifNoneMatch = c.req.header('if-none-match');
+  const ifNoneMatch = c.req.header("if-none-match");
 
   // Compute TTL from nextGenTs or cacheMinutes
   const now = Date.now();
   let ttlSeconds = (cache.cacheMinutes || 1) * 60;
-  if (nextGenTs && nextGenTs > now) ttlSeconds = Math.max(1, Math.floor((nextGenTs - now) / 1000));
+  if (nextGenTs && nextGenTs > now)
+    ttlSeconds = Math.max(1, Math.floor((nextGenTs - now) / 1000));
 
   const headers = {
-    'content-type': 'text/html; charset=utf-8',
-    'cache-control': `public, s-maxage=${ttlSeconds}, stale-while-revalidate=5`,
+    "content-type": "text/html; charset=utf-8",
+    "cache-control": `public, s-maxage=${ttlSeconds}, stale-while-revalidate=5`,
     etag,
   } as Record<string, string>;
 
@@ -78,7 +86,12 @@ statusRoute.get("/fragment", async (c) => {
     return new Response(null, { status: 304, headers });
   }
 
-  const html = RenderFragment({ monitors: monitors as any[], lastUpdated, nextGenTs, cacheMinutes: cache.cacheMinutes });
+  const html = RenderFragment({
+    monitors: monitors as any[],
+    lastUpdated,
+    nextGenTs,
+    cacheMinutes: cache.cacheMinutes,
+  });
   return new Response(html, { status: 200, headers });
 });
 
@@ -92,8 +105,8 @@ statusRoute.get("/seed-cache", async (c) => {
     await setStatusCache(monitors, Date.now(), cacheMinutes, c.env);
     return c.json({ ok: true, lastUpdated: Date.now() });
   } catch (e) {
-    console.error('seed-cache failed', e);
-    return c.json({ error: 'seed failed' }, 500);
+    console.error("seed-cache failed", e);
+    return c.json({ error: "seed failed" }, 500);
   }
 });
 

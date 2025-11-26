@@ -1,32 +1,32 @@
-(function(){
+(function () {
   // Lightweight client-side partial updater.
   // - Polls /v1/api/status/meta around nextGenTs and fetches /v1/api/status/fragment when updated.
   // - Keeps network impact minimal by only fetching meta until it changes.
 
-  const app = document.getElementById('app');
+  const app = document.getElementById("app");
   if (!app) return;
 
   let lastUpdated = Number(app.dataset.lastUpdated || 0);
   const cacheMinutes = Number(app.dataset.cacheMinutes || 1);
   let nextGenTs = Number(app.dataset.nextGenTs || 0) || null;
 
-  const metaUrl = '/v1/api/status/meta';
-  const fragUrl = '/v1/api/status/fragment';
+  const metaUrl = "/v1/api/status/meta";
+  const fragUrl = "/v1/api/status/fragment";
 
   async function checkMeta() {
     try {
-      const res = await fetch(metaUrl, { cache: 'no-store' });
+      const res = await fetch(metaUrl, { cache: "no-store" });
       if (!res.ok) return null;
       return await res.json();
     } catch (e) {
-      console.error('meta fetch failed', e);
+      console.error("meta fetch failed", e);
       return null;
     }
   }
 
   async function fetchFragmentAndReplace(newTs) {
     try {
-      const res = await fetch(fragUrl, { cache: 'no-store' });
+      const res = await fetch(fragUrl, { cache: "no-store" });
       if (!res.ok) return;
       const html = await res.text();
       app.innerHTML = html;
@@ -38,7 +38,7 @@
         startCountdown(Number(meta.nextGenTs));
       }
     } catch (e) {
-      console.error('fragment fetch failed', e);
+      console.error("fragment fetch failed", e);
     }
   }
 
@@ -55,11 +55,11 @@
     nextGenTs = ts;
     if (countdownTimer) clearInterval(countdownTimer);
     function tick() {
-      const el = document.getElementById('next-gen-remaining');
+      const el = document.getElementById("next-gen-remaining");
       if (el) {
         const now = Date.now();
         const diff = Math.max(0, Math.ceil((nextGenTs - now) / 1000));
-        el.textContent = diff + 's';
+        el.textContent = diff + "s";
         if (diff <= 0) {
           clearInterval(countdownTimer);
           // nextGen arrived; check meta and possibly fetch fragment
@@ -102,6 +102,9 @@
   } else {
     // Poll meta rarely (every cacheMinutes*15 seconds) as fallback
     setTimeout(checkMetaAndMaybeFetch, Math.max(15_000, cacheMinutes * 15_000));
-    setInterval(checkMetaAndMaybeFetch, Math.max(30_000, cacheMinutes * 30_000));
+    setInterval(
+      checkMetaAndMaybeFetch,
+      Math.max(30_000, cacheMinutes * 30_000),
+    );
   }
 })();
