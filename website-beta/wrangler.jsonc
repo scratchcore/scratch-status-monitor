@@ -7,8 +7,9 @@
     "directory": "public",
   },
   // "triggers": {
-  //   "crons": ["*/5 * * * *"], // Every 5 minutes
-  // },
+  "triggers": {
+    "crons": ["*/3 * * * *"]
+  },
   "kv_namespaces": [
     {
       "binding": "SCRATCH_STATUS_MONITOR",

@@ -21,6 +21,8 @@ export function RenderPage({
     />,
   );
 
+  // (RenderFragment exported below)
+
   // JSON-safe payload for client-side React and small client script
   const initialState = { monitors, lastUpdated, nextGenTs, cacheMinutes };
   const initialPayload = JSON.stringify(initialState).replaceAll(
@@ -46,49 +48,30 @@ export function RenderPage({
       </script>
     </head>
     <body>
-      <div id="app">${content}</div>
+      <div id="app" data-last-updated="${lastUpdated}" data-next-gen-ts="${nextGenTs ?? ''}" data-cache-minutes="${cacheMinutes}">${content}</div>
       <script>window.__INITIAL_DATA__ = ${initialPayload};</script>
+      <script src="/scripts/partial-update.js" defer></script>
       <script>
-      (function(){
-        const data = window.__INITIAL_DATA__;
-        const el = document.getElementById('next-gen-remaining');
-        if(!el || !data || !data.nextGenTs) return;
-        function update(){
-          const now = Date.now();
-          const diff = Math.max(0, Math.ceil((data.nextGenTs - now) / 1000));
-          el.textContent = diff + 's';
-          if(diff <= 0){
-            clearInterval(timer);
-            try{
-              const url = new URL(window.location.href);
-              if(url.searchParams.get('force') !== '1'){
-                url.searchParams.set('force','1');
-                // navigate to force refresh so server regenerates cached data
-                window.location.href = url.toString();
-              }
-            }catch(e){
-              // fallback
-              window.location.reload();
-            }
-          }
-        }
-        update();
-        const timer = setInterval(update, 1000);
-      })();
-      // If page was loaded with ?force=1, remove the param from the visible URL
-      (function(){
-        try{
-          const url = new URL(window.location.href);
-          if(url.searchParams.get('force') === '1'){
-            url.searchParams.delete('force');
-            const clean = url.pathname + (url.search ? ('?' + url.searchParams.toString()) : '');
-            history.replaceState(null, '', clean);
-          }
-        }catch(e){}
-      })();
+      // No client-side "force" handling — server auto-refreshes in background.
       </script>
     </body>
   </html>`;
 
   return html;
+}
+
+export function RenderFragment({
+  monitors,
+  lastUpdated,
+  nextGenTs,
+  cacheMinutes,
+}: {
+  monitors: any[];
+  lastUpdated: number;
+  nextGenTs?: number | null;
+  cacheMinutes: number;
+}) {
+  return renderToString(
+    <StatusPage monitors={monitors} lastUpdated={lastUpdated} nextGenTs={nextGenTs} cacheMinutes={cacheMinutes} />,
+  );
 }
