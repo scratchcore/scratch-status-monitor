@@ -7,7 +7,10 @@
   if (!app) return;
 
   let lastUpdated = Number(app.dataset.lastUpdated || 0);
-  const cacheMinutes = Number(app.dataset.cacheMinutes || 3);
+  // Prefer server-provided dataset; fall back to SSR initial payload if present.
+  const cacheMinutes = Number(
+    app.dataset.cacheMinutes || (window.__INITIAL_DATA__ && window.__INITIAL_DATA__.cacheMinutes) || (window.__PROJECT_CONFIG__ && window.__PROJECT_CONFIG__.cronIntervalMinutes) || 5,
+  );
   let nextGenTs = Number(app.dataset.nextGenTs || 0) || null;
 
   const metaUrl = "/v1/api/status/meta";
@@ -50,7 +53,7 @@
     if (ts <= now + 500) {
       // small debounce: re-check meta after a short delay to give server time to update cache
       // increase from 1s to reduce tight loops when timings slightly misalign.
-      setTimeout(() => checkMetaAndMaybeFetch(), 5000);
+      setTimeout(() => checkMetaAndMaybeFetch(), 10000);
       return;
     }
     nextGenTs = ts;

@@ -1,11 +1,12 @@
 import { Hono } from "hono";
 import { RenderPage } from "../ssr/render";
 import { getStatusCache } from "~/src/lib/statusCache";
+import { projectConfig } from "~/project.config";
 
 export const RootPage = new Hono();
 
-// Cache duration in minutes
-let cacheMinutes = 3; // Use 3 minutes as the initial/fallback cacheMinutes in root SSR to match final-fallback policy
+// Cache duration in minutes — prefer configured cron interval then fallback to 5
+let cacheMinutes = projectConfig.cronIntervalMinutes;
 
 // Root: server-rendered page using React SSR helper
 RootPage.get("/", async (c) => {
@@ -25,7 +26,10 @@ RootPage.get("/", async (c) => {
   const updatedCache = await getStatusCache(c.env);
   // prefer an explicitly stored nextGenTs first (scheduled handler writes it),
   // then prefer detected cronIntervalMinutes or cacheMinutes for alignment.
-  cacheMinutes = updatedCache.cronIntervalMinutes ?? updatedCache.cacheMinutes ?? cacheMinutes;
+  cacheMinutes =
+    updatedCache.cronIntervalMinutes ??
+    updatedCache.cacheMinutes ??
+    cacheMinutes;
   if (updatedCache.nextGenTs && updatedCache.nextGenTs > updatedCache.ts) {
     nextGenTs = updatedCache.nextGenTs;
   } else if (updatedCache.ts > 0) {

@@ -1,3 +1,5 @@
+import { projectConfig } from "~/project.config";
+
 export type StatusCache = {
   ts: number;
   monitors: any[] | null;
@@ -11,7 +13,7 @@ export type StatusCache = {
 let memoryCache: StatusCache = {
   ts: 0,
   monitors: null,
-  cacheMinutes: 3,
+  cacheMinutes: projectConfig.cronIntervalMinutes,
   nextGenTs: null,
   cronIntervalMinutes: null,
 };
@@ -41,7 +43,7 @@ export async function getStatusCache(env?: any): Promise<StatusCache> {
 export async function setStatusCache(
   monitors: any[] | null,
   ts: number,
-  cacheMinutes = 1,
+  cacheMinutes = projectConfig.cronIntervalMinutes,
   env?: any,
   nextGenTs?: number | null,
   cronIntervalMinutes?: number | null,
@@ -86,7 +88,7 @@ export async function setStatusCache(
 }
 
 export async function clearStatusCache(env?: any) {
-  memoryCache = { ts: 0, monitors: null, cacheMinutes: 3, nextGenTs: null };
+  memoryCache = { ts: 0, monitors: null, cacheMinutes: projectConfig.cronIntervalMinutes, nextGenTs: null };
   if (
     env &&
     env.SCRATCH_STATUS_MONITOR &&

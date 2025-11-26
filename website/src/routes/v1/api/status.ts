@@ -3,6 +3,7 @@ import ky, { isHTTPError, isTimeoutError } from "ky";
 import { MonitorConfig } from "~/motitors";
 import { customBearerAuth } from "~/src/lib/customBearerAuth";
 import { getStatusCache, setStatusCache } from "~/src/lib/statusCache";
+import { projectConfig } from "~/project.config";
 import { RenderFragment } from "~/src/ssr/render";
 
 export const statusRoute = new Hono();
@@ -16,7 +17,7 @@ statusRoute.get("/meta", async (c) => {
   // Avoid relying on cacheMinutes where possible. Prefer an explicitly stored
   // nextGenTs (written by scheduled handler). If not present, prefer a stored
   // cronIntervalMinutes to compute the next timestamp based on the current time.
-  const cacheMinutes = current.cacheMinutes || 3;
+  const cacheMinutes = current.cacheMinutes ?? projectConfig.cronIntervalMinutes;
   let nextGenTs: number | null = null;
   const now = Date.now();
   if (current.nextGenTs && current.nextGenTs > lastUpdated) {
@@ -42,7 +43,7 @@ statusRoute.get("/meta", async (c) => {
   const ifNoneMatch = c.req.header("if-none-match");
 
   // Compute TTL (seconds) for s-maxage from nextGenTs (preferred) or
-  // from cronIntervalMinutes, falling back to cacheMinutes.
+  // from cronIntervalMinutes, falling back to cacheMinutes (which falls back to project config).
   let ttlSeconds = cacheMinutes * 60;
   if (nextGenTs && nextGenTs > now) {
     ttlSeconds = Math.max(1, Math.floor((nextGenTs - now) / 1000));
@@ -87,7 +88,7 @@ statusRoute.get("/fragment", async (c) => {
 
   // Compute TTL from nextGenTs (preferred), from cronIntervalMinutes, else cacheMinutes
   const now2 = Date.now();
-  let ttlSeconds = (cache.cacheMinutes || 3) * 60;
+  let ttlSeconds = (cache.cacheMinutes ?? projectConfig.cronIntervalMinutes) * 60;
   if (nextGenTs && nextGenTs > now2) {
     ttlSeconds = Math.max(1, Math.floor((nextGenTs - now2) / 1000));
   } else if (cache.cronIntervalMinutes && cache.cronIntervalMinutes > 0) {
@@ -108,7 +109,7 @@ statusRoute.get("/fragment", async (c) => {
     monitors: monitors as any[],
     lastUpdated,
     nextGenTs,
-    cacheMinutes: cache.cacheMinutes,
+    cacheMinutes: cache.cacheMinutes ?? projectConfig.cronIntervalMinutes,
   });
   return new Response(html, { status: 200, headers });
 });
@@ -130,8 +131,15 @@ statusRoute.get("/seed-cache", async (c) => {
       nextGenTs = nextMultiple * 60000;
       if (nextGenTs <= now) nextGenTs += step * 60 * 1000;
     }
-    const cacheMinutes = current.cacheMinutes || 3;
-    await setStatusCache(monitors, Date.now(), cacheMinutes, c.env, nextGenTs, current.cronIntervalMinutes ?? null);
+    const cacheMinutes = current.cacheMinutes ?? projectConfig.cronIntervalMinutes;
+    await setStatusCache(
+      monitors,
+      Date.now(),
+      cacheMinutes,
+      c.env,
+      nextGenTs,
+      current.cronIntervalMinutes ?? null,
+    );
     return c.json({ ok: true, lastUpdated: Date.now() });
   } catch (e) {
     console.error("seed-cache failed", e);

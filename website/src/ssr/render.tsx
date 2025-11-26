@@ -1,5 +1,6 @@
 import { renderToString } from "react-dom/server";
 import StatusPage from "./StatusPage";
+import { projectConfig } from "~/project.config";
 
 export function RenderPage({
   monitors,
@@ -24,7 +25,7 @@ export function RenderPage({
   // (RenderFragment exported below)
 
   // JSON-safe payload for client-side React and small client script
-  const initialState = { monitors, lastUpdated, nextGenTs, cacheMinutes };
+  const initialState = { monitors, lastUpdated, nextGenTs, cacheMinutes, projectConfig: { cronIntervalMinutes: projectConfig.cronIntervalMinutes } };
   const initialPayload = JSON.stringify(initialState).replaceAll(
     "</",
     "\\u003c/",
@@ -50,6 +51,7 @@ export function RenderPage({
     <body>
       <div id="app" data-last-updated="${lastUpdated}" data-next-gen-ts="${nextGenTs ?? ""}" data-cache-minutes="${cacheMinutes}">${content}</div>
       <script>window.__INITIAL_DATA__ = ${initialPayload};</script>
+      <script>window.__PROJECT_CONFIG__ = { cronIntervalMinutes: ${projectConfig.cronIntervalMinutes} };</script>
       <script src="/scripts/partial-update.js" defer></script>
       <script>
       // No client-side "force" handling — server auto-refreshes in background.

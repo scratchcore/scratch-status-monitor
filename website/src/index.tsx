@@ -86,10 +86,12 @@ async function scheduled(_controller: any, env?: any, _ctx?: any) {
       "~/src/lib/statusCache"
     );
     const cache = await getStatusCache(env);
-    const cacheMinutes = cache.cacheMinutes || 3;
+    // Prefer an explicit cache setting saved in KV, otherwise use the project's
+    // configured cron interval as the default fallback.
+    const cacheMinutes = cache.cacheMinutes ?? projectConfig.cronIntervalMinutes;
     // Determine cron interval minutes once: prefer previously detected value,
-    // otherwise estimate from the previous cache timestamp if available.
-    let cronIntervalMinutes: number | null = cache.cronIntervalMinutes ?? null;
+    // otherwise prefer configured project cron interval, then try to estimate.
+    let cronIntervalMinutes: number | null = cache.cronIntervalMinutes ?? projectConfig.cronIntervalMinutes ?? null;
     if (!cronIntervalMinutes && cache.ts && cache.ts > 0) {
       const estimated = Math.max(1, Math.round((Date.now() - cache.ts) / 60000));
       // Accept estimation only if reasonable (<= 60 minutes)
@@ -104,14 +106,22 @@ async function scheduled(_controller: any, env?: any, _ctx?: any) {
     const stepMinutes = cronIntervalMinutes ?? cacheMinutes;
     if (stepMinutes && stepMinutes > 0) {
       const minuteIndex = Math.floor(now / 60000);
-      const nextMultiple = Math.floor(minuteIndex / stepMinutes) * stepMinutes + stepMinutes;
+      const nextMultiple =
+        Math.floor(minuteIndex / stepMinutes) * stepMinutes + stepMinutes;
       nextGenTs = nextMultiple * 60000;
       if (nextGenTs <= now) nextGenTs += stepMinutes * 60 * 1000;
     }
 
     // Pass both nextGenTs and cronIntervalMinutes so KV stores exact timestamp
     // and the detected interval for future alignment.
-    await setStatusCache(monitors, Date.now(), cacheMinutes, env, nextGenTs, cronIntervalMinutes);
+    await setStatusCache(
+      monitors,
+      Date.now(),
+      cacheMinutes,
+      env,
+      nextGenTs,
+      cronIntervalMinutes,
+    );
     console.log("scheduled: refreshed status cache");
   } catch (e) {
     console.error("scheduled handler failed", e);
