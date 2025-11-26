@@ -78,13 +78,13 @@ app.onError((err, c) => {
 
 app.route("/", MainRoutes);
 
-export default app;
-
 // Cloudflare Cron Triggers scheduled handler
-export async function scheduled(_controller: any, env?: any, _ctx?: any) {
+async function scheduled(_controller: any, env?: any, _ctx?: any) {
   try {
     const { checkStatus } = await import("~/src/routes/v1/api/status");
-    const { getStatusCache, setStatusCache } = await import("~/src/lib/statusCache");
+    const { getStatusCache, setStatusCache } = await import(
+      "~/src/lib/statusCache"
+    );
     const cache = await getStatusCache(env);
     const cacheMinutes = cache.cacheMinutes || 1;
     const monitors = await checkStatus();
@@ -94,3 +94,8 @@ export async function scheduled(_controller: any, env?: any, _ctx?: any) {
     console.error("scheduled handler failed", e);
   }
 }
+
+export default {
+  fetch: app.fetch,
+  scheduled,
+};

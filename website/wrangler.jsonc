@@ -4,7 +4,7 @@
   "compatibility_date": "2025-08-03",
   "main": "./src/index.tsx",
   "assets": {
-    "directory": "public",
+    "directory": "public"
   },
   // "triggers": {
   //   "crons": ["*/5 * * * *"], // Every 5 minutes
@@ -12,15 +12,20 @@
   "kv_namespaces": [
     {
       "binding": "SCRATCH_STATUS_MONITOR",
-      "id": "ad22b2fa63544c838e94dfe4d27634e8",
-    },
+      "id": "ad22b2fa63544c838e94dfe4d27634e8"
+    }
   ],
   "observability": {
     "logs": {
-      "enabled": false,
+      "enabled": true,
       "head_sampling_rate": 1,
       "invocation_logs": true,
-      "persist": true,
+      "persist": true
     },
-  },
+    "traces": {
+      "enabled": false,
+      "persist": true,
+      "head_sampling_rate": 1
+    }
+  }
 }

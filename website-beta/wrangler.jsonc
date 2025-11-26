@@ -8,7 +8,7 @@
   },
   // "triggers": {
   "triggers": {
-    "crons": ["*/3 * * * *"]
+    "crons": ["*/3 * * * *"],
   },
   "kv_namespaces": [
     {
@@ -18,10 +18,15 @@
   ],
   "observability": {
     "logs": {
-      "enabled": false,
+      "enabled": true,
       "head_sampling_rate": 1,
       "invocation_logs": true,
       "persist": true,
+    },
+    "traces": {
+      "enabled": false,
+      "persist": true,
+      "head_sampling_rate": 1,
     },
   },
 }
