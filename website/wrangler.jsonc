@@ -1,0 +1,18 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "website",
+  "compatibility_date": "2025-08-03",
+  "main": "./src/index.tsx",
+  "assets": {
+    "directory": "public"
+  },
+  "triggers": {
+    "crons": ["*/5 * * * *"] // Every 5 minutes
+  },
+  "kv_namespaces": [
+    {
+      "binding": "SCRATCH_STATUS_MONITOR",
+      "id": "ad22b2fa63544c838e94dfe4d27634e8"
+    }
+  ]
+}

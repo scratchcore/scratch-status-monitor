@@ -5,3 +5,4 @@
 | 項目 | URL |
 |------|-----|
 | Hono | .github\instructions\hono.instructions.md |
+| Website | .github\instructions\website.instructions.md |
