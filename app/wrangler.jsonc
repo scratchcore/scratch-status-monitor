@@ -1,0 +1,44 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "app",
+  "main": "src/index.tsx",
+  "compatibility_date": "2025-11-12",
+  "assets": {
+    "directory": "public"
+  },
+  //   "nodejs_compat"
+  // ],
+  // "vars": {
+  //   "MY_VAR": "my-variable"
+  // },
+  // Add a KV namespace binding example. Replace the id with your namespace id.
+  "triggers": {
+    "crons": ["*/5 * * * *"] // Every 5 minutes
+  },
+  "kv_namespaces": [
+    {
+      "binding": "SCRATCH_STATUS_MONITOR",
+      "id": "ad22b2fa63544c838e94dfe4d27634e8"
+    }
+  ]
+  // "r2_buckets": [
+  //   {
+  //     "binding": "MY_BUCKET",
+  //     "bucket_name": "my-bucket"
+  //   }
+  // ],
+  // "d1_databases": [
+  //   {
+  //     "binding": "MY_DB",
+  //     "database_name": "my-database",
+  //     "database_id": ""
+  //   }
+  // ],
+  // "ai": {
+  //   "binding": "AI"
+  // },
+  // "observability": {
+  //   "enabled": true,
+  //   "head_sampling_rate": 1
+  // }
+}
