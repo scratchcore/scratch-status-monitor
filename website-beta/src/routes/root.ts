@@ -5,7 +5,7 @@ import { getStatusCache } from "~/src/lib/statusCache";
 export const RootPage = new Hono();
 
 // Cache duration in minutes
-let cacheMinutes = 3;
+let cacheMinutes = 3; // Use 3 minutes as the initial/fallback cacheMinutes in root SSR to match final-fallback policy
 
 // Root: server-rendered page using React SSR helper
 RootPage.get("/", async (c) => {
@@ -23,7 +23,12 @@ RootPage.get("/", async (c) => {
 
   // next generation timestamp = last cached timestamp + TTL (in ms)
   const updatedCache = await getStatusCache(c.env);
-  if (updatedCache.ts > 0) {
+  // prefer an explicitly stored nextGenTs first (scheduled handler writes it),
+  // then prefer detected cronIntervalMinutes or cacheMinutes for alignment.
+  cacheMinutes = updatedCache.cronIntervalMinutes ?? updatedCache.cacheMinutes ?? cacheMinutes;
+  if (updatedCache.nextGenTs && updatedCache.nextGenTs > updatedCache.ts) {
+    nextGenTs = updatedCache.nextGenTs;
+  } else if (updatedCache.ts > 0) {
     // Align nextGenTs to the next minute boundary that is a multiple of cacheMinutes.
     // Example: cacheMinutes=1 -> next minute (12:01:00). cacheMinutes=2 -> next even 2-minute boundary (12:02:00, 12:04:00, ...).
     const minuteIndex = Math.floor(updatedCache.ts / 60000); // minutes since epoch

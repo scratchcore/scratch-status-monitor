@@ -3,14 +3,17 @@ export type StatusCache = {
   monitors: any[] | null;
   cacheMinutes: number;
   nextGenTs?: number | null;
+  // Detected Cloudflare Cron trigger interval in minutes (saved once when detected)
+  cronIntervalMinutes?: number | null;
 };
 
 // In-memory fallback cache for local dev
 let memoryCache: StatusCache = {
   ts: 0,
   monitors: null,
-  cacheMinutes: 1,
+  cacheMinutes: 3,
   nextGenTs: null,
+  cronIntervalMinutes: null,
 };
 
 const KV_KEY = "status:cache";
@@ -41,18 +44,22 @@ export async function setStatusCache(
   cacheMinutes = 1,
   env?: any,
   nextGenTs?: number | null,
+  cronIntervalMinutes?: number | null,
 ) {
   // Compute nextGenTs if not provided
   let computedNextGenTs: number | null = nextGenTs ?? null;
   if (computedNextGenTs == null) {
+    // Choose interval for alignment: prefer detected cron interval when available,
+    // otherwise fall back to provided cacheMinutes.
+    const stepMinutes = cronIntervalMinutes ?? cacheMinutes;
     const minuteIndex = Math.floor(ts / 60000);
     const nextMultiple =
-      Math.floor(minuteIndex / cacheMinutes) * cacheMinutes + cacheMinutes;
+      Math.floor(minuteIndex / stepMinutes) * stepMinutes + stepMinutes;
     computedNextGenTs = nextMultiple * 60000;
-    if (computedNextGenTs <= ts) computedNextGenTs += cacheMinutes * 60 * 1000;
+    if (computedNextGenTs <= ts) computedNextGenTs += stepMinutes * 60 * 1000;
     // ensure it's in the future relative to now
     const now = Date.now();
-    const step = cacheMinutes * 60 * 1000;
+    const step = stepMinutes * 60 * 1000;
     while (computedNextGenTs <= now) computedNextGenTs += step;
   }
 
@@ -61,6 +68,7 @@ export async function setStatusCache(
     monitors,
     cacheMinutes,
     nextGenTs: computedNextGenTs,
+    cronIntervalMinutes: cronIntervalMinutes ?? null,
   };
   if (
     env &&
@@ -78,7 +86,7 @@ export async function setStatusCache(
 }
 
 export async function clearStatusCache(env?: any) {
-  memoryCache = { ts: 0, monitors: null, cacheMinutes: 1, nextGenTs: null };
+  memoryCache = { ts: 0, monitors: null, cacheMinutes: 3, nextGenTs: null };
   if (
     env &&
     env.SCRATCH_STATUS_MONITOR &&
