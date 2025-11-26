@@ -1,7 +1,6 @@
 import { Hono } from "hono";
 import { RenderPage } from "../ssr/render";
 import { checkStatus } from "./v1/api/status";
-import { createBadRequestError } from "../schemas/BadRequestError";
 
 export const RootPage = new Hono();
 

@@ -36,7 +36,7 @@ export const UnprocessableEntity = z
             .string()
             .optional()
             .meta({ description: "パラメータの位置", example: "body" }),
-        })
+        }),
       )
       .optional()
       .meta({ description: "不正なパラメータの詳細リスト" }),
@@ -64,7 +64,7 @@ export const UnprocessableEntity = z
 export type UnprocessableEntityType = z.infer<typeof UnprocessableEntity>;
 
 export function createUnprocessableEntityError(
-  data?: Partial<UnprocessableEntityType>
+  data?: Partial<UnprocessableEntityType>,
 ) {
   return {
     type: "https://datatracker.ietf.org/doc/rfc9457",

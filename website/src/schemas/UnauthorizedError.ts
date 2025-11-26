@@ -38,7 +38,7 @@ export const UnauthorizedError = z
             .string()
             .optional()
             .meta({ description: "パラメータの位置", example: "body" }),
-        })
+        }),
       )
       .optional()
       .meta({ description: "不正なパラメータの詳細リスト" }),

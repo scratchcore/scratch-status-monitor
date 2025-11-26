@@ -18,14 +18,14 @@ export function RenderPage({
       lastUpdated={lastUpdated}
       nextGenTs={nextGenTs}
       cacheMinutes={cacheMinutes}
-    />
+    />,
   );
 
   // JSON-safe payload for client-side React and small client script
   const initialState = { monitors, lastUpdated, nextGenTs, cacheMinutes };
   const initialPayload = JSON.stringify(initialState).replaceAll(
     "</",
-    "\\u003c/"
+    "\\u003c/",
   );
 
   const html = `<!doctype html>
@@ -34,7 +34,7 @@ export function RenderPage({
       <meta charset="utf-8" />
       <meta name="viewport" content="width=device-width,initial-scale=1.0" />
       <title>Scratch Status Monitor</title>
-      <link href="/src/styles/tailwind.css" rel="stylesheet">
+      <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"/>
       <!-- Google tag (gtag.js) -->
       <script async src="https://www.googletagmanager.com/gtag/js?id=G-Y1LF8EML76"></script>
       <script>

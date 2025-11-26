@@ -38,7 +38,7 @@ export default function StatusPage({
                 {monitors
                   .filter((r: any) => r.category === c.id)
                   .map((r: any) => {
-                    const info = r.timeout ? "timeout" : r.error?.type ?? "";
+                    const info = r.timeout ? "timeout" : (r.error?.type ?? "");
                     const errMsg = r.error?.message
                       ? ` — ${r.error.message}`
                       : "";
@@ -46,8 +46,8 @@ export default function StatusPage({
                     const color = r.ok
                       ? "online"
                       : r.timeout
-                      ? "degraded"
-                      : "offline";
+                        ? "degraded"
+                        : "offline";
                     return (
                       <div
                         key={r.id}

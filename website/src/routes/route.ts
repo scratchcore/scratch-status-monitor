@@ -9,4 +9,3 @@ MainRoutes.route("/", RootPage);
 
 // Mount API routes under /v1
 MainRoutes.route("/v1", v1Routes);
-

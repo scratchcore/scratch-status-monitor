@@ -2,6 +2,6 @@
 
 ## 環境変数
 
-~~~env
+```env
 SECRET_TOKEN="YOUR_TOKEN"
-~~~
+```
