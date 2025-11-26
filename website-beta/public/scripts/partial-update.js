@@ -48,8 +48,9 @@
     // if ts is not in the future, avoid immediate tight loop by deferring a meta check
     const now = Date.now();
     if (ts <= now + 500) {
-      // small debounce: re-check meta in 1s to give server time to update cache
-      setTimeout(() => checkMetaAndMaybeFetch(), 1000);
+      // small debounce: re-check meta after a short delay to give server time to update cache
+      // increase from 1s to reduce tight loops when timings slightly misalign.
+      setTimeout(() => checkMetaAndMaybeFetch(), 5000);
       return;
     }
     nextGenTs = ts;
@@ -70,8 +71,8 @@
               // no change yet, continue countdown to the new nextGenTs
               startCountdown(Number(m.nextGenTs));
             } else {
-              // fallback: poll after some delay
-              setTimeout(() => checkMetaAndMaybeFetch(), 5_000);
+              // fallback: poll after a longer delay to reduce meta traffic
+              setTimeout(() => checkMetaAndMaybeFetch(), 15_000);
             }
           });
         }
@@ -100,11 +101,12 @@
   if (nextGenTs) {
     startCountdown(nextGenTs);
   } else {
-    // Poll meta rarely (every cacheMinutes*15 seconds) as fallback
-    setTimeout(checkMetaAndMaybeFetch, Math.max(15_000, cacheMinutes * 15_000));
+    // Poll meta infrequently as fallback. Increase base intervals to reduce requests.
+    // Initial delay: max(30s, cacheMinutes*30s). Regular interval: max(60s, cacheMinutes*60s).
+    setTimeout(checkMetaAndMaybeFetch, Math.max(30_000, cacheMinutes * 30_000));
     setInterval(
       checkMetaAndMaybeFetch,
-      Math.max(30_000, cacheMinutes * 30_000),
+      Math.max(60_000, cacheMinutes * 60_000),
     );
   }
 })();
