@@ -1,13 +1,12 @@
+import type { StatusCheckResult } from "../schemas/status";
 import {
   CategoryStatus,
   MonitorStatus,
-  StatusLevel,
-  StatusResponse,
   type MonitorStatus as MonitorStatusType,
   type StatusLevel as StatusLevelType,
+  StatusResponse,
 } from "../schemas/status";
 import type { MonitorConfigType } from "../types/monitorrc.type";
-import type { StatusCheckResult } from "../schemas/status";
 
 /**
  * 複数のステータスから全体の状態を判定
@@ -30,7 +29,7 @@ function aggregateStatus(statuses: StatusLevelType[]): StatusLevelType {
  */
 export function buildMonitorStatus(
   config: MonitorConfigType.Item,
-  checkResult: StatusCheckResult
+  checkResult: StatusCheckResult,
 ): MonitorStatusType {
   return MonitorStatus.parse({
     id: config.id,
@@ -50,14 +49,12 @@ export function buildMonitorStatus(
  */
 export function calculateCategoryStatus(
   category: MonitorConfigType.Category,
-  monitors: MonitorStatusType[]
+  monitors: MonitorStatusType[],
 ): CategoryStatus {
   const categoryMonitors = monitors.filter((m) => m.category === category.id);
 
   const upCount = categoryMonitors.filter((m) => m.status === "up").length;
-  const degradedCount = categoryMonitors.filter(
-    (m) => m.status === "degraded"
-  ).length;
+  const degradedCount = categoryMonitors.filter((m) => m.status === "degraded").length;
   const downCount = categoryMonitors.filter((m) => m.status === "down").length;
 
   const statuses = categoryMonitors.map((m) => m.status);
@@ -79,15 +76,11 @@ export function calculateCategoryStatus(
  */
 export function buildStatusResponse(
   config: MonitorConfigType.Root,
-  monitors: MonitorStatusType[]
+  monitors: MonitorStatusType[],
 ): StatusResponse {
-  const categories = config.category.map((cat) =>
-    calculateCategoryStatus(cat, monitors)
-  );
+  const categories = config.category.map((cat) => calculateCategoryStatus(cat, monitors));
 
-  const overallStatus = aggregateStatus(
-    categories.map((c) => c.status)
-  );
+  const overallStatus = aggregateStatus(categories.map((c) => c.status));
 
   return StatusResponse.parse({
     overallStatus,

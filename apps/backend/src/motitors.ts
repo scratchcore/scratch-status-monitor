@@ -1,4 +1,4 @@
-import { MonitorConfigType } from "./types/monitorrc.type";
+import type { MonitorConfigType } from "./types/monitorrc.type";
 
 export const MonitorConfig: MonitorConfigType.Root = {
   category: [
@@ -59,4 +59,10 @@ export const MonitorConfig: MonitorConfigType.Root = {
       url: "https://clouddata.scratch.mit.edu/logs?projectid=60917032&limit=40&offset=0",
     },
   ],
+  // 履歴設定
+  history: {
+    retentionDays: 30, // 30日間のデータを保持
+    maxRecords: 100, // 最大100レコード
+    autoCleanup: true, // 自動クリーンアップを有効
+  },
 };

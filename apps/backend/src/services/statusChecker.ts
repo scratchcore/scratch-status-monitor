@@ -1,8 +1,4 @@
-import {
-  StatusCheckResult,
-  StatusLevel,
-  type StatusLevel as StatusLevelType,
-} from "../schemas/status";
+import { StatusCheckResult, type StatusLevel as StatusLevelType } from "../schemas/status";
 
 interface CheckOptions {
   timeout?: number;
@@ -33,7 +29,7 @@ function determineStatusFromCode(statusCode: number): StatusLevelType {
 export async function checkMonitorStatus(
   id: string,
   url: string,
-  options: CheckOptions = {}
+  options: CheckOptions = {},
 ): Promise<StatusCheckResult> {
   const timeout = options.timeout || 10000; // デフォルト10秒
   const startTime = Date.now();
@@ -61,14 +57,10 @@ export async function checkMonitorStatus(
     });
   } catch (error) {
     const responseTime = Date.now() - startTime;
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error";
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
 
     // タイムアウトの場合
-    if (
-      error instanceof Error &&
-      error.name === "AbortError"
-    ) {
+    if (error instanceof Error && error.name === "AbortError") {
       return StatusCheckResult.parse({
         id,
         status: "down" as const,
@@ -93,11 +85,9 @@ export async function checkMonitorStatus(
  */
 export async function checkMultipleMonitors(
   monitors: Array<{ id: string; url: string }>,
-  options: CheckOptions = {}
+  options: CheckOptions = {},
 ): Promise<StatusCheckResult[]> {
-  const promises = monitors.map((monitor) =>
-    checkMonitorStatus(monitor.id, monitor.url, options)
-  );
+  const promises = monitors.map((monitor) => checkMonitorStatus(monitor.id, monitor.url, options));
 
   return Promise.all(promises);
 }

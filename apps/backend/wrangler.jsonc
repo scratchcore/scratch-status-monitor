@@ -6,18 +6,39 @@
   "triggers": {
     "crons": ["*/5 * * * *"]
   },
+  "kv_namespaces": [
+    {
+      "binding": "STATUS_KV",
+      "id": "status-monitor-kv",
+      "preview_id": "status-monitor-kv-preview"
+    }
+  ],
   // "compatibility_flags": [
   //   "nodejs_compat"
   // ],
   // "vars": {
   //   "MY_VAR": "my-variable"
   // },
-  // "kv_namespaces": [
+  // "r2_buckets": [
   //   {
-  //     "binding": "MY_KV_NAMESPACE",
-  //     "id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  //     "binding": "MY_BUCKET",
+  //     "bucket_name": "my-bucket"
   //   }
   // ],
+  // "d1_databases": [
+  //   {
+  //     "binding": "MY_DB",
+  //     "database_name": "my-database",
+  //     "database_id": ""
+  //   }
+  // ],
+  // "ai": {
+  //   "binding": "AI"
+  // },
+  // "observability": {
+  //   "enabled": true,
+  //   "head_sampling_rate": 1
+  // }
   // "r2_buckets": [
   //   {
   //     "binding": "MY_BUCKET",

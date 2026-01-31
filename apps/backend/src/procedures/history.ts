@@ -1,0 +1,148 @@
+import { z } from "zod";
+import { APIError } from "../middleware/errorHandler";
+import type {
+  HistoryResponse as HistoryResponseType,
+  HistoryStats as HistoryStatsType,
+} from "../schemas/history";
+import { calculateHistoryStats, getHistoryService } from "../services/historyService";
+import { getStatus } from "../services/monitorService";
+import { UUIDSchema } from "../utils/validators";
+
+/**
+ * 特定のモニターの履歴を取得
+ */
+export async function getMonitorHistoryHandler(input: {
+  monitorId: string;
+  limit?: number;
+}): Promise<HistoryResponseType> {
+  // 入力バリデーション
+  const validated = z
+    .object({
+      monitorId: UUIDSchema,
+      limit: z.number().int().min(1).max(1000).default(100).optional(),
+    })
+    .parse(input);
+
+  try {
+    const { monitorId, limit = 100 } = validated;
+
+    const historyService = getHistoryService();
+    const records = await historyService.getRecords(monitorId, limit);
+
+    // モニター情報を取得
+    const status = await getStatus();
+    const monitor = status.monitors.find((m) => m.id === monitorId);
+
+    if (!monitor) {
+      throw new APIError("NOT_FOUND", `モニター ${monitorId} が見つかりません`);
+    }
+
+    const response: HistoryResponseType = {
+      monitorId,
+      label: monitor.label,
+      records,
+      totalRecords: records.length,
+      oldestRecord: records.length > 0 ? records[0].recordedAt : undefined,
+      newestRecord: records.length > 0 ? records[records.length - 1].recordedAt : undefined,
+    };
+
+    return response;
+  } catch (error) {
+    if (error instanceof APIError) {
+      throw error;
+    }
+    console.error("Error getting monitor history:", error);
+    throw new APIError("INTERNAL_ERROR", "履歴取得に失敗しました");
+  }
+}
+
+/**
+ * 複数のモニターの履歴を一括取得
+ */
+export async function getAllMonitorsHistoryHandler(input: {
+  limit?: number;
+}): Promise<HistoryResponseType[]> {
+  // 入力バリデーション
+  const validated = z
+    .object({
+      limit: z.number().int().min(1).max(1000).default(100).optional(),
+    })
+    .parse(input);
+
+  try {
+    const { limit = 100 } = validated;
+    const status = await getStatus();
+
+    const historyService = getHistoryService();
+    const results = await Promise.all(
+      status.monitors.map(async (monitor) => {
+        const records = await historyService.getRecords(monitor.id, limit);
+        const response: HistoryResponseType = {
+          monitorId: monitor.id,
+          label: monitor.label,
+          records,
+          totalRecords: records.length,
+          oldestRecord: records.length > 0 ? records[0].recordedAt : undefined,
+          newestRecord: records.length > 0 ? records[records.length - 1].recordedAt : undefined,
+        };
+        return response;
+      }),
+    );
+
+    return results;
+  } catch (error) {
+    if (error instanceof APIError) {
+      throw error;
+    }
+    console.error("Error getting all histories:", error);
+    throw new APIError("INTERNAL_ERROR", "複数履歴取得に失敗しました");
+  }
+}
+
+/**
+ * 特定のモニターの統計情報を取得
+ */
+export async function getMonitorStatsHandler(input: {
+  monitorId: string;
+  limit?: number;
+}): Promise<HistoryStatsType> {
+  // 入力バリデーション
+  const validated = z
+    .object({
+      monitorId: UUIDSchema,
+      limit: z.number().int().min(1).max(1000).default(100).optional(),
+    })
+    .parse(input);
+
+  try {
+    const { monitorId, limit = 100 } = validated;
+
+    const historyService = getHistoryService();
+    const records = await historyService.getRecords(monitorId, limit);
+
+    return calculateHistoryStats(monitorId, records);
+  } catch (error) {
+    if (error instanceof APIError) {
+      throw error;
+    }
+    console.error("Error getting monitor stats:", error);
+    throw new APIError("INTERNAL_ERROR", "統計情報取得に失敗しました");
+  }
+}
+
+/**
+ * 履歴をクリア（管理者用）
+ */
+export async function clearMonitorHistoryHandler(input: {
+  monitorId: string;
+}): Promise<{ success: boolean; message: string }> {
+  const { monitorId } = input;
+
+  const historyService = getHistoryService();
+  await historyService.deleteRecords(monitorId);
+
+  return {
+    success: true,
+    message: `History for monitor ${monitorId} has been cleared`,
+  };
+}

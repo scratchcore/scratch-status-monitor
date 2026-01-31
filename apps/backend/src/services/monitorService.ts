@@ -1,8 +1,9 @@
 import { MonitorConfig } from "../motitors";
-import { buildMonitorStatus, buildStatusResponse } from "./statusService";
-import { checkMultipleMonitors } from "./statusChecker";
-import { getCacheService } from "./cacheService";
 import type { StatusResponse } from "../schemas/status";
+import { getCacheService } from "./cacheService";
+import { getHistoryService } from "./historyService";
+import { checkMultipleMonitors } from "./statusChecker";
+import { buildMonitorStatus, buildStatusResponse } from "./statusService";
 
 /**
  * 全てのモニターをチェックして、ステータスを更新
@@ -20,10 +21,12 @@ export async function checkAllMonitors(): Promise<StatusResponse> {
   });
 
   // チェック結果からモニターステータスを構築
-  const monitors = checkResults.map((result) => {
-    const config = MonitorConfig.items.find((item) => item.id === result.id)!;
-    return buildMonitorStatus(config, result);
-  });
+  const monitors = checkResults
+    .map((result) => {
+      const config = MonitorConfig.items.find((item) => item.id === result.id);
+      return config ? buildMonitorStatus(config, result) : null;
+    })
+    .filter((m) => m !== null);
 
   // ステータスレスポンスを構築
   const statusResponse = buildStatusResponse(MonitorConfig, monitors);
@@ -31,6 +34,12 @@ export async function checkAllMonitors(): Promise<StatusResponse> {
   // キャッシュに保存
   const cacheService = getCacheService();
   await cacheService.set(statusResponse);
+
+  // 履歴に保存
+  const historyService = getHistoryService();
+  for (const result of checkResults) {
+    await historyService.saveRecord(result.id, result);
+  }
 
   return statusResponse;
 }

@@ -17,7 +17,7 @@ export const MonitorStatus = z.object({
   id: z.uuid(),
   label: z.string(),
   category: z.string(),
-  url: z.string().url(),
+  url: z.url(),
   status: StatusLevel,
   statusCode: z.number().int().optional(),
   responseTime: z.number().int().min(0).optional(),

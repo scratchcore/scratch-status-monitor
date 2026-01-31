@@ -1,8 +1,11 @@
 import { Hono } from "hono";
+import { showRoutes } from "hono/dev";
+import { errorHandler } from "./middleware/errorHandler";
 import mainMiddleware from "./middleware/main";
 import { createOpenAPIRoutes } from "./openapi-routes";
-import { showRoutes } from "hono/dev";
+import { createApiRouter } from "./routes/api";
 import { checkAllMonitors } from "./services/monitorService";
+import { generateOpenAPISchema } from "./utils/openapi";
 
 /**
  * Cloudflare Workers ScheduledEvent 型
@@ -13,11 +16,25 @@ interface ScheduledEvent {
 }
 
 const app = new Hono();
+app.use("*", errorHandler());
 app.route("*", mainMiddleware);
+
+// API ルータを先に作成してメタデータを登録
+// (OpenAPI スキーマ生成の前に実行される必要があります)
+const apiRouter = createApiRouter();
+app.route("", apiRouter);
 
 // OpenAPI ルートを統合
 const openAPIApp = await createOpenAPIRoutes();
 app.route("", openAPIApp);
+
+/**
+ * OpenAPI スキーマを提供
+ * エンドポイント登録後に生成されます
+ */
+app.get("/openapi.json", (c) => {
+  return c.json(generateOpenAPISchema());
+});
 
 app.get("/", (c) => {
   return c.json({
@@ -33,7 +50,7 @@ app.get("/", (c) => {
  */
 app.post("/test/trigger-monitor-check", async (c) => {
   const query = c.req.query("row");
-  const rowMode = query === "" || query === "true" ? true : false;
+  const rowMode = !!(query === "" || query === "true");
   try {
     console.log("Manual trigger: Starting monitor check...");
     const result = await checkAllMonitors();
@@ -72,7 +89,7 @@ showRoutes(app, {
  * Cron Trigger ハンドラー
  * 5分ごとに全モニターをチェック
  */
-async function handleCron(event: ScheduledEvent): Promise<void> {
+async function handleCron(_event: ScheduledEvent): Promise<void> {
   try {
     console.log("Starting scheduled monitor check...");
     const result = await checkAllMonitors();
