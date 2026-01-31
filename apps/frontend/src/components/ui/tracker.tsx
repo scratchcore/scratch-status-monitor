@@ -1,6 +1,6 @@
 // Tremor Tracker [v1.0.0]
 
-import React from "react";
+import React, { forwardRef } from "react";
 import * as HoverCardPrimitives from "@radix-ui/react-hover-card";
 
 import { cx } from "@/lib/utils";
@@ -63,13 +63,15 @@ const Block = ({
 
 Block.displayName = "Block";
 
-interface TrackerProps extends React.HTMLAttributes<HTMLDivElement> {
-  data: TrackerBlockProps[];
+export interface TrackerProps<
+  T = TrackerBlockProps,
+> extends React.HTMLAttributes<HTMLDivElement> {
+  data: T[];
   defaultBackgroundColor?: string;
   hoverEffect?: boolean;
 }
 
-const Tracker = React.forwardRef<HTMLDivElement, TrackerProps>(
+const Tracker = forwardRef<HTMLDivElement, TrackerProps>(
   (
     {
       data = [],
@@ -98,7 +100,5 @@ const Tracker = React.forwardRef<HTMLDivElement, TrackerProps>(
     );
   },
 );
-
-Tracker.displayName = "Tracker";
 
 export { Tracker, type TrackerBlockProps };
