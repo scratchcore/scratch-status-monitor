@@ -7,8 +7,12 @@
       "cwd": "."
     },
     {
-      "name": "website",
-      "cwd": "./website"
+      "name": "backend",
+      "cwd": "./apps/backend"
+    },
+    {
+      "name": "frontend",
+      "cwd": "./apps/frontend"
     }
   ]
 }
