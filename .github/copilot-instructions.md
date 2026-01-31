@@ -20,4 +20,4 @@
 | apps          | アプリケーション |
 | apps/backend  | バックエンド     |
 | apps/frontend | フロントエンド   |
-| website       | 移行前のコード   |
+| archive       | 移行前のコード   |
