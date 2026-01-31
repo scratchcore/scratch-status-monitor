@@ -7,11 +7,19 @@
       "cwd": "."
     },
     {
-      "name": "backend",
+      "name": "Backend > root",
       "cwd": "./apps/backend"
     },
     {
-      "name": "frontend",
+      "name": "Backend > server",
+      "cwd": "./apps/backend"
+    },
+    {
+      "name": "Frontend > root",
+      "cwd": "./apps/frontend"
+    },
+    {
+      "name": "Frontend > server",
       "cwd": "./apps/frontend"
     }
   ]
