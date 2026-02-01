@@ -1,0 +1,28 @@
+import type { SerializedInfer } from "@scratchcore/scracsm-types";
+import {
+  StatusResponse as StatusResponseSchema,
+  HistoryResponse as HistoryResponseSchema,
+} from "@scratchcore/scracsm-types";
+
+// シリアライズされた型（Date -> string）
+export type StatusResponse = SerializedInfer<typeof StatusResponseSchema> & {
+  expiresAt: string;
+};
+export type HistoryResponse = SerializedInfer<typeof HistoryResponseSchema>;
+
+export type StatusApiEnvelope = {
+  success: boolean;
+  data: StatusResponse;
+  message?: string;
+};
+
+export type HistoryApiEnvelope = {
+  success: boolean;
+  data: HistoryResponse[];
+  message?: string;
+};
+
+export type StatusPageLoaderData = {
+  status: StatusResponse;
+  histories: HistoryResponse[];
+};

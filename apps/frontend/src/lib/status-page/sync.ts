@@ -1,0 +1,61 @@
+import { CACHE_KEY, STATUS_PAGE_QUERY_KEY } from "./config";
+import { StatusPageLoaderData } from "./types";
+
+// クライアントサイドの BroadcastChannel（複数タブ間で同期）
+let broadcastChannel: BroadcastChannel | null = null;
+
+/**
+ * BroadcastChannel を初期化して複数タブ間でキャッシュを同期
+ */
+export const initializeBroadcastChannel = (queryClient: any): void => {
+  if (typeof window === "undefined" || broadcastChannel) {
+    return;
+  }
+
+  try {
+    broadcastChannel = new BroadcastChannel(CACHE_KEY);
+
+    broadcastChannel.onmessage = (event) => {
+      if (event.data.type === "cache-updated") {
+        // 他のタブがキャッシュを更新したので、このタブも更新
+        queryClient.setQueryData(STATUS_PAGE_QUERY_KEY, event.data.payload);
+      }
+    };
+  } catch (e) {
+    // BroadcastChannel が使用不可の環境では何もしない
+    console.warn("BroadcastChannel not available");
+  }
+};
+
+/**
+ * BroadcastChannel を閉じる
+ */
+export const closeBroadcastChannel = (): void => {
+  if (broadcastChannel) {
+    broadcastChannel.close();
+    broadcastChannel = null;
+  }
+};
+
+/**
+ * 新しいデータを取得して、他のタブに通知
+ */
+export const refetchAndBroadcast = async (
+  fetchFn: () => Promise<StatusPageLoaderData>,
+  queryClient: any,
+): Promise<StatusPageLoaderData> => {
+  const newData = await fetchFn();
+
+  // クライアント側のキャッシュも更新
+  queryClient.setQueryData(STATUS_PAGE_QUERY_KEY, newData);
+
+  // 他のタブに通知
+  if (broadcastChannel) {
+    broadcastChannel.postMessage({
+      type: "cache-updated",
+      payload: newData,
+    });
+  }
+
+  return newData;
+};

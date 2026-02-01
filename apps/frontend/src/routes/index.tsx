@@ -2,175 +2,21 @@ import StatusPageContent from "@/components/common/status/content";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { createServerFn } from "@tanstack/react-start";
-import type { SerializedInfer } from "@scratchcore/scracsm-types";
-import {
-  StatusResponse as StatusResponseSchema,
-  HistoryResponse as HistoryResponseSchema,
-} from "@scratchcore/scracsm-types";
 import { scracsmrc } from "@scratchcore/scracsm-configs";
 
-// シリアライズされた型（API レスポンス用）
-type StatusResponse = SerializedInfer<typeof StatusResponseSchema> & {
-  expiresAt: string;
-};
-type HistoryResponse = SerializedInfer<typeof HistoryResponseSchema>;
-
-type StatusApiEnvelope = {
-  success: boolean;
-  data: StatusResponse;
-  message?: string;
-};
-
-type HistoryApiEnvelope = {
-  success: boolean;
-  data: HistoryResponse[];
-  message?: string;
-};
-
-type StatusPageLoaderData = {
-  status: StatusResponse;
-  histories: HistoryResponse[];
-};
-
-const CACHE_KEY = "status-page-cache";
-
-// サーバーサイドのメモリキャッシュ（複数リクエスト間で共有）
-let cachedLoaderData: StatusPageLoaderData | null = null;
-let inFlightRequest: Promise<StatusPageLoaderData> | null = null;
-
-// クライアントサイドの BroadcastChannel（複数タブ間で同期）
-let broadcastChannel: BroadcastChannel | null = null;
-
-const STATUS_PAGE_QUERY_KEY = ["status-page", "status-history"];
-
-const getBackendBaseUrl = () => {
-  const fromVite = import.meta.env.VITE_BACKEND_URL as string | undefined;
-  const fromNode =
-    typeof process !== "undefined"
-      ? (process.env.VITE_BACKEND_URL as string | undefined)
-      : undefined;
-  return fromVite || fromNode || "http://127.0.0.1:8787";
-};
-
-/**
- * Server Function: サーバーサイドでバックエンドAPIからデータ取得
- * クライアントから呼び出されても、実行はサーバー側で行われる
- */
-const fetchStatusAndHistoryServerFn = createServerFn({ method: "GET" }).handler(
-  async (): Promise<StatusPageLoaderData> => {
-    const baseUrl = getBackendBaseUrl();
-    const [statusResponse, historyResponse] = await Promise.all([
-      fetch(`${baseUrl}/status`, {
-        headers: {
-          accept: "application/json",
-        },
-      }),
-      fetch(`${baseUrl}/history?limit=90`, {
-        headers: {
-          accept: "application/json",
-        },
-      }),
-    ]);
-
-    if (!statusResponse.ok) {
-      throw new Error("ステータスの取得に失敗しました");
-    }
-
-    if (!historyResponse.ok) {
-      throw new Error("履歴の取得に失敗しました");
-    }
-
-    const statusJson = (await statusResponse.json()) as StatusApiEnvelope;
-    const historyJson = (await historyResponse.json()) as HistoryApiEnvelope;
-
-    return {
-      status: statusJson.data,
-      histories: historyJson.data,
-    };
-  },
-);
-
-const fetchStatusAndHistory = async (): Promise<StatusPageLoaderData> => {
-  return fetchStatusAndHistoryServerFn();
-};
-
-/**
- * SSRローダー用：サーバーサイドのメモリキャッシュを優先的に使用
- */
-const getCachedStatusAndHistory = async (): Promise<StatusPageLoaderData> => {
-  const now = Date.now();
-
-  // キャッシュが有効な場合はそれを返す（expiresAt ベースで判定）
-  if (cachedLoaderData) {
-    const expiresAt = new Date(cachedLoaderData.status.expiresAt).getTime();
-    if (now < expiresAt) {
-      return cachedLoaderData;
-    }
-  }
-
-  // 既に取得中の場合は待機
-  if (inFlightRequest) {
-    return inFlightRequest;
-  }
-
-  // バックエンドから取得
-  inFlightRequest = fetchStatusAndHistory()
-    .then((data) => {
-      cachedLoaderData = data;
-      inFlightRequest = null;
-      return data;
-    })
-    .catch((error) => {
-      inFlightRequest = null;
-      throw error;
-    });
-
-  return inFlightRequest;
-};
-
-/**
- * BroadcastChannel を初期化して複数タブ間でキャッシュを同期
- */
-const initializeBroadcastChannel = (queryClient: any) => {
-  if (typeof window === "undefined" || broadcastChannel) {
-    return;
-  }
-
-  try {
-    broadcastChannel = new BroadcastChannel(CACHE_KEY);
-
-    broadcastChannel.onmessage = (event) => {
-      if (event.data.type === "cache-updated") {
-        // 他のタブがキャッシュを更新したので、このタブも更新
-        queryClient.setQueryData(STATUS_PAGE_QUERY_KEY, event.data.payload);
-      }
-    };
-  } catch (e) {
-    // BroadcastChannel が使用不可の環境では何もしない
-    console.warn("BroadcastChannel not available");
-  }
-};
-
-/**
- * 新しいデータを取得して、他のタブに通知
- */
-const refetchAndBroadcast = async (queryClient: any) => {
-  const newData = await fetchStatusAndHistory();
-
-  // クライアント側のキャッシュも更新
-  queryClient.setQueryData(STATUS_PAGE_QUERY_KEY, newData);
-
-  // 他のタブに通知
-  if (broadcastChannel) {
-    broadcastChannel.postMessage({
-      type: "cache-updated",
-      payload: newData,
-    });
-  }
-
-  return newData;
-};
+// Local imports
+import {
+  getCachedStatusAndHistory,
+  fetchStatusAndHistory,
+} from "@/lib/status-page/server";
+import {
+  STATUS_PAGE_QUERY_KEY,
+} from "@/lib/status-page/config";
+import {
+  initializeBroadcastChannel,
+  closeBroadcastChannel,
+  refetchAndBroadcast,
+} from "@/lib/status-page/sync";
 
 export const Route = createFileRoute("/")({
   loader: async () => {
@@ -188,17 +34,14 @@ function App() {
     initializeBroadcastChannel(queryClient);
 
     return () => {
-      if (broadcastChannel) {
-        broadcastChannel.close();
-        broadcastChannel = null;
-      }
+      closeBroadcastChannel();
     };
   }, [queryClient]);
 
-  const { data } = useQuery({
+  const { data, isPending, error } = useQuery({
     queryKey: STATUS_PAGE_QUERY_KEY,
-    queryFn: () => refetchAndBroadcast(queryClient),
-    staleTime: Infinity,
+    queryFn: () => refetchAndBroadcast(fetchStatusAndHistory, queryClient),
+    staleTime: 1000 * 60 * 5, // 5 分
     refetchInterval: (query) => {
       const currentData = query.state.data;
       if (!currentData) return false;
@@ -207,11 +50,37 @@ function App() {
       return Math.max(1000, expiresAt - now);
     },
     refetchOnWindowFocus: false,
+    refetchIntervalInBackground: true,
     initialData: loaderData,
   });
 
+  if (error) {
+    return (
+      <div className="grid min-h-screen w-full place-items-center">
+        <div className="max-w-md rounded-lg border border-red-200 bg-red-50 p-4">
+          <h1 className="text-lg font-semibold text-red-900">
+            エラーが発生しました
+          </h1>
+          <p className="mt-2 text-sm text-red-700">
+            {error instanceof Error ? error.message : "不明なエラー"}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isPending) {
+    return (
+      <div className="grid min-h-screen w-full place-items-center">
+        <div className="text-center">
+          <div className="mb-4 inline-block h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-500"></div>
+          <p className="text-gray-600">読み込み中...</p>
+        </div>
+      </div>
+    );
+  }
+
   const { status, histories } = data;
-  // サーバーの expiresAt をベースに次回更新時刻を計算（全ユーザーで統一）
   const nextRefreshAt = new Date(status.expiresAt).getTime();
 
   return (
