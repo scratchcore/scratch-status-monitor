@@ -1,13 +1,13 @@
 import { z } from "zod";
 import { APIError } from "../middleware/errorHandler";
-import type { StatusResponse } from "../schemas/status";
+import type { StatusResponse as StatusResponseType } from "@scratchcore/scracsm-types";
 import { checkAllMonitors, getStatus } from "../services/monitorService";
 import { UUIDSchema } from "../utils/validators";
 
 /**
  * 現在のステータスを取得（キャッシュまたは最新チェック）
  */
-export async function getStatusHandler(): Promise<StatusResponse> {
+export async function getStatusHandler(): Promise<StatusResponseType> {
   try {
     return await getStatus();
   } catch (error) {
@@ -19,7 +19,7 @@ export async function getStatusHandler(): Promise<StatusResponse> {
 /**
  * 強制的にステータスをリフレッシュ
  */
-export async function refreshStatusHandler(): Promise<StatusResponse> {
+export async function refreshStatusHandler(): Promise<StatusResponseType> {
   try {
     return await checkAllMonitors();
   } catch (error) {
@@ -33,7 +33,7 @@ export async function refreshStatusHandler(): Promise<StatusResponse> {
  */
 export async function getMonitorDetailHandler(input: {
   monitorId: string;
-}): Promise<StatusResponse["monitors"][0] | undefined> {
+}): Promise<StatusResponseType["monitors"][0] | undefined> {
   // 入力バリデーション
   const validated = z
     .object({
@@ -46,7 +46,10 @@ export async function getMonitorDetailHandler(input: {
     const monitor = status.monitors.find((m) => m.id === validated.monitorId);
 
     if (!monitor) {
-      throw new APIError("NOT_FOUND", `モニター ${validated.monitorId} が見つかりません`);
+      throw new APIError(
+        "NOT_FOUND",
+        `モニター ${validated.monitorId} が見つかりません`,
+      );
     }
 
     return monitor;

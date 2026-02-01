@@ -1,7 +1,7 @@
-import type { StatusResponse } from "../schemas/status";
+import { scracsmrc } from "@scratchcore/scracsm-configs";
+import type { StatusResponse as StatusResponseType } from "@scratchcore/scracsm-types";
 
 const CACHE_KEY = "monitor:status:latest";
-const CACHE_TTL = 5 * 60; // 5分（秒）
 
 /**
  * Cloudflare Workers環境でKV Storeを使用するため、
@@ -10,8 +10,8 @@ const CACHE_TTL = 5 * 60; // 5分（秒）
  */
 
 export interface CacheService {
-  get(): Promise<StatusResponse | null>;
-  set(data: StatusResponse): Promise<void>;
+  get(): Promise<StatusResponseType | null>;
+  set(data: StatusResponseType): Promise<void>;
   delete(): Promise<void>;
 }
 
@@ -20,9 +20,10 @@ export interface CacheService {
  * 本番ではKV Storeに置き換え
  */
 class InMemoryCacheService implements CacheService {
-  private cache: Map<string, { data: StatusResponse; expiresAt: number }> = new Map();
+  private cache: Map<string, { data: StatusResponseType; expiresAt: number }> =
+    new Map();
 
-  async get(): Promise<StatusResponse | null> {
+  async get(): Promise<StatusResponseType | null> {
     const entry = this.cache.get(CACHE_KEY);
 
     if (!entry) {
@@ -37,8 +38,8 @@ class InMemoryCacheService implements CacheService {
     return entry.data;
   }
 
-  async set(data: StatusResponse): Promise<void> {
-    const expiresAt = Date.now() + CACHE_TTL * 1000;
+  async set(data: StatusResponseType): Promise<void> {
+    const expiresAt = Date.now() + scracsmrc.cache.statusTtlMs;
     this.cache.set(CACHE_KEY, { data, expiresAt });
   }
 
@@ -53,14 +54,14 @@ class InMemoryCacheService implements CacheService {
 class KVCacheService implements CacheService {
   constructor(private kv: any) {}
 
-  async get(): Promise<StatusResponse | null> {
+  async get(): Promise<StatusResponseType | null> {
     const cached = await this.kv.get(CACHE_KEY, "json");
-    return cached ? (cached as StatusResponse) : null;
+    return cached ? (cached as StatusResponseType) : null;
   }
 
-  async set(data: StatusResponse): Promise<void> {
+  async set(data: StatusResponseType): Promise<void> {
     await this.kv.put(CACHE_KEY, JSON.stringify(data), {
-      expirationTtl: CACHE_TTL,
+      expirationTtl: scracsmrc.cache.statusTtlMs,
     });
   }
 

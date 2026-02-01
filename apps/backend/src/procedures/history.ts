@@ -3,7 +3,7 @@ import { APIError } from "../middleware/errorHandler";
 import type {
   HistoryResponse as HistoryResponseType,
   HistoryStats as HistoryStatsType,
-} from "../schemas/history";
+} from "@scratchcore/scracsm-types";
 import { calculateHistoryStats, getHistoryService } from "../services/historyService";
 import { getStatus } from "../services/monitorService";
 import { UUIDSchema } from "../utils/validators";

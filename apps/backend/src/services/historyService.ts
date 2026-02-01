@@ -1,6 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
-import { HistoryRecord, HistoryStats } from "../schemas/history";
-import type { StatusCheckResult } from "../schemas/status";
+import { HistoryRecord, HistoryStats, type StatusCheckResult as StatusCheckResultType } from "@scratchcore/scracsm-types";
 
 /**
  * KV Store に保存する履歴データの構造
@@ -22,7 +21,7 @@ interface StoredHistoryData {
  * 履歴サービスのインターフェース
  */
 export interface HistoryService {
-  saveRecord(monitorId: string, result: StatusCheckResult): Promise<void>;
+  saveRecord(monitorId: string, result: StatusCheckResultType): Promise<void>;
   getRecords(monitorId: string, limit?: number): Promise<HistoryRecord[]>;
   deleteRecords(monitorId: string): Promise<void>;
   cleanup(retentionDays: number): Promise<void>;
@@ -34,7 +33,7 @@ export interface HistoryService {
 class InMemoryHistoryService implements HistoryService {
   private histories: Map<string, StoredHistoryData> = new Map();
 
-  async saveRecord(monitorId: string, result: StatusCheckResult): Promise<void> {
+  async saveRecord(monitorId: string, result: StatusCheckResultType): Promise<void> {
     const existing = this.histories.get(monitorId) || {
       records: [],
       lastUpdated: new Date().toISOString(),
@@ -97,7 +96,7 @@ class KVHistoryService implements HistoryService {
     return `history:${monitorId}`;
   }
 
-  async saveRecord(monitorId: string, result: StatusCheckResult): Promise<void> {
+  async saveRecord(monitorId: string, result: StatusCheckResultType): Promise<void> {
     const key = this.getKey(monitorId);
     const existing: StoredHistoryData = (await this.kv.get(key, "json")) || {
       records: [],

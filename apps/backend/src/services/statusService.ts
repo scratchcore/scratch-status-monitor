@@ -1,12 +1,12 @@
-import type { StatusCheckResult } from "../schemas/status";
+import { scracsmrc, scracsmConfigType } from "@scratchcore/scracsm-configs";
+import type { StatusCheckResult as StatusCheckResultType } from "@scratchcore/scracsm-types";
 import {
   CategoryStatus,
   MonitorStatus,
   type MonitorStatus as MonitorStatusType,
   type StatusLevel as StatusLevelType,
   StatusResponse,
-} from "../schemas/status";
-import type { MonitorConfigType } from "../types/monitorrc.type";
+} from "@scratchcore/scracsm-types";
 
 /**
  * 複数のステータスから全体の状態を判定
@@ -28,8 +28,8 @@ function aggregateStatus(statuses: StatusLevelType[]): StatusLevelType {
  * モニター構成とチェック結果からモニターステータスを構築
  */
 export function buildMonitorStatus(
-  config: MonitorConfigType.Item,
-  checkResult: StatusCheckResult,
+  config: scracsmConfigType.monitor,
+  checkResult: StatusCheckResultType,
 ): MonitorStatusType {
   return MonitorStatus.parse({
     id: config.id,
@@ -48,13 +48,15 @@ export function buildMonitorStatus(
  * カテゴリー別の集計を計算
  */
 export function calculateCategoryStatus(
-  category: MonitorConfigType.Category,
+  category: scracsmConfigType.category,
   monitors: MonitorStatusType[],
 ): CategoryStatus {
   const categoryMonitors = monitors.filter((m) => m.category === category.id);
 
   const upCount = categoryMonitors.filter((m) => m.status === "up").length;
-  const degradedCount = categoryMonitors.filter((m) => m.status === "degraded").length;
+  const degradedCount = categoryMonitors.filter(
+    (m) => m.status === "degraded",
+  ).length;
   const downCount = categoryMonitors.filter((m) => m.status === "down").length;
 
   const statuses = categoryMonitors.map((m) => m.status);
@@ -75,17 +77,23 @@ export function calculateCategoryStatus(
  * 全体のステータスレスポンスを構築
  */
 export function buildStatusResponse(
-  config: MonitorConfigType.Root,
   monitors: MonitorStatusType[],
+  cacheIntervalMs: number = 5 * 60 * 1000,
 ): StatusResponse {
-  const categories = config.category.map((cat) => calculateCategoryStatus(cat, monitors));
+  const categories = scracsmrc.category.map((cat) =>
+    calculateCategoryStatus(cat, monitors),
+  );
 
   const overallStatus = aggregateStatus(categories.map((c) => c.status));
+
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + cacheIntervalMs);
 
   return StatusResponse.parse({
     overallStatus,
     categories,
     monitors,
-    timestamp: new Date(),
+    timestamp: now,
+    expiresAt,
   });
 }

@@ -21,6 +21,18 @@
     {
       "name": "Frontend > server",
       "cwd": "./apps/frontend"
+    },
+    {
+      "name": "pkg > configs",
+      "cwd": "./packages/configs"
+    },
+    {
+      "name": "pkg > types",
+      "cwd": "./packages/types"
+    },
+    {
+      "name": "pkg > shared-api",
+      "cwd": "./packages/shared-api"
     }
   ]
 }

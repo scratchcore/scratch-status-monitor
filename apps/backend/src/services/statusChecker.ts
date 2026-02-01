@@ -1,4 +1,4 @@
-import { StatusCheckResult, type StatusLevel as StatusLevelType } from "../schemas/status";
+import { StatusCheckResult, type StatusLevel as StatusLevelType } from "@scratchcore/scracsm-types";
 
 interface CheckOptions {
   timeout?: number;

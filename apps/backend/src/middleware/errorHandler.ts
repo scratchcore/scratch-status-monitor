@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createErrorResponse, ERROR_MESSAGES, type ErrorCode } from "../schemas/error";
+import { createErrorResponse, ERROR_MESSAGES, type ErrorCode } from "@scratchcore/scracsm-types";
 
 /**
  * Zod バリデーションエラーを整形
