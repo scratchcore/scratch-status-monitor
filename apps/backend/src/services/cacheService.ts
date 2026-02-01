@@ -20,8 +20,7 @@ export interface CacheService {
  * 本番ではKV Storeに置き換え
  */
 class InMemoryCacheService implements CacheService {
-  private cache: Map<string, { data: StatusResponseType; expiresAt: number }> =
-    new Map();
+  private cache: Map<string, { data: StatusResponseType; expiresAt: number }> = new Map();
 
   async get(): Promise<StatusResponseType | null> {
     const entry = this.cache.get(CACHE_KEY);

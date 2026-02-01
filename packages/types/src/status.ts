@@ -68,4 +68,3 @@ export const StatusCheckResult = z.object({
 });
 
 export type StatusCheckResult = z.infer<typeof StatusCheckResult>;
-

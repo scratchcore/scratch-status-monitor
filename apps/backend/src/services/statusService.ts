@@ -54,9 +54,7 @@ export function calculateCategoryStatus(
   const categoryMonitors = monitors.filter((m) => m.category === category.id);
 
   const upCount = categoryMonitors.filter((m) => m.status === "up").length;
-  const degradedCount = categoryMonitors.filter(
-    (m) => m.status === "degraded",
-  ).length;
+  const degradedCount = categoryMonitors.filter((m) => m.status === "degraded").length;
   const downCount = categoryMonitors.filter((m) => m.status === "down").length;
 
   const statuses = categoryMonitors.map((m) => m.status);
@@ -80,9 +78,7 @@ export function buildStatusResponse(
   monitors: MonitorStatusType[],
   cacheIntervalMs: number = 5 * 60 * 1000,
 ): StatusResponse {
-  const categories = scracsmrc.category.map((cat) =>
-    calculateCategoryStatus(cat, monitors),
-  );
+  const categories = scracsmrc.category.map((cat) => calculateCategoryStatus(cat, monitors));
 
   const overallStatus = aggregateStatus(categories.map((c) => c.status));
 

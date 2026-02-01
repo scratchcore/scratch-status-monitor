@@ -54,9 +54,7 @@ app.post("/test/trigger-monitor-check", async (c) => {
   try {
     console.log("Manual trigger: Starting monitor check...");
     const result = await checkAllMonitors();
-    console.log(
-      `Monitor check completed. Overall status: ${result.overallStatus}`,
-    );
+    console.log(`Monitor check completed. Overall status: ${result.overallStatus}`);
     return c.json({
       success: true,
       message: "Monitor check executed successfully",
@@ -93,9 +91,7 @@ async function handleCron(_event: ScheduledEvent): Promise<void> {
   try {
     console.log("Starting scheduled monitor check...");
     const result = await checkAllMonitors();
-    console.log(
-      `Monitor check completed. Overall status: ${result.overallStatus}`,
-    );
+    console.log(`Monitor check completed. Overall status: ${result.overallStatus}`);
   } catch (error) {
     console.error("Error during scheduled monitor check:", error);
     throw error;

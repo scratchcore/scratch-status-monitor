@@ -46,10 +46,7 @@ export async function getMonitorDetailHandler(input: {
     const monitor = status.monitors.find((m) => m.id === validated.monitorId);
 
     if (!monitor) {
-      throw new APIError(
-        "NOT_FOUND",
-        `モニター ${validated.monitorId} が見つかりません`,
-      );
+      throw new APIError("NOT_FOUND", `モニター ${validated.monitorId} が見つかりません`);
     }
 
     return monitor;

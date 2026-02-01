@@ -1,5 +1,9 @@
 import { v4 as uuidv4 } from "uuid";
-import { HistoryRecord, HistoryStats, type StatusCheckResult as StatusCheckResultType } from "@scratchcore/scracsm-types";
+import {
+  HistoryRecord,
+  HistoryStats,
+  type StatusCheckResult as StatusCheckResultType,
+} from "@scratchcore/scracsm-types";
 
 /**
  * KV Store に保存する履歴データの構造

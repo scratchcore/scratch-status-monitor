@@ -54,4 +54,3 @@ export const HistoryStats = z.object({
 });
 
 export type HistoryStats = z.infer<typeof HistoryStats>;
-
