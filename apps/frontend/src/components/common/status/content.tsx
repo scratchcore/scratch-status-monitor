@@ -1,20 +1,16 @@
+import { RiCheckboxCircleFill, RiErrorWarningFill, RiSettings5Fill } from "@remixicon/react";
 import { useEffect, useMemo, useState } from "react";
-import {
-  RiCheckboxCircleFill,
-  RiErrorWarningFill,
-  RiSettings5Fill,
-} from "@remixicon/react";
-import { Tracker } from "./tracker";
+import { cx } from "@/lib/utils";
 import { buildMemoryTrackData, formatDateTime } from "./data";
 import {
-  colorMapping,
+  type colorMapping,
   colorSlugMapping,
-  HistoryResponse,
+  type HistoryResponse,
+  type StatusResponse,
   statusLabel,
-  StatusResponse,
   statusToTooltip,
 } from "./rc";
-import { cx } from "@/lib/utils";
+import { Tracker } from "./tracker";
 
 const StatusIcon = ({
   tooltip,
@@ -110,10 +106,7 @@ export default function StatusPageContent({
             `bg-${colorSlug}-100 dark:bg-${colorSlug}-400/20 dark:to-${colorSlug}-500/10`,
           )}
         >
-          <StatusIcon
-            tooltip={overallTooltip}
-            className={`h-10 w-10 text-${colorSlug}-500`}
-          />
+          <StatusIcon tooltip={overallTooltip} className={`h-10 w-10 text-${colorSlug}-500`} />
         </span>
         <h1 className="mt-3 text-lg font-semibold text-gray-900 dark:text-gray-50">
           全体ステータス: {statusLabel[status.overallStatus]}
@@ -130,9 +123,7 @@ export default function StatusPageContent({
       </div>
       <div className="relative w-full rounded-lg border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 mt-10 space-y-6">
         {status.monitors.map((monitor, index) => {
-          const history = histories.find(
-            (item) => item.monitorId === monitor.id,
-          );
+          const history = histories.find((item) => item.monitorId === monitor.id);
           const desktopData = buildMemoryTrackData(history?.records, 90);
           const tabletData = buildMemoryTrackData(history?.records, 60);
           const mobileData = buildMemoryTrackData(history?.records, 30);
@@ -143,9 +134,7 @@ export default function StatusPageContent({
                 <p className="flex flex-wrap items-center justify-between gap-2 text-sm font-medium">
                   <span className="flex items-center gap-2 font-medium">
                     <StatusIcon tooltip={monitorTooltip} />
-                    <span className="text-gray-900 dark:text-gray-50">
-                      {monitor.label}
-                    </span>
+                    <span className="text-gray-900 dark:text-gray-50">{monitor.label}</span>
                   </span>
                   <span className="text-gray-900 dark:text-gray-50">
                     {statusLabel[monitor.status]}
@@ -153,42 +142,26 @@ export default function StatusPageContent({
                 </p>
                 <div className="mt-1 flex flex-wrap gap-3 text-xs text-gray-500 dark:text-gray-500">
                   <span>{monitor.category}</span>
-                  <span>
-                    応答時間:{" "}
-                    {monitor.responseTime ? `${monitor.responseTime}ms` : "-"}
-                  </span>
-                  <span>
-                    最終チェック: {formatDateTime(monitor.lastCheckedAt)}
-                  </span>
+                  <span>応答時間: {monitor.responseTime ? `${monitor.responseTime}ms` : "-"}</span>
+                  <span>最終チェック: {formatDateTime(monitor.lastCheckedAt)}</span>
                   {monitor.errorMessage ? (
                     <span className="text-red-500">{monitor.errorMessage}</span>
                   ) : null}
                 </div>
-                <Tracker
-                  hoverEffect
-                  data={desktopData}
-                  className="mt-3 hidden w-full lg:flex"
-                />
+                <Tracker hoverEffect data={desktopData} className="mt-3 hidden w-full lg:flex" />
                 <Tracker
                   hoverEffect
                   data={tabletData}
                   className="mt-3 hidden w-full sm:flex lg:hidden"
                 />
-                <Tracker
-                  hoverEffect
-                  data={mobileData}
-                  className="mt-3 flex w-full sm:hidden"
-                />
+                <Tracker hoverEffect data={mobileData} className="mt-3 flex w-full sm:hidden" />
                 <div className="mt-3 flex items-center justify-between text-sm text-gray-500 dark:text-gray-500">
                   <span>7日前</span>
                   <span>今日</span>
                 </div>
               </div>
               {index < status.monitors.length - 1 ? (
-                <div
-                  className="h-px w-full bg-gray-200 dark:bg-gray-800"
-                  aria-hidden={true}
-                />
+                <div className="h-px w-full bg-gray-200 dark:bg-gray-800" aria-hidden={true} />
               ) : null}
             </div>
           );

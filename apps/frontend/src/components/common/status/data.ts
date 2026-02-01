@@ -1,9 +1,4 @@
-import {
-  colorMapping,
-  HistoryRecord,
-  StatusLevel,
-  statusToTooltip,
-} from "./rc";
+import { colorMapping, type HistoryRecord, type StatusLevel, statusToTooltip } from "./rc";
 
 /**
  * ステータス集約戦略
@@ -61,7 +56,7 @@ export const aggregateStatus = (
       // グループ内の最後（最新）のステータスを使用
       return statuses[statuses.length - 1];
 
-    case "majority":
+    case "majority": {
       // 最も割合が大きいステータスを使用
       const counts = statuses.reduce(
         (acc, status) => {
@@ -70,10 +65,9 @@ export const aggregateStatus = (
         },
         {} as Record<StatusLevel, number>,
       );
-      const [mostFrequent] = Object.entries(counts).sort(
-        ([, a], [, b]) => b - a,
-      )[0];
+      const [mostFrequent] = Object.entries(counts).sort(([, a], [, b]) => b - a)[0];
       return mostFrequent as StatusLevel;
+    }
 
     default:
       return "unknown";
@@ -100,8 +94,7 @@ export const buildMemoryTrackData = (
   }
 
   const sorted = [...records].sort(
-    (a, b) =>
-      new Date(a.recordedAt).getTime() - new Date(b.recordedAt).getTime(),
+    (a, b) => new Date(a.recordedAt).getTime() - new Date(b.recordedAt).getTime(),
   );
 
   // レコードをmemoryCountのグループに分割

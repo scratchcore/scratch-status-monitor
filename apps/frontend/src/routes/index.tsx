@@ -1,20 +1,14 @@
-import StatusPageContent from "@/components/common/status/content";
-import { createFileRoute } from "@tanstack/react-router";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
 import { scracsmrc } from "@scratchcore/scracsm-configs";
-
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { createFileRoute } from "@tanstack/react-router";
+import { useEffect } from "react";
+import StatusPageContent from "@/components/common/status/content";
+import { STATUS_PAGE_QUERY_KEY } from "@/lib/status-page/config";
 // Local imports
+import { fetchStatusAndHistory, getCachedStatusAndHistory } from "@/lib/status-page/server";
 import {
-  getCachedStatusAndHistory,
-  fetchStatusAndHistory,
-} from "@/lib/status-page/server";
-import {
-  STATUS_PAGE_QUERY_KEY,
-} from "@/lib/status-page/config";
-import {
-  initializeBroadcastChannel,
   closeBroadcastChannel,
+  initializeBroadcastChannel,
   refetchAndBroadcast,
 } from "@/lib/status-page/sync";
 
@@ -58,9 +52,7 @@ function App() {
     return (
       <div className="grid min-h-screen w-full place-items-center">
         <div className="max-w-md rounded-lg border border-red-200 bg-red-50 p-4">
-          <h1 className="text-lg font-semibold text-red-900">
-            エラーが発生しました
-          </h1>
+          <h1 className="text-lg font-semibold text-red-900">エラーが発生しました</h1>
           <p className="mt-2 text-sm text-red-700">
             {error instanceof Error ? error.message : "不明なエラー"}
           </p>

@@ -1,12 +1,9 @@
 import { forwardRef } from "react";
+import type { TrackerProps } from "@/components/ui/tracker";
 import { cx } from "@/lib/utils";
-import { TrackerProps } from "@/components/ui/tracker";
-import { MemoryBlockProps, TrackerMemoryBlock } from "./tracker_memory_block";
+import { type MemoryBlockProps, TrackerMemoryBlock } from "./tracker_memory_block";
 
-export const Tracker = forwardRef<
-  HTMLDivElement,
-  TrackerProps<MemoryBlockProps>
->(
+export const Tracker = forwardRef<HTMLDivElement, TrackerProps<MemoryBlockProps>>(
   (
     {
       data = [],

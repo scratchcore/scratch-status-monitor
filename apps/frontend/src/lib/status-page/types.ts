@@ -1,7 +1,7 @@
-import type { SerializedInfer } from "@scratchcore/scracsm-types";
-import {
-  StatusResponse as StatusResponseSchema,
+import type {
   HistoryResponse as HistoryResponseSchema,
+  SerializedInfer,
+  StatusResponse as StatusResponseSchema,
 } from "@scratchcore/scracsm-types";
 
 // シリアライズされた型（Date -> string）

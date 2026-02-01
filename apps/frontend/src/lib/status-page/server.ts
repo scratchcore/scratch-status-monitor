@@ -1,10 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
-import {
-  StatusPageLoaderData,
-  StatusApiEnvelope,
-  HistoryApiEnvelope,
-} from "./types";
 import { getBackendBaseUrl } from "./config";
+import type { HistoryApiEnvelope, StatusApiEnvelope, StatusPageLoaderData } from "./types";
 
 /**
  * Server Function: サーバーサイドでバックエンドAPIからデータ取得

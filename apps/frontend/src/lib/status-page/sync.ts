@@ -1,13 +1,15 @@
 import { CACHE_KEY, STATUS_PAGE_QUERY_KEY } from "./config";
-import { StatusPageLoaderData } from "./types";
+import type { StatusPageLoaderData } from "./types";
 
 // クライアントサイドの BroadcastChannel（複数タブ間で同期）
 let broadcastChannel: BroadcastChannel | null = null;
 
+import type { QueryClient } from "@tanstack/react-query";
+
 /**
  * BroadcastChannel を初期化して複数タブ間でキャッシュを同期
  */
-export const initializeBroadcastChannel = (queryClient: any): void => {
+export const initializeBroadcastChannel = (queryClient: QueryClient): void => {
   if (typeof window === "undefined" || broadcastChannel) {
     return;
   }
@@ -21,7 +23,7 @@ export const initializeBroadcastChannel = (queryClient: any): void => {
         queryClient.setQueryData(STATUS_PAGE_QUERY_KEY, event.data.payload);
       }
     };
-  } catch (e) {
+  } catch (_e) {
     // BroadcastChannel が使用不可の環境では何もしない
     console.warn("BroadcastChannel not available");
   }
@@ -42,7 +44,7 @@ export const closeBroadcastChannel = (): void => {
  */
 export const refetchAndBroadcast = async (
   fetchFn: () => Promise<StatusPageLoaderData>,
-  queryClient: any,
+  queryClient: QueryClient,
 ): Promise<StatusPageLoaderData> => {
   const newData = await fetchFn();
 

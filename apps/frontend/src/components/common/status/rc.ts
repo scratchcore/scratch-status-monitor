@@ -1,11 +1,9 @@
 import type {
-  SerializedInfer,
-  StatusLevelType,
-} from "@scratchcore/scracsm-types";
-import {
   HistoryRecord as HistoryRecordSchema,
   HistoryResponse as HistoryResponseSchema,
   MonitorStatus as MonitorStatusSchema,
+  SerializedInfer,
+  StatusLevelType,
   StatusResponse as StatusResponseSchema,
 } from "@scratchcore/scracsm-types";
 

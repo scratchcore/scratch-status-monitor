@@ -1,7 +1,7 @@
-import React from "react";
+import type React from "react";
 
 declare module "react" {
-  function forwardRef<T, P = {}>(
-    render: (props: P, ref: ForwardedRef<T>) => JSX.Element | null,
-  ): (props: P & RefAttributes<T>) => JSX.Element | null;
+  function forwardRef<T, P extends Record<string, unknown> = Record<string, unknown>>(
+    render: (props: P, ref: React.ForwardedRef<T>) => JSX.Element | null,
+  ): (props: P & React.RefAttributes<T>) => JSX.Element | null;
 }
