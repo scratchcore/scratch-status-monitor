@@ -42,9 +42,7 @@ function handleZodObject(def: any): Record<string, any> {
 /**
  * Zod スキーマを OpenAPI スキーマに変換
  */
-export function zodToOpenAPISchema(
-  schema: ZodSchema | undefined | any,
-): Record<string, any> {
+export function zodToOpenAPISchema(schema: ZodSchema | undefined | any): Record<string, any> {
   if (!schema || !schema._def) {
     return { type: "string" };
   }
@@ -59,9 +57,7 @@ export function zodToOpenAPISchema(
   if (schema instanceof z.ZodNumber) {
     const def = (schema as any)._def;
     return {
-      type: def.checks?.some((c: any) => c.kind === "int")
-        ? "integer"
-        : "number",
+      type: def.checks?.some((c: any) => c.kind === "int") ? "integer" : "number",
       ...baseSchema,
     };
   }
