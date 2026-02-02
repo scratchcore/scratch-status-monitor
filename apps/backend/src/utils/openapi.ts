@@ -42,7 +42,9 @@ function handleZodObject(def: any): Record<string, any> {
 /**
  * Zod スキーマを OpenAPI スキーマに変換
  */
-export function zodToOpenAPISchema(schema: ZodSchema | undefined | any): Record<string, any> {
+export function zodToOpenAPISchema(
+  schema: ZodSchema | undefined | any,
+): Record<string, any> {
   if (!schema || !schema._def) {
     return { type: "string" };
   }
@@ -57,7 +59,9 @@ export function zodToOpenAPISchema(schema: ZodSchema | undefined | any): Record<
   if (schema instanceof z.ZodNumber) {
     const def = (schema as any)._def;
     return {
-      type: def.checks?.some((c: any) => c.kind === "int") ? "integer" : "number",
+      type: def.checks?.some((c: any) => c.kind === "int")
+        ? "integer"
+        : "number",
       ...baseSchema,
     };
   }
@@ -225,6 +229,16 @@ export function generateOpenAPISchema() {
         url: "https://github.com/scratchcore/scratch-status-monitor",
       },
     },
+    servers: [
+      {
+        url: "/",
+        description: "開発環境",
+      },
+      {
+        url: "https://api.ssm.scra.cc/",
+        description: "本番環境",
+      },
+    ],
     tags,
     paths,
     components: {

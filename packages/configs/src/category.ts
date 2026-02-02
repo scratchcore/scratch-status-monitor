@@ -1,6 +1,6 @@
-import { scracsmConfigType } from "./types";
+import { ssmrcType } from "./types";
 
-export const category: scracsmConfigType.category[] = [
+export const category: ssmrcType.category[] = [
   {
     id: "main",
     label: "Main",

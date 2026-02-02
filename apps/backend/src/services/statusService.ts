@@ -1,4 +1,4 @@
-import { scracsmrc, scracsmConfigType } from "@scratchcore/ssm-configs";
+import { ssmrc, scracsmConfigType } from "@scratchcore/ssm-configs";
 import type { StatusCheckResult as StatusCheckResultType } from "@scratchcore/ssm-types";
 import {
   CategoryStatus,
@@ -78,7 +78,7 @@ export function buildStatusResponse(
   monitors: MonitorStatusType[],
   cacheIntervalMs: number = 5 * 60 * 1000,
 ): StatusResponse {
-  const categories = scracsmrc.category.map((cat) => calculateCategoryStatus(cat, monitors));
+  const categories = ssmrc.category.map((cat) => calculateCategoryStatus(cat, monitors));
 
   const overallStatus = aggregateStatus(categories.map((c) => c.status));
 

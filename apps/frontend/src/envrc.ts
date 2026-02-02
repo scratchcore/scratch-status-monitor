@@ -2,7 +2,7 @@ import { defineConfig } from "./plugins/envrc/schema";
 
 const envrc = defineConfig({
   env: {
-    NODE_ENV: {
+    ENVIRONMENT: {
       type: "text",
       required: false,
       description: "Node環境（development, production, test）",

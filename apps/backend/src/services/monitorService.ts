@@ -1,4 +1,4 @@
-import { scracsmrc } from "@scratchcore/ssm-configs";
+import { ssmrc } from "@scratchcore/ssm-configs";
 import type { StatusResponse as StatusResponseType } from "@scratchcore/ssm-types";
 import { getCacheService } from "./cacheService";
 import { getHistoryService } from "./historyService";
@@ -12,7 +12,7 @@ const CACHE_INTERVAL_MS = 5 * 60 * 1000; // 5分
  */
 export async function checkAllMonitors(): Promise<StatusResponseType> {
   // 設定からチェック対象を構築
-  const monitorsToCheck = scracsmrc.monitors.map((item) => ({
+  const monitorsToCheck = ssmrc.monitors.map((item) => ({
     id: item.id,
     url: item.url,
   }));
@@ -25,7 +25,7 @@ export async function checkAllMonitors(): Promise<StatusResponseType> {
   // チェック結果からモニターステータスを構築
   const monitors = checkResults
     .map((result) => {
-      const config = scracsmrc.monitors.find((item) => item.id === result.id);
+      const config = ssmrc.monitors.find((item) => item.id === result.id);
       return config ? buildMonitorStatus(config, result) : null;
     })
     .filter((m) => m !== null);

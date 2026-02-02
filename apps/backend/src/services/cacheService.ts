@@ -1,4 +1,4 @@
-import { scracsmrc } from "@scratchcore/ssm-configs";
+import { ssmrc } from "@scratchcore/ssm-configs";
 import type { StatusResponse as StatusResponseType } from "@scratchcore/ssm-types";
 
 const CACHE_KEY = "monitor:status:latest";
@@ -38,7 +38,7 @@ class InMemoryCacheService implements CacheService {
   }
 
   async set(data: StatusResponseType): Promise<void> {
-    const expiresAt = Date.now() + scracsmrc.cache.statusTtlMs;
+    const expiresAt = Date.now() + ssmrc.cache.statusTtlMs;
     this.cache.set(CACHE_KEY, { data, expiresAt });
   }
 
@@ -60,7 +60,7 @@ class KVCacheService implements CacheService {
 
   async set(data: StatusResponseType): Promise<void> {
     await this.kv.put(CACHE_KEY, JSON.stringify(data), {
-      expirationTtl: scracsmrc.cache.statusTtlMs,
+      expirationTtl: ssmrc.cache.statusTtlMs,
     });
   }
 

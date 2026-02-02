@@ -1,20 +1,21 @@
-import { scracsmrc } from "@scratchcore/ssm-configs";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect } from "react";
-import StatusPageContent from "@/components/common/status/content";
 import { STATUS_PAGE_QUERY_KEY } from "@/lib/status-page/config";
 // Local imports
-import { fetchStatusAndHistory, getCachedStatusAndHistory } from "@/lib/status-page/server";
+import { fetchHistories, getCachedHistories } from "@/lib/status-page/server";
 import {
   closeBroadcastChannel,
   initializeBroadcastChannel,
   refetchAndBroadcast,
 } from "@/lib/status-page/sync";
+import { StatusPageProvider } from "@/components/common/status/layout/context";
+import { StatusPageLayoutContainer } from "@/components/common/status/layout/main";
+import { ssmrc } from "@scratchcore/ssm-configs";
 
 export const Route = createFileRoute("/")({
   loader: async () => {
-    return getCachedStatusAndHistory();
+    return getCachedHistories();
   },
   component: App,
 });
@@ -34,14 +35,12 @@ function App() {
 
   const { data, isPending, error } = useQuery({
     queryKey: STATUS_PAGE_QUERY_KEY,
-    queryFn: () => refetchAndBroadcast(fetchStatusAndHistory, queryClient),
-    staleTime: 1000 * 60 * 5, // 5 分
+    queryFn: () => refetchAndBroadcast(fetchHistories, queryClient),
+    staleTime: ssmrc.cache.statusTtlMs,
     refetchInterval: (query) => {
       const currentData = query.state.data;
       if (!currentData) return false;
-      const expiresAt = new Date(currentData.status.expiresAt).getTime();
-      const now = Date.now();
-      return Math.max(1000, expiresAt - now);
+      return currentData.refreshIntervalMs;
     },
     refetchOnWindowFocus: false,
     refetchIntervalInBackground: true,
@@ -52,7 +51,9 @@ function App() {
     return (
       <div className="grid min-h-screen w-full place-items-center">
         <div className="max-w-md rounded-lg border border-red-200 bg-red-50 p-4">
-          <h1 className="text-lg font-semibold text-red-900">エラーが発生しました</h1>
+          <h1 className="text-lg font-semibold text-red-900">
+            エラーが発生しました
+          </h1>
           <p className="mt-2 text-sm text-red-700">
             {error instanceof Error ? error.message : "不明なエラー"}
           </p>
@@ -72,19 +73,17 @@ function App() {
     );
   }
 
-  const { status, histories } = data;
-  const nextRefreshAt = new Date(status.expiresAt).getTime();
+  const { histories, nextRefreshAt, refreshIntervalMs } = data;
+
+  console.log("Status Page Data:", data);
 
   return (
-    <div className="min-h-screen">
-      <section className="py-20 max-w-3xl mx-auto">
-        <StatusPageContent
-          status={status}
-          histories={histories}
-          nextRefreshAt={nextRefreshAt}
-          refreshIntervalMs={scracsmrc.cache.statusTtlMs}
-        />
-      </section>
-    </div>
+    <StatusPageProvider
+      histories={histories}
+      nextRefreshAt={nextRefreshAt}
+      refreshIntervalMs={refreshIntervalMs}
+    >
+      <StatusPageLayoutContainer />
+    </StatusPageProvider>
   );
 }

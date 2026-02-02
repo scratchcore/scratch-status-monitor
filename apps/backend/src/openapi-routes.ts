@@ -28,6 +28,16 @@ export const createOpenAPIRoutes = async () => {
       pageTitle: "Scratch Status Monitor API",
       _integration: "hono",
       hideClientButton: true,
+      authentication: {
+        preferredSecurityScheme: ["HTTP Bearer"],
+        securitySchemes: {
+          "HTTP Bearer": {
+            type: "http",
+            scheme: "bearer",
+            token: "your-secret-token-here",
+          },
+        },
+      },
     }),
   );
 

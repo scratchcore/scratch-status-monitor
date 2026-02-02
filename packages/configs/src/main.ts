@@ -2,9 +2,9 @@ import { cache } from "./cache";
 import { category } from "./category";
 import { history } from "./history";
 import { monitors } from "./monitor";
-import { scracsmConfigType } from "./types";
+import { ssmrcType } from "./types";
 
-export const scracsmrc: scracsmConfigType.rc = {
+export const ssmrc: ssmrcType.rc = {
   category,
   monitors,
   history,

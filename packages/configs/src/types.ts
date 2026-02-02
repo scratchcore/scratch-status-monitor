@@ -1,4 +1,4 @@
-export namespace scracsmConfigType {
+export namespace ssmrcType {
   export interface rc {
     category: category[];
     monitors: monitor[];

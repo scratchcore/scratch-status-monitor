@@ -136,5 +136,5 @@ export const buildMemoryTrackData = (
 
 export const formatDateTime = (value: string) => {
   const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? value : date.toLocaleString();
+  return Number.isNaN(date.getTime()) ? value : date.toLocaleString("ja-JP");
 };

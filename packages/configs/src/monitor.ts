@@ -1,6 +1,6 @@
-import { scracsmConfigType } from "./types";
+import { ssmrcType } from "./types";
 
-export const monitors: scracsmConfigType.monitor[] = [
+export const monitors: ssmrcType.monitor[] = [
   {
     id: "c79c0e1e-8292-45ee-8dba-58e672d32184",
     label: "Website",

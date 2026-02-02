@@ -1,94 +1,79 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getBackendBaseUrl } from "./config";
-import type {
-  HistoryApiEnvelope,
-  StatusApiEnvelope,
-  StatusPageLoaderData,
-} from "./types";
+import { ssmrc } from "@scratchcore/ssm-configs";
+import type { HistoryApiEnvelope, StatusPageLoaderData } from "./types";
 import { getEnv } from "@/plugins/envrc";
 
 /**
- * Server Function: サーバーサイドでバックエンドAPIからデータ取得
- * クライアントから呼び出されても、実行はサーバー側で行われる
+ * Server Function: サーバーサイドでバックエンドAPIから履歴データ取得
+ * /histories API のみを使用
  */
-const fetchStatusAndHistoryServerFn = createServerFn({ method: "GET" }).handler(
+const fetchHistoriesServerFn = createServerFn({ method: "GET" }).handler(
   async (): Promise<StatusPageLoaderData> => {
     const env = getEnv({ throwOnError: true });
 
     const { VITE_BACKEND_URL: baseUrl, API_TOKEN } = env;
-    const [statusResponse, historyResponse] = await Promise.all([
-      fetch(`${baseUrl}/status`, {
-        headers: {
-          accept: "application/json",
-          authorization: `Bearer ${API_TOKEN}`,
-        },
-      }),
-      fetch(`${baseUrl}/history?limit=90`, {
-        headers: {
-          accept: "application/json",
-          authorization: `Bearer ${API_TOKEN}`,
-        },
-      }),
-    ]);
-
-    if (!statusResponse.ok) {
-      throw new Error("ステータスの取得に失敗しました");
-    }
+    const historyResponse = await fetch(`${baseUrl}/history`, {
+      headers: {
+        accept: "application/json",
+        authorization: `Bearer ${API_TOKEN}`,
+      },
+    });
 
     if (!historyResponse.ok) {
       throw new Error("履歴の取得に失敗しました");
     }
 
-    const statusJson = (await statusResponse.json()) as StatusApiEnvelope;
     const historyJson = (await historyResponse.json()) as HistoryApiEnvelope;
 
+    // 次回更新予定時刻を計算
+    const now = Date.now();
+    const nextRefreshAt = now + ssmrc.cache.statusTtlMs;
+
     return {
-      status: statusJson.data,
       histories: historyJson.data,
+      nextRefreshAt,
+      refreshIntervalMs: ssmrc.cache.statusTtlMs,
     };
   },
 );
 
-export const fetchStatusAndHistory =
-  async (): Promise<StatusPageLoaderData> => {
-    return fetchStatusAndHistoryServerFn();
-  };
+export const fetchHistories = async (): Promise<StatusPageLoaderData> => {
+  return fetchHistoriesServerFn();
+};
 
 // サーバーサイドのメモリキャッシュ（複数リクエスト間で共有）
 let cachedLoaderData: StatusPageLoaderData | null = null;
 let inFlightRequest: Promise<StatusPageLoaderData> | null = null;
+let cacheExpireTime: number = 0;
 
 /**
  * SSRローダー用：サーバーサイドのメモリキャッシュを優先的に使用
  */
-export const getCachedStatusAndHistory =
-  async (): Promise<StatusPageLoaderData> => {
-    const now = Date.now();
+export const getCachedHistories = async (): Promise<StatusPageLoaderData> => {
+  const now = Date.now();
 
-    // キャッシュが有効な場合はそれを返す（expiresAt ベースで判定）
-    if (cachedLoaderData) {
-      const expiresAt = new Date(cachedLoaderData.status.expiresAt).getTime();
-      if (now < expiresAt) {
-        return cachedLoaderData;
-      }
-    }
+  // キャッシュが有効な場合はそれを返す
+  if (cachedLoaderData && now < cacheExpireTime) {
+    return cachedLoaderData;
+  }
 
-    // 既に取得中の場合は待機
-    if (inFlightRequest) {
-      return inFlightRequest;
-    }
-
-    // バックエンドから取得
-    inFlightRequest = fetchStatusAndHistory()
-      .then((data) => {
-        cachedLoaderData = data;
-        inFlightRequest = null;
-        return data;
-      })
-      .catch((error) => {
-        inFlightRequest = null;
-        throw error;
-      });
-
+  // 既に取得中の場合は待機
+  if (inFlightRequest) {
     return inFlightRequest;
-  };
+  }
+
+  // バックエンドから取得
+  inFlightRequest = fetchHistories()
+    .then((data) => {
+      cachedLoaderData = data;
+      cacheExpireTime = now + data.refreshIntervalMs;
+      inFlightRequest = null;
+      return data;
+    })
+    .catch((error) => {
+      inFlightRequest = null;
+      throw error;
+    });
+
+  return inFlightRequest;
+};
