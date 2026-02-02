@@ -160,7 +160,7 @@ export function calculateHistoryStats(monitorId: string, records: HistoryRecord[
   const totalRecords = records.length;
 
   const uptime = totalRecords > 0 ? (upCount / totalRecords) * 100 : 0;
-  
+
   const responseTimes = records.map((r) => r.responseTime);
   const avgResponseTime =
     totalRecords > 0

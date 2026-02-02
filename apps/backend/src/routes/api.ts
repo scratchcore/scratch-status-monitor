@@ -90,11 +90,12 @@ export const createApiRouter = () => {
     path: "/history",
     tags: ["History"],
     summary: "全モニターの履歴を取得",
-    description: "全てのモニターの履歴を取得します",
+    description: "全てのモニターの履歴を取得します（ページング対応）",
     operationId: "getAllHistory",
     parameters: {
       query: {
-        limit: z.number().int().min(1).max(1000).default(100),
+        limit: z.number().int().min(1).max(500).default(100),
+        offset: z.number().int().min(0).default(0),
       },
     },
     responses: {
@@ -115,9 +116,11 @@ export const createApiRouter = () => {
 
   router.get("/history", async (c) => {
     const limitParam = c.req.query("limit");
+    const offsetParam = c.req.query("offset");
     const limit = limitParam ? parseInt(limitParam, 10) : 100;
+    const offset = offsetParam ? parseInt(offsetParam, 10) : 0;
 
-    const histories = await getAllMonitorsHistoryHandler({ limit });
+    const histories = await getAllMonitorsHistoryHandler({ limit, offset });
     return c.json({
       success: true,
       data: histories,
@@ -130,14 +133,15 @@ export const createApiRouter = () => {
     path: "/history/:monitorId",
     tags: ["History"],
     summary: "特定のモニターの履歴を取得",
-    description: "指定されたモニターの詳細な履歴を取得します",
+    description: "指定されたモニターの詳細な履歴を取得します（ページング対応）",
     operationId: "getMonitorHistory",
     parameters: {
       path: {
         monitorId: UUIDSchema,
       },
       query: {
-        limit: z.number().int().min(1).max(1000).default(100),
+        limit: z.number().int().min(1).max(500).default(100),
+        offset: z.number().int().min(0).default(0),
       },
     },
     responses: {
@@ -160,11 +164,14 @@ export const createApiRouter = () => {
   router.get("/history/:monitorId", async (c) => {
     const monitorId = c.req.param("monitorId");
     const limitParam = c.req.query("limit");
+    const offsetParam = c.req.query("offset");
     const limit = limitParam ? parseInt(limitParam, 10) : 100;
+    const offset = offsetParam ? parseInt(offsetParam, 10) : 0;
 
     const history = await getMonitorHistoryHandler({
       monitorId,
       limit,
+      offset,
     });
 
     return c.json({

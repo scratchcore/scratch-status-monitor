@@ -14,20 +14,26 @@ import { UUIDSchema } from "../utils/validators";
 export async function getMonitorHistoryHandler(input: {
   monitorId: string;
   limit?: number;
+  offset?: number;
 }): Promise<HistoryResponseType> {
   // 入力バリデーション
   const validated = z
     .object({
       monitorId: UUIDSchema,
-      limit: z.number().int().min(1).max(1000).default(100).optional(),
+      limit: z.number().int().min(1).max(500).default(100).optional(),
+      offset: z.number().int().min(0).default(0).optional(),
     })
     .parse(input);
 
   try {
-    const { monitorId, limit = 100 } = validated;
+    const { monitorId, limit = 100, offset = 0 } = validated;
 
     const historyService = getHistoryService();
-    const records = await historyService.getRecords(monitorId, limit);
+    // offset を考慮した取得（古いものから新しいものへ）
+    const allRecords = await historyService.getRecords(monitorId, limit + offset);
+    const totalRecords = allRecords.length;
+    const records = allRecords.slice(offset);
+    const hasMore = totalRecords > offset + limit;
 
     // モニター情報を取得
     const status = await getStatus();
@@ -37,16 +43,19 @@ export async function getMonitorHistoryHandler(input: {
       throw new APIError("NOT_FOUND", `モニター ${monitorId} が見つかりません`);
     }
 
-    // 統計情報を計算
-    const stats = calculateHistoryStats(monitorId, records);
+    // 統計情報を計算（全レコードを使用して正確な統計を算出）
+    const allRecordsForStats = await historyService.getRecords(monitorId, 10000);
+    const stats = calculateHistoryStats(monitorId, allRecordsForStats);
 
     const response: HistoryResponseType = {
       monitorId,
       label: monitor.label,
       records,
-      totalRecords: records.length,
-      oldestRecord: records.length > 0 ? records[0].recordedAt : undefined,
-      newestRecord: records.length > 0 ? records[records.length - 1].recordedAt : undefined,
+      totalRecords: allRecords.length,
+      oldestRecord: allRecords.length > 0 ? allRecords[0].recordedAt : undefined,
+      newestRecord:
+        allRecords.length > 0 ? allRecords[allRecords.length - 1].recordedAt : undefined,
+      hasMore,
       stats: {
         upCount: stats.upCount,
         degradedCount: stats.degradedCount,
@@ -74,30 +83,42 @@ export async function getMonitorHistoryHandler(input: {
  */
 export async function getAllMonitorsHistoryHandler(input: {
   limit?: number;
+  offset?: number;
 }): Promise<HistoryResponseType[]> {
   // 入力バリデーション
   const validated = z
     .object({
-      limit: z.number().int().min(1).max(3000).default(100).optional(),
+      limit: z.number().int().min(1).max(500).default(100).optional(),
+      offset: z.number().int().min(0).default(0).optional(),
     })
     .parse(input);
 
   try {
-    const { limit = 100 } = validated;
+    const { limit = 100, offset = 0 } = validated;
     const status = await getStatus();
 
     const historyService = getHistoryService();
     const results = await Promise.all(
       status.monitors.map(async (monitor) => {
-        const records = await historyService.getRecords(monitor.id, limit);
-        const stats = calculateHistoryStats(monitor.id, records);
+        // offset を考慮した取得（古いものから新しいものへ）
+        const allRecords = await historyService.getRecords(monitor.id, limit + offset);
+        const totalRecords = allRecords.length;
+        const records = allRecords.slice(offset);
+        const hasMore = totalRecords > offset + limit;
+
+        // 統計情報を計算（全レコードを使用して正確な統計を算出）
+        const allRecordsForStats = await historyService.getRecords(monitor.id, 10000);
+        const stats = calculateHistoryStats(monitor.id, allRecordsForStats);
+
         const response: HistoryResponseType = {
           monitorId: monitor.id,
           label: monitor.label,
           records,
-          totalRecords: records.length,
-          oldestRecord: records.length > 0 ? records[0].recordedAt : undefined,
-          newestRecord: records.length > 0 ? records[records.length - 1].recordedAt : undefined,
+          totalRecords: allRecords.length,
+          oldestRecord: allRecords.length > 0 ? allRecords[0].recordedAt : undefined,
+          newestRecord:
+            allRecords.length > 0 ? allRecords[allRecords.length - 1].recordedAt : undefined,
+          hasMore,
           stats: {
             upCount: stats.upCount,
             degradedCount: stats.degradedCount,

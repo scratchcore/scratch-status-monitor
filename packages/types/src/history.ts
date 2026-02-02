@@ -36,6 +36,7 @@ export const HistoryResponse = z.object({
   totalRecords: z.number().int().min(0),
   oldestRecord: z.date().optional(),
   newestRecord: z.date().optional(),
+  hasMore: z.boolean(),
   stats: z.object({
     upCount: z.number().int().min(0),
     degradedCount: z.number().int().min(0),

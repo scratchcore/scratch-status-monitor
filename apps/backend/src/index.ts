@@ -5,6 +5,8 @@ import { errorHandler } from "./middleware/errorHandler";
 import mainMiddleware from "./middleware/main";
 import { createOpenAPIRoutes } from "./openapi-routes";
 import { createApiRouter } from "./routes/api";
+import { initializeCacheService } from "./services/cacheService";
+import { initializeHistoryService } from "./services/historyService";
 import { checkAllMonitors } from "./services/monitorService";
 import type { Env } from "./types/env";
 import { generateOpenAPISchema } from "./utils/openapi";
@@ -18,6 +20,18 @@ interface ScheduledEvent {
 }
 
 const app = new Hono<{ Bindings: Env }>();
+
+// KV Store を初期化（本番環境）
+// Cloudflare Workers では、c.env.SCRAC_SSM_KV で KV Store へアクセス可能
+app.use("*", async (c, next) => {
+  // 初回のみ KV Store を初期化
+  if (c.env.SCRAC_SSM_KV) {
+    initializeCacheService(c.env.SCRAC_SSM_KV);
+    initializeHistoryService(c.env.SCRAC_SSM_KV);
+  }
+  await next();
+});
+
 app.use("*", errorHandler());
 app.route("*", mainMiddleware);
 

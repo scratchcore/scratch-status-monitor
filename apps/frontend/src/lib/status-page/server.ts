@@ -4,20 +4,27 @@ import type { HistoryApiEnvelope, StatusPageLoaderData } from "./types";
 import { getEnv } from "@/plugins/envrc";
 
 /**
- * Server Function: サーバーサイドでバックエンドAPIから履歴データ取得
- * /histories API のみを使用
+ * Server Function: サーバーサイドでバックエンドAPIから履歴データ取得（段階的）
  */
-const fetchHistoriesServerFn = createServerFn({ method: "GET" }).handler(
-  async (): Promise<StatusPageLoaderData> => {
-    const env = getEnv({ throwOnError: true });
+const fetchHistoriesServerFn = createServerFn({ method: "GET" })
+  .inputValidator((data?: { limit?: number; offset?: number }) => data ?? {})
+  .handler(
+    async ({ data }): Promise<StatusPageLoaderData> => {
+      const env = getEnv({ throwOnError: true });
+      const { VITE_BACKEND_URL: baseUrl, API_TOKEN } = env;
 
-    const { VITE_BACKEND_URL: baseUrl, API_TOKEN } = env;
-    const historyResponse = await fetch(`${baseUrl}/history?limit=2016`, {
-      headers: {
-        accept: "application/json",
-        authorization: `Bearer ${API_TOKEN}`,
-      },
-    });
+      const limit = data?.limit ?? 100;
+      const offset = data?.offset ?? 0;
+
+      const historyResponse = await fetch(
+        `${baseUrl}/history?limit=${limit}&offset=${offset}`,
+        {
+          headers: {
+            accept: "application/json",
+            authorization: `Bearer ${API_TOKEN}`,
+          },
+        },
+      );
 
     if (!historyResponse.ok) {
       throw new Error("履歴の取得に失敗しました");
@@ -37,8 +44,11 @@ const fetchHistoriesServerFn = createServerFn({ method: "GET" }).handler(
   },
 );
 
-export const fetchHistories = async (): Promise<StatusPageLoaderData> => {
-  return fetchHistoriesServerFn();
+export const fetchHistories = async (params?: {
+  limit?: number;
+  offset?: number;
+}): Promise<StatusPageLoaderData> => {
+  return fetchHistoriesServerFn({ data: params });
 };
 
 // サーバーサイドのメモリキャッシュ（複数リクエスト間で共有）

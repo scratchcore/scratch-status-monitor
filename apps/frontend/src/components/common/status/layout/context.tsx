@@ -7,6 +7,7 @@ import {
   type HistoryResponse,
   type StatusLevel,
 } from "../rc";
+import { useHistoryPagination } from "@/lib/hooks/useHistoryPagination";
 
 export interface StatusPageContextType {
   histories: HistoryResponse[];
@@ -33,13 +34,16 @@ export function StatusPageProvider({
   children,
   ...props
 }: StatusPageProviderProps) {
-  const { nextRefreshAt, refreshIntervalMs, histories } = props;
+  const { nextRefreshAt, refreshIntervalMs, histories: initialHistories } = props;
   const [remainingMs, setRemainingMs] = useState(() => {
     if (!nextRefreshAt) {
       return null;
     }
     return Math.max(0, nextRefreshAt - Date.now());
   });
+
+  // useHistoryPagination で自動的にすべてのデータを読み込む（autoLoadAll = true）
+  const { histories } = useHistoryPagination(initialHistories, true);
 
   useEffect(() => {
     if (!nextRefreshAt) {
