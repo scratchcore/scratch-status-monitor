@@ -117,10 +117,14 @@ showRoutes(app, {
 
 /**
  * Cron Trigger ハンドラー
- * 5分ごとに全モニターをチェック
+ * 全モニターをチェック
  */
-async function handleCron(_event: ScheduledEvent): Promise<void> {
+async function handleCron(_event: ScheduledEvent, env: Env): Promise<void> {
   try {
+    if (env.SCRAC_SSM_KV) {
+      initializeCacheService(env.SCRAC_SSM_KV);
+      initializeHistoryService(env.SCRAC_SSM_KV);
+    }
     console.log("Starting scheduled monitor check...");
     const result = await checkAllMonitors();
     console.log(`Monitor check completed. Overall status: ${result.overallStatus}`);
