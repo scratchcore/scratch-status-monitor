@@ -2,6 +2,23 @@ Welcome to your new TanStack app!
 
 # Getting Started
 
+## Environment Variables
+
+Before running the application, set up your environment variables:
+
+```bash
+# Copy the example environment file
+cp .env.example .env
+
+# Edit .env and set required variables
+# Required:
+#   VITE_BACKEND_URL - Backend API URL (e.g., http://127.0.0.1:8787)
+```
+
+The application will validate environment variables on startup. If required variables are missing, the server will fail to start with a clear error message.
+
+## Running the Application
+
 To run this application:
 
 ```bash
