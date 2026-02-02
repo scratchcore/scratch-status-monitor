@@ -37,6 +37,9 @@ export async function getMonitorHistoryHandler(input: {
       throw new APIError("NOT_FOUND", `モニター ${monitorId} が見つかりません`);
     }
 
+    // 統計情報を計算
+    const stats = calculateHistoryStats(monitorId, records);
+
     const response: HistoryResponseType = {
       monitorId,
       label: monitor.label,
@@ -44,6 +47,16 @@ export async function getMonitorHistoryHandler(input: {
       totalRecords: records.length,
       oldestRecord: records.length > 0 ? records[0].recordedAt : undefined,
       newestRecord: records.length > 0 ? records[records.length - 1].recordedAt : undefined,
+      stats: {
+        upCount: stats.upCount,
+        degradedCount: stats.degradedCount,
+        downCount: stats.downCount,
+        unknownCount: stats.unknownCount,
+        uptime: stats.uptime,
+        avgResponseTime: stats.avgResponseTime,
+        minResponseTime: stats.minResponseTime,
+        maxResponseTime: stats.maxResponseTime,
+      },
     };
 
     return response;
@@ -65,7 +78,7 @@ export async function getAllMonitorsHistoryHandler(input: {
   // 入力バリデーション
   const validated = z
     .object({
-      limit: z.number().int().min(1).max(1000).default(100).optional(),
+      limit: z.number().int().min(1).max(3000).default(100).optional(),
     })
     .parse(input);
 
@@ -77,6 +90,7 @@ export async function getAllMonitorsHistoryHandler(input: {
     const results = await Promise.all(
       status.monitors.map(async (monitor) => {
         const records = await historyService.getRecords(monitor.id, limit);
+        const stats = calculateHistoryStats(monitor.id, records);
         const response: HistoryResponseType = {
           monitorId: monitor.id,
           label: monitor.label,
@@ -84,6 +98,16 @@ export async function getAllMonitorsHistoryHandler(input: {
           totalRecords: records.length,
           oldestRecord: records.length > 0 ? records[0].recordedAt : undefined,
           newestRecord: records.length > 0 ? records[records.length - 1].recordedAt : undefined,
+          stats: {
+            upCount: stats.upCount,
+            degradedCount: stats.degradedCount,
+            downCount: stats.downCount,
+            unknownCount: stats.unknownCount,
+            uptime: stats.uptime,
+            avgResponseTime: stats.avgResponseTime,
+            minResponseTime: stats.minResponseTime,
+            maxResponseTime: stats.maxResponseTime,
+          },
         };
         return response;
       }),

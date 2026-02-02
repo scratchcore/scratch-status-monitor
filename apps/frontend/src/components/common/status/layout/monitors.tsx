@@ -14,53 +14,30 @@ export function Monitors() {
     return null;
   }
 
-  // 最新のレコードを取得
-  const latestHistory = histories[0];
-  if (!latestHistory.records || latestHistory.records.length === 0) {
-    return null;
-  }
-
-  // monitorIdでグループ化してモニターデータを構築
-  const monitorMap = new Map<string, typeof latestHistory.records>();
-
-  histories.forEach((history) => {
-    if (!history.records) return;
-    history.records.forEach((record) => {
-      if (!monitorMap.has(record.monitorId)) {
-        monitorMap.set(record.monitorId, []);
-      }
-      monitorMap.get(record.monitorId)?.push(record);
-    });
-  });
-
-  // 各monitorIdごとにユニークなレコードを取得（重複を除去）
-  const uniqueMonitors = Array.from(monitorMap.entries()).map(
-    ([_, records]) => {
-      // 最新のレコードを取得（配列の最後）
-      return records[records.length - 1];
-    },
-  );
-
   return (
     <div className="relative w-full rounded-lg border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 mt-10 space-y-6">
-      {uniqueMonitors.map((monitor) => {
-        const monitorRecords = monitorMap.get(monitor.monitorId) || [];
+      {histories.map((history) => {
+        const monitorRecords = history.records;
         const desktopData = buildMemoryTrackData(monitorRecords, 90);
         const tabletData = buildMemoryTrackData(monitorRecords, 60);
         const mobileData = buildMemoryTrackData(monitorRecords, 30);
-        const monitorTooltip = statusToTooltip[monitor.status];
 
-        // ラベルを含める
+        // 最新のレコードを取得
+        const latestRecord = monitorRecords[monitorRecords.length - 1];
+        if (!latestRecord) return null;
+
+        const monitorTooltip = statusToTooltip[latestRecord.status];
         const monitorWithLabel = {
-          ...monitor,
-          label: latestHistory.label || monitor.monitorId,
+          ...latestRecord,
+          label: history.label,
         };
 
         return (
           <StatusCardProvider
-            key={monitor.monitorId}
+            key={history.monitorId}
             value={{
               monitor: monitorWithLabel,
+              uptimePercent: history.stats.uptime,
               data: {
                 desktop: desktopData,
                 tablet: tabletData,
@@ -75,3 +52,4 @@ export function Monitors() {
     </div>
   );
 }
+

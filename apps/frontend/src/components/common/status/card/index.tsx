@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { formatDateTime } from "../data";
+import { formatDateTime, formatUptime } from "../data";
 import { type colorMapping, statusLabel } from "../rc";
 import { Tracker } from "../ui/tracker";
 import { StatusCardContext } from "./context";
@@ -24,10 +24,11 @@ export function StatusCard({
             </span>
           </span>
           <span className="text-gray-900 dark:text-gray-50">
-            {statusLabel[data.monitor.status]}
+            {formatUptime(data.uptimePercent)}% uptime
           </span>
         </p>
         <div className="mt-1 flex flex-wrap gap-3 text-xs text-gray-500 dark:text-gray-500">
+          <span>{statusLabel[data.monitor.status]}</span>
           <span>
             応答時間:{" "}
             {data.monitor.responseTime ? `${data.monitor.responseTime}ms` : "-"}

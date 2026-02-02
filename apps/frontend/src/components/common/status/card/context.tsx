@@ -8,6 +8,7 @@ export interface MonitorHistoryRecord extends HistoryRecord {
 
 export interface MonitorData {
   monitor: MonitorHistoryRecord;
+  uptimePercent: number;
   data: {
     desktop: ReturnType<typeof buildMemoryTrackData>;
     tablet: ReturnType<typeof buildMemoryTrackData>;

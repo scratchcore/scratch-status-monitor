@@ -36,6 +36,16 @@ export const HistoryResponse = z.object({
   totalRecords: z.number().int().min(0),
   oldestRecord: z.date().optional(),
   newestRecord: z.date().optional(),
+  stats: z.object({
+    upCount: z.number().int().min(0),
+    degradedCount: z.number().int().min(0),
+    downCount: z.number().int().min(0),
+    unknownCount: z.number().int().min(0),
+    uptime: z.number().min(0).max(100),
+    avgResponseTime: z.number().int().min(0),
+    minResponseTime: z.number().int().min(0).optional(),
+    maxResponseTime: z.number().int().min(0).optional(),
+  }),
 });
 
 export type HistoryResponse = z.infer<typeof HistoryResponse>;
@@ -48,9 +58,12 @@ export const HistoryStats = z.object({
   upCount: z.number().int().min(0),
   degradedCount: z.number().int().min(0),
   downCount: z.number().int().min(0),
+  unknownCount: z.number().int().min(0),
   totalRecords: z.number().int().min(0),
   uptime: z.number().min(0).max(100), // パーセンテージ
   avgResponseTime: z.number().int().min(0),
+  minResponseTime: z.number().int().min(0).optional(),
+  maxResponseTime: z.number().int().min(0).optional(),
 });
 
 export type HistoryStats = z.infer<typeof HistoryStats>;

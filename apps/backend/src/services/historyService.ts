@@ -156,22 +156,30 @@ export function calculateHistoryStats(monitorId: string, records: HistoryRecord[
   const upCount = records.filter((r) => r.status === "up").length;
   const degradedCount = records.filter((r) => r.status === "degraded").length;
   const downCount = records.filter((r) => r.status === "down").length;
+  const unknownCount = records.filter((r) => r.status === "unknown").length;
   const totalRecords = records.length;
 
   const uptime = totalRecords > 0 ? (upCount / totalRecords) * 100 : 0;
+  
+  const responseTimes = records.map((r) => r.responseTime);
   const avgResponseTime =
     totalRecords > 0
-      ? Math.round(records.reduce((sum, r) => sum + r.responseTime, 0) / totalRecords)
+      ? Math.round(responseTimes.reduce((sum, rt) => sum + rt, 0) / totalRecords)
       : 0;
+  const minResponseTime = responseTimes.length > 0 ? Math.min(...responseTimes) : undefined;
+  const maxResponseTime = responseTimes.length > 0 ? Math.max(...responseTimes) : undefined;
 
   return HistoryStats.parse({
     monitorId,
     upCount,
     degradedCount,
     downCount,
+    unknownCount,
     totalRecords,
     uptime,
     avgResponseTime,
+    minResponseTime,
+    maxResponseTime,
   });
 }
 

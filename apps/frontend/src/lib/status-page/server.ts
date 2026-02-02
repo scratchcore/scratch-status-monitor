@@ -12,7 +12,7 @@ const fetchHistoriesServerFn = createServerFn({ method: "GET" }).handler(
     const env = getEnv({ throwOnError: true });
 
     const { VITE_BACKEND_URL: baseUrl, API_TOKEN } = env;
-    const historyResponse = await fetch(`${baseUrl}/history`, {
+    const historyResponse = await fetch(`${baseUrl}/history?limit=2016`, {
       headers: {
         accept: "application/json",
         authorization: `Bearer ${API_TOKEN}`,

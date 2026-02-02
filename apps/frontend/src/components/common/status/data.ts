@@ -138,3 +138,8 @@ export const formatDateTime = (value: string) => {
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? value : date.toLocaleString("ja-JP");
 };
+
+export const formatUptime = (value: number) => {
+  const normalized = Math.min(100, Math.max(0, value));
+  return normalized.toFixed(1).padStart(4, "0");
+};
