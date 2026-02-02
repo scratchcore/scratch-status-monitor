@@ -1,5 +1,5 @@
 /**
- * @scratchcore/scracsm-types
+ * @scratchcore/ssm-types
  * バックエンド・フロントエンド間で共有する型定義
  */
 

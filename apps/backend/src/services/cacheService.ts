@@ -1,5 +1,5 @@
-import { scracsmrc } from "@scratchcore/scracsm-configs";
-import type { StatusResponse as StatusResponseType } from "@scratchcore/scracsm-types";
+import { scracsmrc } from "@scratchcore/ssm-configs";
+import type { StatusResponse as StatusResponseType } from "@scratchcore/ssm-types";
 
 const CACHE_KEY = "monitor:status:latest";
 

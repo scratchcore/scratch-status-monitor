@@ -2,7 +2,7 @@ import type {
   HistoryResponse as HistoryResponseSchema,
   SerializedInfer,
   StatusResponse as StatusResponseSchema,
-} from "@scratchcore/scracsm-types";
+} from "@scratchcore/ssm-types";
 
 // シリアライズされた型（Date -> string）
 export type StatusResponse = SerializedInfer<typeof StatusResponseSchema> & {

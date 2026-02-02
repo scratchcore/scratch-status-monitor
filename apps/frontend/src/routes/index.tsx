@@ -1,4 +1,4 @@
-import { scracsmrc } from "@scratchcore/scracsm-configs";
+import { scracsmrc } from "@scratchcore/ssm-configs";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect } from "react";

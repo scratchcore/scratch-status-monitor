@@ -3,7 +3,7 @@ import {
   HistoryRecord,
   HistoryStats,
   type StatusCheckResult as StatusCheckResultType,
-} from "@scratchcore/scracsm-types";
+} from "@scratchcore/ssm-types";
 
 /**
  * KV Store に保存する履歴データの構造

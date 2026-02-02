@@ -1,5 +1,5 @@
 {
-  "name": "@scratchcore/scracsm-configs",
+  "name": "@scratchcore/ssm-configs",
   "version": "0.0.1",
   "description": "バックエンド・フロントエンド間で共有する設定パッケージ",
   "type": "module",

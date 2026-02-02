@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { HistoryResponse, HistoryStats, StatusResponse } from "@scratchcore/scracsm-types";
+import { HistoryResponse, HistoryStats, StatusResponse } from "@scratchcore/ssm-types";
 
 /**
  * oRPC API 定義

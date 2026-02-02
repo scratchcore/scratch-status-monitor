@@ -1,12 +1,12 @@
-import { scracsmrc, scracsmConfigType } from "@scratchcore/scracsm-configs";
-import type { StatusCheckResult as StatusCheckResultType } from "@scratchcore/scracsm-types";
+import { scracsmrc, scracsmConfigType } from "@scratchcore/ssm-configs";
+import type { StatusCheckResult as StatusCheckResultType } from "@scratchcore/ssm-types";
 import {
   CategoryStatus,
   MonitorStatus,
   type MonitorStatus as MonitorStatusType,
   type StatusLevel as StatusLevelType,
   StatusResponse,
-} from "@scratchcore/scracsm-types";
+} from "@scratchcore/ssm-types";
 
 /**
  * 複数のステータスから全体の状態を判定

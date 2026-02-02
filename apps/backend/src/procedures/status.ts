@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { APIError } from "../middleware/errorHandler";
-import type { StatusResponse as StatusResponseType } from "@scratchcore/scracsm-types";
+import type { StatusResponse as StatusResponseType } from "@scratchcore/ssm-types";
 import { checkAllMonitors, getStatus } from "../services/monitorService";
 import { UUIDSchema } from "../utils/validators";
 

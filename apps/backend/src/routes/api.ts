@@ -6,7 +6,7 @@ import {
   getMonitorStatsHandler,
 } from "../procedures/history";
 import { getStatusHandler, refreshStatusHandler } from "../procedures/status";
-import { HistoryResponse, HistoryStats, StatusResponse } from "@scratchcore/scracsm-types";
+import { HistoryResponse, HistoryStats, StatusResponse } from "@scratchcore/ssm-types";
 import { type APIEndpointMetadata, registerEndpoint } from "../types/api-metadata";
 import { UUIDSchema } from "../utils/validators";
 
