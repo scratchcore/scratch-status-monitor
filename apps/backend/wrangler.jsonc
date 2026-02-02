@@ -3,6 +3,8 @@
   "name": "scratchcore-ssm-backend",
   "main": "src/index.ts",
   "compatibility_date": "2026-01-31",
+  "workers_dev": true,
+  "preview_urls": true,
   "routes": [
     {
       "pattern": "api.ssm.scratchcore.org",
@@ -13,13 +15,6 @@
   "triggers": {
     "crons": ["*/5 * * * *"],
   },
-  "kv_namespaces": [
-    {
-      "binding": "SCRAC_SSM_KV",
-      "id": "810bb5e576494859aa950c9346dcb15e",
-      "preview_id": "scrac-ssm-kv-preview",
-    },
-  ],
   "observability": {
     "enabled": true,
     "head_sampling_rate": 1,
@@ -28,7 +23,30 @@
   // ローカル開発用: .dev.vars ファイルに以下を設定してください
   // API_TOKEN=your-secret-token-here
   // ENVIRONMENT=development
-  "vars": {
-    "ENVIRONMENT": "development",
+  "env": {
+    "development": {
+      "kv_namespaces": [
+        {
+          "binding": "SCRAC_SSM_KV",
+          "id": "810bb5e576494859aa950c9346dcb15e",
+          "preview_id": "scrac-ssm-kv-preview",
+        },
+      ],
+      "vars": {
+        "ENVIRONMENT": "development",
+      },
+    },
+    "production": {
+      "kv_namespaces": [
+        {
+          "binding": "SCRAC_SSM_KV",
+          "id": "810bb5e576494859aa950c9346dcb15e",
+          "preview_id": "scrac-ssm-kv-preview",
+        },
+      ],
+      "vars": {
+        "ENVIRONMENT": "production",
+      },
+    },
   },
 }

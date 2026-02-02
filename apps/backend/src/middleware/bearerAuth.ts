@@ -20,8 +20,23 @@ export function createBearerAuthMiddleware(): MiddlewareHandler<{ Bindings: Env 
     const environment = c.env.ENVIRONMENT || "development";
     const path = c.req.path;
 
-    // トークンが設定されていない場合は認証をスキップ
+    // トークンが設定されていない場合
     if (!token) {
+      // 本番環境では fail-closed（全ルートを拒否）
+      if (environment === "production") {
+        console.error(
+          "API_TOKEN is not set in production. All requests are blocked until API_TOKEN is configured.",
+        );
+        return c.json(
+          {
+            success: false,
+            message: "API authentication is not configured",
+          },
+          { status: 503 },
+        );
+      }
+
+      // 開発環境では認証をスキップ
       console.warn(
         "API_TOKEN is not set. Bearer authentication is disabled. Set API_TOKEN in environment variables to enable authentication.",
       );
