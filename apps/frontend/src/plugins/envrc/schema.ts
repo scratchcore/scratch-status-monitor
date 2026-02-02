@@ -17,6 +17,8 @@ export interface EnvVarConfig {
 	type?: EnvVarType;
 	/** デフォルト値（任意） */
 	default?: string;
+	/** ログ出力時にマスクするか（機密情報の場合true） */
+	masked?: boolean;
 	/** バリデーション関数（任意） */
 	validate?: (value: string) => boolean | string;
 }

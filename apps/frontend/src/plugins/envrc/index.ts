@@ -171,9 +171,16 @@ export function checkEnvOnStartup(): void {
 	}
 	console.log("✅ Environment variables validated successfully");
 	// envrc.tsの定義から動的にログ出力
-	for (const key of Object.keys(envrc.env)) {
+	for (const [key, varConfig] of Object.entries(envrc.env)) {
 		const value = env[key as keyof typeof env];
-		console.log(`   ${key}: ${value || "not set"}`);
+		// masked: true の場合は値をマスク
+		const isMasked = "masked" in varConfig && (varConfig as { masked?: boolean }).masked === true;
+		const displayValue = isMasked
+			? value
+				? "***"
+				: "not set"
+			: value || "not set";
+		console.log(`   ${key}: ${displayValue}`);
 	}
 	console.log("");
 }
