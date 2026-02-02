@@ -15,7 +15,7 @@ const envrc = defineConfig({
     },
     API_TOKEN: {
       type: "text",
-      required: false,
+      required: true,
       masked: true,
       description: "外部APIの認証トークン",
     },

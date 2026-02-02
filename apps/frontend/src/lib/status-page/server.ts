@@ -1,6 +1,11 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getBackendBaseUrl } from "./config";
-import type { HistoryApiEnvelope, StatusApiEnvelope, StatusPageLoaderData } from "./types";
+import type {
+  HistoryApiEnvelope,
+  StatusApiEnvelope,
+  StatusPageLoaderData,
+} from "./types";
+import { getEnv } from "@/plugins/envrc";
 
 /**
  * Server Function: サーバーサイドでバックエンドAPIからデータ取得
@@ -8,16 +13,20 @@ import type { HistoryApiEnvelope, StatusApiEnvelope, StatusPageLoaderData } from
  */
 const fetchStatusAndHistoryServerFn = createServerFn({ method: "GET" }).handler(
   async (): Promise<StatusPageLoaderData> => {
-    const baseUrl = getBackendBaseUrl();
+    const env = getEnv({ throwOnError: true });
+
+    const { VITE_BACKEND_URL: baseUrl, API_TOKEN } = env;
     const [statusResponse, historyResponse] = await Promise.all([
       fetch(`${baseUrl}/status`, {
         headers: {
           accept: "application/json",
+          authorization: `Bearer ${API_TOKEN}`,
         },
       }),
       fetch(`${baseUrl}/history?limit=90`, {
         headers: {
           accept: "application/json",
+          authorization: `Bearer ${API_TOKEN}`,
         },
       }),
     ]);
@@ -40,9 +49,10 @@ const fetchStatusAndHistoryServerFn = createServerFn({ method: "GET" }).handler(
   },
 );
 
-export const fetchStatusAndHistory = async (): Promise<StatusPageLoaderData> => {
-  return fetchStatusAndHistoryServerFn();
-};
+export const fetchStatusAndHistory =
+  async (): Promise<StatusPageLoaderData> => {
+    return fetchStatusAndHistoryServerFn();
+  };
 
 // サーバーサイドのメモリキャッシュ（複数リクエスト間で共有）
 let cachedLoaderData: StatusPageLoaderData | null = null;
@@ -51,33 +61,34 @@ let inFlightRequest: Promise<StatusPageLoaderData> | null = null;
 /**
  * SSRローダー用：サーバーサイドのメモリキャッシュを優先的に使用
  */
-export const getCachedStatusAndHistory = async (): Promise<StatusPageLoaderData> => {
-  const now = Date.now();
+export const getCachedStatusAndHistory =
+  async (): Promise<StatusPageLoaderData> => {
+    const now = Date.now();
 
-  // キャッシュが有効な場合はそれを返す（expiresAt ベースで判定）
-  if (cachedLoaderData) {
-    const expiresAt = new Date(cachedLoaderData.status.expiresAt).getTime();
-    if (now < expiresAt) {
-      return cachedLoaderData;
+    // キャッシュが有効な場合はそれを返す（expiresAt ベースで判定）
+    if (cachedLoaderData) {
+      const expiresAt = new Date(cachedLoaderData.status.expiresAt).getTime();
+      if (now < expiresAt) {
+        return cachedLoaderData;
+      }
     }
-  }
 
-  // 既に取得中の場合は待機
-  if (inFlightRequest) {
+    // 既に取得中の場合は待機
+    if (inFlightRequest) {
+      return inFlightRequest;
+    }
+
+    // バックエンドから取得
+    inFlightRequest = fetchStatusAndHistory()
+      .then((data) => {
+        cachedLoaderData = data;
+        inFlightRequest = null;
+        return data;
+      })
+      .catch((error) => {
+        inFlightRequest = null;
+        throw error;
+      });
+
     return inFlightRequest;
-  }
-
-  // バックエンドから取得
-  inFlightRequest = fetchStatusAndHistory()
-    .then((data) => {
-      cachedLoaderData = data;
-      inFlightRequest = null;
-      return data;
-    })
-    .catch((error) => {
-      inFlightRequest = null;
-      throw error;
-    });
-
-  return inFlightRequest;
-};
+  };
