@@ -1,0 +1,13 @@
+# Cloudflare Workers ローカル開発環境変数
+# このファイルを .dev.vars にコピーして使用してください
+# .dev.vars はGitにコミットしないでください
+
+# API Bearer 認証トークン
+# 未設定の場合は認証が無効になります
+# 本番環境では必ず設定してください
+API_TOKEN=your-secret-token-here
+
+# 環境モード
+# development: テストルートが有効
+# production: テストルートが無効
+ENVIRONMENT=development

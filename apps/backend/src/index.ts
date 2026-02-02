@@ -1,10 +1,12 @@
 import { Hono } from "hono";
 import { showRoutes } from "hono/dev";
+import { createBearerAuthMiddleware } from "./middleware/bearerAuth";
 import { errorHandler } from "./middleware/errorHandler";
 import mainMiddleware from "./middleware/main";
 import { createOpenAPIRoutes } from "./openapi-routes";
 import { createApiRouter } from "./routes/api";
 import { checkAllMonitors } from "./services/monitorService";
+import type { Env } from "./types/env";
 import { generateOpenAPISchema } from "./utils/openapi";
 
 /**
@@ -15,9 +17,12 @@ interface ScheduledEvent {
   scheduledTime: number;
 }
 
-const app = new Hono();
+const app = new Hono<{ Bindings: Env }>();
 app.use("*", errorHandler());
 app.route("*", mainMiddleware);
+
+// Bearer 認証を適用（環境に応じて適用範囲が変わります）
+app.use("*", createBearerAuthMiddleware());
 
 // API ルータを先に作成してメタデータを登録
 // (OpenAPI スキーマ生成の前に実行される必要があります)
@@ -47,8 +52,21 @@ app.get("/", (c) => {
 
 /**
  * ローカル開発用: 手動でscheduledトリガーをテストするエンドポイント
+ * ENVIRONMENT=development の場合のみ有効
  */
 app.post("/test/trigger-monitor-check", async (c) => {
+  // 本番環境ではテストルートを無効化
+  const env = c.env.ENVIRONMENT || "development";
+  if (env !== "development") {
+    return c.json(
+      {
+        success: false,
+        message: "Test endpoints are only available in development environment",
+      },
+      { status: 404 },
+    );
+  }
+
   const query = c.req.query("row");
   const rowMode = !!(query === "" || query === "true");
   try {

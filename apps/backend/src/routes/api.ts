@@ -11,7 +11,7 @@ import { type APIEndpointMetadata, registerEndpoint } from "../types/api-metadat
 import { UUIDSchema } from "../utils/validators";
 
 /**
- * /api ルータ
+ * ルータ
  * ステータス・履歴・統計情報に関するエンドポイントを提供
  */
 export const createApiRouter = () => {

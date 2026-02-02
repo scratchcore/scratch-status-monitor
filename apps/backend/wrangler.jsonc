@@ -24,4 +24,11 @@
     "enabled": true,
     "head_sampling_rate": 1,
   },
+  // 環境変数の設定
+  // ローカル開発用: .dev.vars ファイルに以下を設定してください
+  // API_TOKEN=your-secret-token-here
+  // ENVIRONMENT=development
+  "vars": {
+    "ENVIRONMENT": "development",
+  },
 }
