@@ -19,8 +19,13 @@
   },
   "env": {
     "development": {
-      "workers_dev": true,
-      "preview_urls": true,
+      "routes": [
+        {
+          "pattern": "dev.ssm.scra.cc",
+          "zone_name": "scra.cc",
+          "custom_domain": true,
+        },
+      ],
       "vars": {
         "ENVIRONMENT": "development",
         "VITE_BACKEND_URL": "https://api.ssm.scra.cc",
