@@ -5,12 +5,12 @@ import { getHistoryService } from "./historyService";
 import { checkMultipleMonitors } from "./statusChecker";
 import { buildMonitorStatus, buildStatusResponse } from "./statusService";
 
-const CACHE_INTERVAL_MS = 5 * 60 * 1000; // 5分
-
 /**
  * 全てのモニターをチェックして、ステータスを更新
  */
 export async function checkAllMonitors(): Promise<StatusResponseType> {
+  // 設定からキャッシュ有効期限を取得
+  const cacheIntervalMs = ssmrc.cache.statusTtlMs;
   // 設定からチェック対象を構築
   const monitorsToCheck = ssmrc.monitors.map((item) => ({
     id: item.id,
@@ -31,7 +31,7 @@ export async function checkAllMonitors(): Promise<StatusResponseType> {
     .filter((m) => m !== null);
 
   // ステータスレスポンスを構築
-  const statusResponse = buildStatusResponse(monitors, CACHE_INTERVAL_MS);
+  const statusResponse = buildStatusResponse(monitors, cacheIntervalMs);
 
   // キャッシュに保存
   const cacheService = getCacheService();

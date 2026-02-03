@@ -39,6 +39,7 @@ export function Monitors() {
               monitor: monitorWithLabel,
               uptimePercent: history.stats.uptime,
               data: {
+                row: monitorRecords,
                 desktop: desktopData,
                 tablet: tabletData,
                 mobile: mobileData,
@@ -52,4 +53,3 @@ export function Monitors() {
     </div>
   );
 }
-

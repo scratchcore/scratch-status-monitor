@@ -1,3 +1,4 @@
+import { ssmrc } from "@scratchcore/ssm-configs";
 import { v4 as uuidv4 } from "uuid";
 import {
   HistoryRecord,
@@ -92,8 +93,13 @@ class InMemoryHistoryService implements HistoryService {
 
 /**
  * KV Store ベースの履歴サービス
+ * メモリキャッシュで高速アクセスを提供し、
+ * 一定期間ごとにKV Storeに書き込む遅延書き込みを実装
  */
 class KVHistoryService implements HistoryService {
+  private memoryCache: Map<string, StoredHistoryData> = new Map();
+  private lastKVWriteTime: Map<string, number> = new Map();
+
   constructor(private kv: any) {}
 
   private getKey(monitorId: string): string {
@@ -101,11 +107,15 @@ class KVHistoryService implements HistoryService {
   }
 
   async saveRecord(monitorId: string, result: StatusCheckResultType): Promise<void> {
-    const key = this.getKey(monitorId);
-    const existing: StoredHistoryData = (await this.kv.get(key, "json")) || {
-      records: [],
-      lastUpdated: new Date().toISOString(),
-    };
+    // メモリキャッシュから既存データを取得（なければ新規作成）
+    let existing = this.memoryCache.get(monitorId);
+    if (!existing) {
+      existing = {
+        records: [],
+        lastUpdated: new Date().toISOString(),
+      };
+      this.memoryCache.set(monitorId, existing);
+    }
 
     existing.records.push({
       id: uuidv4(),
@@ -119,14 +129,35 @@ class KVHistoryService implements HistoryService {
 
     existing.lastUpdated = new Date().toISOString();
 
-    await this.kv.put(key, JSON.stringify(existing), {
-      expirationTtl: 30 * 24 * 60 * 60, // 30日後に自動削除
-    });
+    // KVへの書き込みは一定期間ごとのみ実行（非同期）
+    const now = Date.now();
+    const lastWriteTime = this.lastKVWriteTime.get(monitorId) || 0;
+    if (now - lastWriteTime > ssmrc.cache.kvWriteIntervalMs) {
+      this.lastKVWriteTime.set(monitorId, now);
+      // バックグラウンドで書き込み（await しない）
+      this.kv
+        .put(this.getKey(monitorId), JSON.stringify(existing), {
+          expirationTtl: 30 * 24 * 60 * 60, // 30日後に自動削除
+        })
+        .catch((err: Error) => {
+          console.error(`Failed to write history for ${monitorId} to KV:`, err);
+        });
+    }
   }
 
   async getRecords(monitorId: string, limit: number = 100): Promise<HistoryRecord[]> {
-    const key = this.getKey(monitorId);
-    const data: StoredHistoryData | null = await this.kv.get(key, "json");
+    // メモリキャッシュを優先的に確認
+    let data = this.memoryCache.get(monitorId);
+
+    // メモリキャッシュにない場合、KVから取得
+    if (!data) {
+      const kvData: StoredHistoryData | null = await this.kv.get(this.getKey(monitorId), "json");
+      if (kvData) {
+        data = kvData;
+        // メモリキャッシュに格納
+        this.memoryCache.set(monitorId, data);
+      }
+    }
 
     if (!data) return [];
 
@@ -139,8 +170,9 @@ class KVHistoryService implements HistoryService {
   }
 
   async deleteRecords(monitorId: string): Promise<void> {
-    const key = this.getKey(monitorId);
-    await this.kv.delete(key);
+    this.memoryCache.delete(monitorId);
+    this.lastKVWriteTime.delete(monitorId);
+    await this.kv.delete(this.getKey(monitorId));
   }
 
   async cleanup(retentionDays: number): Promise<void> {

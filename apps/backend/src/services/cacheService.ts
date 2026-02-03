@@ -17,7 +17,7 @@ export interface CacheService {
 
 /**
  * メモリキャッシュベースのCacheService（開発用）
- * 本番ではKV Storeに置き換え
+ * メモリ上でのみキャッシュを管理し、KVには書き込まない
  */
 class InMemoryCacheService implements CacheService {
   private cache: Map<string, { data: StatusResponseType; expiresAt: number }> = new Map();
@@ -49,22 +49,57 @@ class InMemoryCacheService implements CacheService {
 
 /**
  * Cloudflare Workers KV Store対応のCacheService
+ * メモリキャッシュで高速アクセスを提供し、
+ * 一定期間ごとにKV Storeに書き込む遅延書き込みを実装
  */
 class KVCacheService implements CacheService {
+  private memoryCache: Map<string, { data: StatusResponseType; expiresAt: number }> = new Map();
+  private lastKVWriteTime: number = 0;
+
   constructor(private kv: any) {}
 
   async get(): Promise<StatusResponseType | null> {
-    const cached = await this.kv.get(CACHE_KEY, "json");
-    return cached ? (cached as StatusResponseType) : null;
+    // メモリキャッシュを優先的に確認
+    const memEntry = this.memoryCache.get(CACHE_KEY);
+    if (memEntry && Date.now() <= memEntry.expiresAt) {
+      return memEntry.data;
+    }
+
+    // メモリキャッシュにない場合、KVから取得
+    const kvCached = await this.kv.get(CACHE_KEY, "json");
+    if (kvCached) {
+      const data = kvCached as StatusResponseType;
+      // メモリキャッシュに格納
+      const expiresAt = Date.now() + ssmrc.cache.statusTtlMs;
+      this.memoryCache.set(CACHE_KEY, { data, expiresAt });
+      return data;
+    }
+
+    return null;
   }
 
   async set(data: StatusResponseType): Promise<void> {
-    await this.kv.put(CACHE_KEY, JSON.stringify(data), {
-      expirationTtl: ssmrc.cache.statusTtlMs,
-    });
+    // メモリキャッシュに即座に保存
+    const expiresAt = Date.now() + ssmrc.cache.statusTtlMs;
+    this.memoryCache.set(CACHE_KEY, { data, expiresAt });
+
+    // KVへの書き込みは一定期間ごとのみ実行（非同期）
+    const now = Date.now();
+    if (now - this.lastKVWriteTime > ssmrc.cache.kvWriteIntervalMs) {
+      this.lastKVWriteTime = now;
+      // バックグラウンドで書き込み（await しない）
+      this.kv
+        .put(CACHE_KEY, JSON.stringify(data), {
+          expirationTtl: Math.ceil(ssmrc.cache.statusTtlMs / 1000),
+        })
+        .catch((err: Error) => {
+          console.error("Failed to write cache to KV:", err);
+        });
+    }
   }
 
   async delete(): Promise<void> {
+    this.memoryCache.delete(CACHE_KEY);
     await this.kv.delete(CACHE_KEY);
   }
 }

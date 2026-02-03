@@ -37,5 +37,9 @@ export namespace ssmrcType {
      * ステータスレスポンスのキャッシュ有効期間（ミリ秒、デフォルト: 300000 = 5分）
      */
     statusTtlMs: number;
+    /**
+     * KV Store への書き込み間隔（ミリ秒）
+     */
+    kvWriteIntervalMs: number;
   }
 }

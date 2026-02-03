@@ -4,6 +4,7 @@ import { type colorMapping, statusLabel } from "../rc";
 import { Tracker } from "../ui/tracker";
 import { StatusCardContext } from "./context";
 import { StatusIcon } from "../icon";
+import { StatusCardChart } from "./chart";
 
 export function StatusCard({
   monitorTooltip,
@@ -58,6 +59,7 @@ export function StatusCard({
           <span>今日</span>
         </div>
       </div>
+      <StatusCardChart />
       <div
         className="h-px w-full bg-gray-200 dark:bg-gray-800"
         aria-hidden={true}

@@ -10,6 +10,7 @@ export interface MonitorData {
   monitor: MonitorHistoryRecord;
   uptimePercent: number;
   data: {
+    row: HistoryRecord[];
     desktop: ReturnType<typeof buildMemoryTrackData>;
     tablet: ReturnType<typeof buildMemoryTrackData>;
     mobile: ReturnType<typeof buildMemoryTrackData>;
