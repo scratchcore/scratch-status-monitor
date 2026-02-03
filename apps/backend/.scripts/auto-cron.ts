@@ -32,12 +32,15 @@ async function startAutoCron(): Promise<void> {
   });
 
   const onRun = async () => {
+    const now = new Date();
     const result = await fetch(
       "http://localhost:8787/cdn-cgi/handler/scheduled",
     );
     if (!result.ok) {
       throw new Error(`HTTP error! status: ${result.status}`);
     }
+    const res_time = Date.now() - now.getTime();
+    log(`✅ モニターチェック実行完了`, `応答時間: ${res_time}ms`);
   };
 
   // 初回は即座に実行

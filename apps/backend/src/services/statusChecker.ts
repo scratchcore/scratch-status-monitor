@@ -1,4 +1,5 @@
 import { StatusCheckResult, type StatusLevel as StatusLevelType } from "@scratchcore/ssm-types";
+import { BACKEND_DEFAULTS } from "../config/defaults";
 
 interface CheckOptions {
   timeout?: number;
@@ -31,7 +32,7 @@ export async function checkMonitorStatus(
   url: string,
   options: CheckOptions = {},
 ): Promise<StatusCheckResult> {
-  const timeout = options.timeout || 10000; // デフォルト10秒
+  const timeout = options.timeout || BACKEND_DEFAULTS.TIMEOUT_MS;
   const startTime = Date.now();
 
   try {

@@ -2,7 +2,7 @@ export namespace ssmrcType {
   export interface rc {
     category: category[];
     monitors: monitor[];
-    history: history;
+    checks: checks;
     cache: cache;
   }
   export interface category {
@@ -15,31 +15,43 @@ export namespace ssmrcType {
     category: string;
     url: string;
   }
-  /**
-   * 履歴保存の設定
-   */
-  export interface history {
-    /**
-     * 履歴を保持する日数（デフォルト: 30日）
-     */
-    retentionDays?: number;
-    /**
-     * 履歴に記録するモニターの最大数（デフォルト: 100）
-     */
-    maxRecords?: number;
-    /**
-     * 履歴自動削除を有効にするか（デフォルト: true）
-     */
-    autoCleanup?: boolean;
-  }
+
   export interface cache {
     /**
      * ステータスレスポンスのキャッシュ有効期間（ミリ秒、デフォルト: 300000 = 5分）
      */
     statusTtlMs: number;
     /**
-     * KV Store への書き込み間隔（ミリ秒）
+     * 履歴データのバケット間隔（ミリ秒）
+     * v2.0: 時刻の切り捨て（floor）に使用
+     * デフォルト: 300000 = 5分
      */
-    kvWriteIntervalMs: number;
+    bucketIntervalMs: number;
+    /**
+     * KV Store へのバックアップ間隔（ミリ秒）
+     * v2.0: プロセスストレージ主体、KV はバックアップのみ
+     * デフォルト: 1800000 = 30分
+     */
+    kvBackupIntervalMs: number;
+    /**
+     * データ保持期間（日数）
+     * v2.0: メモリ上のデータを自動削除する基準
+     * デフォルト: 7日
+     */
+    dataRetentionDays: number;
+    /**
+     * クリーンアップ実行間隔（ミリ秒）
+     * v2.0: 古いデータを削除する定期処理の間隔
+     * デフォルト: 3600000 = 1時間
+     */
+    cleanupIntervalMs: number;
+  }
+
+  export interface checks {
+    /**
+     * ステータスチェックのタイムアウト時間（ミリ秒）
+     * デフォルト: 10000 = 10秒
+     */
+    timeoutMs: number;
   }
 }

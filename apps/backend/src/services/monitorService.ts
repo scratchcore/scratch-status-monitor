@@ -19,7 +19,7 @@ export async function checkAllMonitors(): Promise<StatusResponseType> {
 
   // 並行してチェック実行
   const checkResults = await checkMultipleMonitors(monitorsToCheck, {
-    timeout: 10000,
+    timeout: ssmrc.checks.timeoutMs,
   });
 
   // チェック結果からモニターステータスを構築

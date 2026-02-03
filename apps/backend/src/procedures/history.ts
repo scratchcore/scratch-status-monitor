@@ -7,6 +7,7 @@ import type {
 import { calculateHistoryStats, getHistoryService } from "../services/historyService";
 import { getStatus } from "../services/monitorService";
 import { UUIDSchema } from "../utils/validators";
+import { BACKEND_DEFAULTS } from "../config/defaults";
 
 /**
  * 特定のモニターの履歴を取得
@@ -29,11 +30,10 @@ export async function getMonitorHistoryHandler(input: {
     const { monitorId, limit = 100, offset = 0 } = validated;
 
     const historyService = getHistoryService();
-    // offset を考慮した取得（古いものから新しいものへ）
-    const allRecords = await historyService.getRecords(monitorId, limit + offset);
-    const totalRecords = allRecords.length;
-    const records = allRecords.slice(offset);
-    const hasMore = totalRecords > offset + limit;
+    // hasMore 判定のため、1件多く取得（offset を考慮）
+    const allRecords = await historyService.getRecords(monitorId, limit + offset + 1);
+    const records = allRecords.slice(offset, offset + limit);
+    const hasMore = allRecords.length > offset + limit;
 
     // モニター情報を取得
     const status = await getStatus();
@@ -44,17 +44,16 @@ export async function getMonitorHistoryHandler(input: {
     }
 
     // 統計情報を計算（全レコードを使用して正確な統計を算出）
-    const allRecordsForStats = await historyService.getRecords(monitorId, 10000);
+    const allRecordsForStats = await historyService.getRecords(monitorId, BACKEND_DEFAULTS.HISTORY_RECORDS_LIMIT);
     const stats = calculateHistoryStats(monitorId, allRecordsForStats);
 
     const response: HistoryResponseType = {
       monitorId,
       label: monitor.label,
       records,
-      totalRecords: allRecords.length,
-      oldestRecord: allRecords.length > 0 ? allRecords[0].recordedAt : undefined,
-      newestRecord:
-        allRecords.length > 0 ? allRecords[allRecords.length - 1].recordedAt : undefined,
+      totalRecords: records.length,
+      oldestRecord: records.length > 0 ? records[0].recordedAt : undefined,
+      newestRecord: records.length > 0 ? records[records.length - 1].recordedAt : undefined,
       hasMore,
       stats: {
         upCount: stats.upCount,
@@ -100,24 +99,22 @@ export async function getAllMonitorsHistoryHandler(input: {
     const historyService = getHistoryService();
     const results = await Promise.all(
       status.monitors.map(async (monitor) => {
-        // offset を考慮した取得（古いものから新しいものへ）
-        const allRecords = await historyService.getRecords(monitor.id, limit + offset);
-        const totalRecords = allRecords.length;
-        const records = allRecords.slice(offset);
-        const hasMore = totalRecords > offset + limit;
+        // hasMore 判定のため、1件多く取得（offset を考慮）
+        const allRecords = await historyService.getRecords(monitor.id, limit + offset + 1);
+        const records = allRecords.slice(offset, offset + limit);
+        const hasMore = allRecords.length > offset + limit;
 
         // 統計情報を計算（全レコードを使用して正確な統計を算出）
-        const allRecordsForStats = await historyService.getRecords(monitor.id, 10000);
+        const allRecordsForStats = await historyService.getRecords(monitor.id, BACKEND_DEFAULTS.HISTORY_RECORDS_LIMIT);
         const stats = calculateHistoryStats(monitor.id, allRecordsForStats);
 
         const response: HistoryResponseType = {
           monitorId: monitor.id,
           label: monitor.label,
           records,
-          totalRecords: allRecords.length,
-          oldestRecord: allRecords.length > 0 ? allRecords[0].recordedAt : undefined,
-          newestRecord:
-            allRecords.length > 0 ? allRecords[allRecords.length - 1].recordedAt : undefined,
+          totalRecords: records.length,
+          oldestRecord: records.length > 0 ? records[0].recordedAt : undefined,
+          newestRecord: records.length > 0 ? records[records.length - 1].recordedAt : undefined,
           hasMore,
           stats: {
             upCount: stats.upCount,

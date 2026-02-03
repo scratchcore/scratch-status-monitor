@@ -1,4 +1,5 @@
 import { ssmrc, ssmrcType } from "@scratchcore/ssm-configs";
+import { BACKEND_DEFAULTS } from "../config/defaults";
 import type { StatusCheckResult as StatusCheckResultType } from "@scratchcore/ssm-types";
 import {
   CategoryStatus,
@@ -76,7 +77,7 @@ export function calculateCategoryStatus(
  */
 export function buildStatusResponse(
   monitors: MonitorStatusType[],
-  cacheIntervalMs: number = 5 * 60 * 1000,
+  cacheIntervalMs: number = BACKEND_DEFAULTS.CACHE_INTERVAL_MS,
 ): StatusResponse {
   const categories = ssmrc.category.map((cat) => calculateCategoryStatus(cat, monitors));
 

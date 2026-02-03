@@ -4,10 +4,10 @@ import {
   ChartTooltip,
 } from "@/components/ui/chart";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
-import { StatusPageContext } from "../layout/context";
 import { useContext, useMemo } from "react";
 import { StatusCardContext } from "./context";
 import { StatusCardChartTooltip } from "../ui/chart-tooltip";
+import { ssmrc } from "@scratchcore/ssm-configs";
 
 const chartConfig = {
   responseTime: {
@@ -16,6 +16,12 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
+function floorToInterval(date: Date, intervalMs: number): Date {
+  const time = date.getTime();
+  const floored = Math.floor(time / intervalMs) * intervalMs;
+  return new Date(floored);
+}
+
 export function StatusCardChart() {
   const s = useContext(StatusCardContext);
   if (!s) return null;
@@ -23,12 +29,15 @@ export function StatusCardChart() {
   // チャートデータをメモ化（s.data.row が変わる時だけ再計算）
   const chartData = useMemo(() => {
     return s.data.row.map((record) => {
-      const date = new Date(record.recordedAt);
-      const isStartOfDay = date.getHours() === 0 && date.getMinutes() === 0;
+      const recordedAtDate = new Date(record.recordedAt);
+      const bucketedAtDate = record.bucketedAt
+        ? new Date(record.bucketedAt)
+        : floorToInterval(recordedAtDate, ssmrc.cache.bucketIntervalMs);
+      const isStartOfDay = bucketedAtDate.getHours() === 0 && bucketedAtDate.getMinutes() === 0;
 
       return {
         // Tooltip用フル日時
-        fullDateTime: date.toLocaleDateString("ja-JP", {
+        fullDateTime: recordedAtDate.toLocaleDateString("ja-JP", {
           month: "2-digit",
           day: "2-digit",
           hour: "2-digit",
@@ -36,8 +45,8 @@ export function StatusCardChart() {
         }),
         // X軸用ラベル（日付のはじめなら日付、それ以外は時間）
         recordedAt: isStartOfDay
-          ? date.toLocaleDateString("ja-JP", { month: "2-digit", day: "2-digit" })
-          : date.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" }),
+          ? bucketedAtDate.toLocaleDateString("ja-JP", { month: "2-digit", day: "2-digit" })
+          : bucketedAtDate.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" }),
         responseTime: record.responseTime,
       };
     });

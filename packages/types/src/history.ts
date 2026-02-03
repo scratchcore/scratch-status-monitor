@@ -11,6 +11,8 @@ export const HistoryRecord = z.object({
   responseTime: z.number().int().min(0),
   errorMessage: z.string().optional(),
   recordedAt: z.date(),
+  // v2.0: バケット化された時刻（切り捨て）
+  bucketedAt: z.date(),
 });
 
 export type HistoryRecord = z.infer<typeof HistoryRecord>;

@@ -18,22 +18,37 @@ interface StoredHistoryData {
     responseTime: number;
     errorMessage?: string;
     recordedAt: string; // ISO 8601形式
+    bucketedAt: string; // ISO 8601形式（切り捨て）
   }>;
   lastUpdated: string;
 }
 
+const BACKUP_KEY = "backup:histories:snapshot"; // v2.0: バックアップ用キー
+
+/**
+ * v2.0: 時刻を指定間隔で切り捨て
+ */
+function floorToInterval(date: Date, intervalMs: number): Date {
+  const time = date.getTime();
+  const floored = Math.floor(time / intervalMs) * intervalMs;
+  return new Date(floored);
+}
+
 /**
  * 履歴サービスのインターフェース
+ * v2.0: プロセスストレージ主体、KV はバックアップのみ
  */
 export interface HistoryService {
   saveRecord(monitorId: string, result: StatusCheckResultType): Promise<void>;
   getRecords(monitorId: string, limit?: number): Promise<HistoryRecord[]>;
   deleteRecords(monitorId: string): Promise<void>;
   cleanup(retentionDays: number): Promise<void>;
+  restoreFromBackup(): Promise<void>; // v2.0: 起動時の復元
 }
 
 /**
  * メモリベースの履歴サービス（開発用）
+ * v2.0: メモリのみで管理、KV バックアップなし
  */
 class InMemoryHistoryService implements HistoryService {
   private histories: Map<string, StoredHistoryData> = new Map();
@@ -44,6 +59,9 @@ class InMemoryHistoryService implements HistoryService {
       lastUpdated: new Date().toISOString(),
     };
 
+    const recordedAt = result.checkedAt;
+    const bucketedAt = floorToInterval(recordedAt, ssmrc.cache.bucketIntervalMs);
+
     existing.records.push({
       id: uuidv4(),
       monitorId,
@@ -51,7 +69,8 @@ class InMemoryHistoryService implements HistoryService {
       statusCode: result.statusCode,
       responseTime: result.responseTime,
       errorMessage: result.errorMessage,
-      recordedAt: result.checkedAt.toISOString(),
+      recordedAt: recordedAt.toISOString(),
+      bucketedAt: bucketedAt.toISOString(),
     });
 
     existing.lastUpdated = new Date().toISOString();
@@ -62,12 +81,18 @@ class InMemoryHistoryService implements HistoryService {
     const data = this.histories.get(monitorId);
     if (!data) return [];
 
-    return data.records.slice(-limit).map((record) =>
-      HistoryRecord.parse({
+    return data.records.slice(-limit).map((record) => {
+      const recordedAt = new Date(record.recordedAt);
+      const bucketedAt = record.bucketedAt
+        ? new Date(record.bucketedAt)
+        : floorToInterval(recordedAt, ssmrc.cache.bucketIntervalMs);
+
+      return HistoryRecord.parse({
         ...record,
-        recordedAt: new Date(record.recordedAt),
-      }),
-    );
+        recordedAt,
+        bucketedAt,
+      });
+    });
   }
 
   async deleteRecords(monitorId: string): Promise<void> {
@@ -89,16 +114,24 @@ class InMemoryHistoryService implements HistoryService {
       }
     }
   }
+
+  async restoreFromBackup(): Promise<void> {
+    // InMemory版では何もしない
+  }
 }
 
 /**
  * KV Store ベースの履歴サービス
- * メモリキャッシュで高速アクセスを提供し、
- * 一定期間ごとにKV Storeに書き込む遅延書き込みを実装
+ * v2.0: プロセスストレージ主体、KV はバックアップのみ
+ * - メモリのみから高速取得（KV フォールバックなし）
+ * - 定期的に KV へバックアップ（30分間隔）
+ * - 起動時に KV から復元
+ * - 定期クリーンアップで古いデータを削除（7日以前）
  */
 class KVHistoryService implements HistoryService {
   private memoryCache: Map<string, StoredHistoryData> = new Map();
-  private lastKVWriteTime: Map<string, number> = new Map();
+  private lastBackupTime: number = 0;
+  private isRestored: boolean = false;
 
   constructor(private kv: any) {}
 
@@ -117,6 +150,9 @@ class KVHistoryService implements HistoryService {
       this.memoryCache.set(monitorId, existing);
     }
 
+    const recordedAt = result.checkedAt;
+    const bucketedAt = floorToInterval(recordedAt, ssmrc.cache.bucketIntervalMs);
+
     existing.records.push({
       id: uuidv4(),
       monitorId,
@@ -124,60 +160,117 @@ class KVHistoryService implements HistoryService {
       statusCode: result.statusCode,
       responseTime: result.responseTime,
       errorMessage: result.errorMessage,
-      recordedAt: result.checkedAt.toISOString(),
+      recordedAt: recordedAt.toISOString(),
+      bucketedAt: bucketedAt.toISOString(),
     });
 
     existing.lastUpdated = new Date().toISOString();
 
-    // KVへの書き込みは一定期間ごとのみ実行（非同期）
+    // v2.0: KV バックアップ判定
     const now = Date.now();
-    const lastWriteTime = this.lastKVWriteTime.get(monitorId) || 0;
-    if (now - lastWriteTime > ssmrc.cache.kvWriteIntervalMs) {
-      this.lastKVWriteTime.set(monitorId, now);
-      // バックグラウンドで書き込み（await しない）
-      this.kv
-        .put(this.getKey(monitorId), JSON.stringify(existing), {
-          expirationTtl: 30 * 24 * 60 * 60, // 30日後に自動削除
-        })
-        .catch((err: Error) => {
-          console.error(`Failed to write history for ${monitorId} to KV:`, err);
-        });
+    if (now - this.lastBackupTime > ssmrc.cache.kvBackupIntervalMs) {
+      this.lastBackupTime = now;
+      // 非同期でバックアップ
+      this.backupToKV().catch((err: Error) => {
+        console.error("Failed to backup histories to KV:", err);
+      });
+    }
+  }
+
+  /**
+   * v2.0: KV へのバックアップ処理
+   * 全モニターのデータを一括で保存
+   */
+  private async backupToKV(): Promise<void> {
+    const allData: Record<string, StoredHistoryData> = {};
+    
+    for (const [monitorId, data] of this.memoryCache.entries()) {
+      allData[monitorId] = data;
+    }
+
+    await this.kv.put(BACKUP_KEY, JSON.stringify(allData), {
+      expirationTtl: ssmrc.cache.dataRetentionDays * 24 * 60 * 60, // 7日
+    });
+
+    console.log(`[HistoryService] Backup completed: ${Object.keys(allData).length} monitors`);
+  }
+
+  /**
+   * v2.0: 起動時に KV から復元
+   */
+  async restoreFromBackup(): Promise<void> {
+    if (this.isRestored) {
+      return; // 既に復元済み
+    }
+
+    try {
+      const backup = await this.kv.get(BACKUP_KEY, "json");
+      if (backup) {
+        let restoredMonitors = 0;
+        for (const [monitorId, data] of Object.entries(backup as Record<string, StoredHistoryData>)) {
+          this.memoryCache.set(monitorId, data);
+          restoredMonitors++;
+        }
+        console.log(`[HistoryService] Restored from backup: ${restoredMonitors} monitors`);
+      } else {
+        console.log("[HistoryService] No backup found in KV");
+      }
+    } catch (err) {
+      console.error("[HistoryService] Failed to restore from backup:", err);
+    } finally {
+      this.isRestored = true;
     }
   }
 
   async getRecords(monitorId: string, limit: number = 100): Promise<HistoryRecord[]> {
-    // メモリキャッシュを優先的に確認
-    let data = this.memoryCache.get(monitorId);
-
-    // メモリキャッシュにない場合、KVから取得
-    if (!data) {
-      const kvData: StoredHistoryData | null = await this.kv.get(this.getKey(monitorId), "json");
-      if (kvData) {
-        data = kvData;
-        // メモリキャッシュに格納
-        this.memoryCache.set(monitorId, data);
-      }
-    }
-
+    // v2.0: メモリのみから取得（KV アクセスなし）
+    const data = this.memoryCache.get(monitorId);
     if (!data) return [];
 
-    return data.records.slice(-limit).map((record) =>
-      HistoryRecord.parse({
+    return data.records.slice(-limit).map((record) => {
+      const recordedAt = new Date(record.recordedAt);
+      const bucketedAt = record.bucketedAt
+        ? new Date(record.bucketedAt)
+        : floorToInterval(recordedAt, ssmrc.cache.bucketIntervalMs);
+
+      return HistoryRecord.parse({
         ...record,
-        recordedAt: new Date(record.recordedAt),
-      }),
-    );
+        recordedAt,
+        bucketedAt,
+      });
+    });
   }
 
   async deleteRecords(monitorId: string): Promise<void> {
     this.memoryCache.delete(monitorId);
-    this.lastKVWriteTime.delete(monitorId);
-    await this.kv.delete(this.getKey(monitorId));
+    // バックアップは次回の一括バックアップ時に更新される
   }
 
   async cleanup(retentionDays: number): Promise<void> {
-    // KV Store の expirationTtl で自動削除されるため、ここでは何もしない
-    console.log(`History cleanup scheduled for ${retentionDays} days retention`);
+    // v2.0: メモリ内のデータを7日以前で削除
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - retentionDays);
+    const cutoffTime = cutoffDate.getTime();
+
+    let cleanedMonitors = 0;
+    let cleanedRecords = 0;
+
+    for (const [monitorId, data] of this.memoryCache.entries()) {
+      const initialLength = data.records.length;
+      data.records = data.records.filter(
+        (record) => new Date(record.recordedAt).getTime() > cutoffTime,
+      );
+
+      const removedCount = initialLength - data.records.length;
+      cleanedRecords += removedCount;
+
+      if (data.records.length === 0) {
+        this.memoryCache.delete(monitorId);
+        cleanedMonitors++;
+      }
+    }
+
+    console.log(`[HistoryService] Cleanup completed: ${cleanedRecords} records removed, ${cleanedMonitors} monitors cleared`);
   }
 }
 

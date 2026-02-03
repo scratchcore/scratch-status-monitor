@@ -5,8 +5,10 @@ import { errorHandler } from "./middleware/errorHandler";
 import mainMiddleware from "./middleware/main";
 import { createOpenAPIRoutes } from "./openapi-routes";
 import { createApiRouter } from "./routes/api";
-import { initializeCacheService } from "./services/cacheService";
-import { initializeHistoryService } from "./services/historyService";
+import debugRouter from "./routes/debug";
+import { initializeCacheService, getCacheService } from "./services/cacheService";
+import { initializeHistoryService, getHistoryService } from "./services/historyService";
+import { startPeriodicCleanup } from "./services/cleanupService";
 import { checkAllMonitors } from "./services/monitorService";
 import type { Env } from "./types/env";
 import { generateOpenAPISchema } from "./utils/openapi";
@@ -19,15 +21,56 @@ interface ScheduledEvent {
   scheduledTime: number;
 }
 
+/**
+ * v2.0: データ復元フラグ
+ * 起動時に一度だけ KV から復元する
+ */
+let isDataRestored = false;
+
 const app = new Hono<{ Bindings: Env }>();
 
+/**
+ * v2.0: 起動時の復元処理
+ * KV バックアップからデータを復元し、クリーンアップを開始
+ */
+async function restoreFromKVIfNeeded(kv: any): Promise<void> {
+  if (isDataRestored) {
+    return; // 既に復元済み
+  }
+
+  console.log("[App] Restoring data from KV backup...");
+  
+  try {
+    // Cache と History を復元
+    const cacheService = getCacheService();
+    const historyService = getHistoryService();
+    
+    await Promise.all([
+      cacheService.restoreFromBackup(),
+      historyService.restoreFromBackup(),
+    ]);
+    
+    // クリーンアップを開始
+    startPeriodicCleanup();
+    
+    isDataRestored = true;
+    console.log("[App] Data restoration completed");
+  } catch (err) {
+    console.error("[App] Failed to restore data from KV:", err);
+    isDataRestored = true; // エラーでも次回はスキップ
+  }
+}
+
 // KV Store を初期化（本番環境）
-// Cloudflare Workers では、c.env.SCRAC_SSM_KV で KV Store へアクセス可能
+// v2.0: 初期化後、起動時に KV から復元
 app.use("*", async (c, next) => {
   // 初回のみ KV Store を初期化
   if (c.env.SCRAC_SSM_KV) {
     initializeCacheService(c.env.SCRAC_SSM_KV);
     initializeHistoryService(c.env.SCRAC_SSM_KV);
+    
+    // v2.0: KV から復元（1回のみ）
+    await restoreFromKVIfNeeded(c.env.SCRAC_SSM_KV);
   }
   await next();
 });
@@ -42,6 +85,9 @@ app.use("*", createBearerAuthMiddleware());
 // (OpenAPI スキーマ生成の前に実行される必要があります)
 const apiRouter = createApiRouter();
 app.route("", apiRouter);
+
+// v2.0: デバッグ・監視用ルート
+app.route("/debug", debugRouter);
 
 // OpenAPI ルートを統合
 const openAPIApp = await createOpenAPIRoutes();
@@ -64,66 +110,22 @@ app.get("/", (c) => {
   });
 });
 
-/**
- * ローカル開発用: 手動でscheduledトリガーをテストするエンドポイント
- * ENVIRONMENT=development の場合のみ有効
- */
-app.post("/test/trigger-monitor-check", async (c) => {
-  // 本番環境ではテストルートを無効化
-  const env = c.env.ENVIRONMENT || "development";
-  if (env !== "development") {
-    return c.json(
-      {
-        success: false,
-        message: "Test endpoints are only available in development environment",
-      },
-      { status: 404 },
-    );
-  }
-
-  const query = c.req.query("row");
-  const rowMode = !!(query === "" || query === "true");
-  try {
-    console.log("Manual trigger: Starting monitor check...");
-    const result = await checkAllMonitors();
-    console.log(`Monitor check completed. Overall status: ${result.overallStatus}`);
-    return c.json({
-      success: true,
-      message: "Monitor check executed successfully",
-      result: {
-        overallStatus: result.overallStatus,
-        categories: result.categories.length,
-        monitors: result.monitors.length,
-        timestamp: result.timestamp,
-      },
-      row: rowMode ? result : undefined,
-    });
-  } catch (error) {
-    console.error("Error during manual trigger:", error);
-    return c.json(
-      {
-        success: false,
-        message: "Error during monitor check",
-        error: error instanceof Error ? error.message : String(error),
-      },
-      { status: 500 },
-    );
-  }
-});
-
 showRoutes(app, {
   verbose: true,
 });
 
 /**
  * Cron Trigger ハンドラー
- * 全モニターをチェック
+ * v2.0: 全モニターをチェックし、KV から復元が必要な場合は実行
  */
 async function handleCron(_event: ScheduledEvent, env: Env): Promise<void> {
   try {
     if (env.SCRAC_SSM_KV) {
       initializeCacheService(env.SCRAC_SSM_KV);
       initializeHistoryService(env.SCRAC_SSM_KV);
+      
+      // v2.0: 起動時に KV から復元
+      await restoreFromKVIfNeeded(env.SCRAC_SSM_KV);
     }
     console.log("Starting scheduled monitor check...");
     const result = await checkAllMonitors();
