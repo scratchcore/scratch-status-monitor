@@ -12,6 +12,7 @@ interface CustomChartTooltipContentProps
     Omit<React.ComponentProps<"div">, "color"> {
   hideLabel?: boolean;
   hideIndicator?: boolean;
+  hideName?: boolean;
   indicator?: "line" | "dot" | "dashed";
   nameKey?: string;
   /**
@@ -45,6 +46,7 @@ export function StatusCardChartTooltip({
   indicator = "dot",
   hideLabel = false,
   hideIndicator = false,
+  hideName = false,
   label,
   labelFormatter,
   labelClassName,
@@ -153,7 +155,7 @@ export function StatusCardChartTooltip({
                 >
                   <div className="grid gap-1.5">
                     {nestLabel ? tooltipLabel : null}
-                    <span className="text-muted-foreground">{formattedName}</span>
+                    {!hideName && <span className="text-muted-foreground">{formattedName}</span>}
                   </div>
                   {formattedValue !== undefined && (
                     <span className="text-foreground font-mono font-medium tabular-nums">

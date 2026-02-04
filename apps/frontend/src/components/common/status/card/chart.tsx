@@ -3,7 +3,7 @@ import {
   ChartContainer,
   ChartTooltip,
 } from "@/components/ui/chart";
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { useContext, useMemo } from "react";
 import { StatusCardContext } from "./context";
 import { StatusCardChartTooltip } from "../ui/chart-tooltip";
@@ -33,7 +33,8 @@ export function StatusCardChart() {
       const bucketedAtDate = record.bucketedAt
         ? new Date(record.bucketedAt)
         : floorToInterval(recordedAtDate, ssmrc.cache.bucketIntervalMs);
-      const isStartOfDay = bucketedAtDate.getHours() === 0 && bucketedAtDate.getMinutes() === 0;
+      const isStartOfDay =
+        bucketedAtDate.getHours() === 0 && bucketedAtDate.getMinutes() === 0;
 
       return {
         // Tooltip用フル日時
@@ -45,15 +46,21 @@ export function StatusCardChart() {
         }),
         // X軸用ラベル（日付のはじめなら日付、それ以外は時間）
         recordedAt: isStartOfDay
-          ? bucketedAtDate.toLocaleDateString("ja-JP", { month: "2-digit", day: "2-digit" })
-          : bucketedAtDate.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" }),
+          ? bucketedAtDate.toLocaleDateString("ja-JP", {
+              month: "2-digit",
+              day: "2-digit",
+            })
+          : bucketedAtDate.toLocaleTimeString("ja-JP", {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
         responseTime: record.responseTime,
       };
     });
   }, [s.data.row]);
 
   return (
-    <ChartContainer config={chartConfig}>
+    <ChartContainer config={chartConfig} className="flex flex-col w-full max-h-56">
       <AreaChart
         accessibilityLayer
         data={chartData}
@@ -67,16 +74,21 @@ export function StatusCardChart() {
           dataKey="recordedAt"
           tickLine={false}
           axisLine={false}
-          tickMargin={8}
+          tickMargin={4}
+        />
+        <YAxis
+          dataKey="responseTime"
+          tickLine={false}
+          axisLine={false}
+          tickMargin={2}
         />
         <ChartTooltip
           cursor={false}
           content={
             <StatusCardChartTooltip
-              indicator="dot"
               valueFormatter={(value) => {
                 if (typeof value === "number") {
-                  return `${value.toFixed(2)}ms`;
+                  return `${value}ms`;
                 }
                 return value;
               }}

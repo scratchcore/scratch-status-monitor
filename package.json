@@ -4,10 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "taze": "taze -r"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.26.2"
+  "packageManager": "pnpm@10.28.2",
+  "devDependencies": {
+    "taze": "^19.9.2"
+  }
 }
