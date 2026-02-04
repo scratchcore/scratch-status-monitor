@@ -3,15 +3,22 @@
  */
 export interface Env {
   /**
-   * KV Namespace バインディング
-   */
-  SCRAC_SSM_KV: KVNamespace;
-
-  /**
    * API Bearer 認証トークン
    * 環境変数: API_TOKEN
    */
   API_TOKEN?: string;
+
+  /**
+   * Supabase URL
+   * 環境変数: SUPABASE_URL
+   */
+  SUPABASE_URL?: string;
+
+  /**
+   * Supabase Service Role Key
+   * 環境変数: SUPABASE_SERVICE_ROLE_KEY
+   */
+  SUPABASE_SERVICE_ROLE_KEY?: string;
 
   /**
    * 環境モード

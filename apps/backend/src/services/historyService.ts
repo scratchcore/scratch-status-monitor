@@ -5,6 +5,7 @@ import {
   HistoryStats,
   type StatusCheckResult as StatusCheckResultType,
 } from "@scratchcore/ssm-types";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 /**
  * KV Store に保存する履歴データの構造
@@ -23,7 +24,7 @@ interface StoredHistoryData {
   lastUpdated: string;
 }
 
-const BACKUP_KEY = "backup:histories:snapshot"; // v2.0: バックアップ用キー
+const HISTORY_TABLE = "history_records";
 
 /**
  * v2.0: 時刻を指定間隔で切り捨て
@@ -43,7 +44,7 @@ export interface HistoryService {
   getRecords(monitorId: string, limit?: number): Promise<HistoryRecord[]>;
   deleteRecords(monitorId: string): Promise<void>;
   cleanup(retentionDays: number): Promise<void>;
-  restoreFromBackup(): Promise<void>; // v2.0: 起動時の復元
+  restoreFromBackup(): Promise<void>; // Supabase では no-op
 }
 
 /**
@@ -121,156 +122,85 @@ class InMemoryHistoryService implements HistoryService {
 }
 
 /**
- * KV Store ベースの履歴サービス
- * v2.0: プロセスストレージ主体、KV はバックアップのみ
- * - メモリのみから高速取得（KV フォールバックなし）
- * - 定期的に KV へバックアップ（30分間隔）
- * - 起動時に KV から復元
- * - 定期クリーンアップで古いデータを削除（7日以前）
+ * Supabase ベースの履歴サービス
  */
-class KVHistoryService implements HistoryService {
-  private memoryCache: Map<string, StoredHistoryData> = new Map();
-  private lastBackupTime: number = 0;
-  private isRestored: boolean = false;
-
-  constructor(private kv: any) {}
-
-  private getKey(monitorId: string): string {
-    return `history:${monitorId}`;
-  }
+class SupabaseHistoryService implements HistoryService {
+  constructor(private client: SupabaseClient) {}
 
   async saveRecord(monitorId: string, result: StatusCheckResultType): Promise<void> {
-    // メモリキャッシュから既存データを取得（なければ新規作成）
-    let existing = this.memoryCache.get(monitorId);
-    if (!existing) {
-      existing = {
-        records: [],
-        lastUpdated: new Date().toISOString(),
-      };
-      this.memoryCache.set(monitorId, existing);
-    }
-
     const recordedAt = result.checkedAt;
     const bucketedAt = floorToInterval(recordedAt, ssmrc.cache.bucketIntervalMs);
 
-    existing.records.push({
+    const { error } = await this.client.from(HISTORY_TABLE).insert({
       id: uuidv4(),
-      monitorId,
+      monitor_id: monitorId,
       status: result.status,
-      statusCode: result.statusCode,
-      responseTime: result.responseTime,
-      errorMessage: result.errorMessage,
-      recordedAt: recordedAt.toISOString(),
-      bucketedAt: bucketedAt.toISOString(),
+      status_code: result.statusCode ?? null,
+      response_time: result.responseTime,
+      error_message: result.errorMessage ?? null,
+      recorded_at: recordedAt.toISOString(),
+      bucketed_at: bucketedAt.toISOString(),
     });
 
-    existing.lastUpdated = new Date().toISOString();
-
-    // v2.0: KV バックアップ判定
-    const now = Date.now();
-    if (now - this.lastBackupTime > ssmrc.cache.kvBackupIntervalMs) {
-      this.lastBackupTime = now;
-      // 非同期でバックアップ
-      this.backupToKV().catch((err: Error) => {
-        console.error("Failed to backup histories to KV:", err);
-      });
-    }
-  }
-
-  /**
-   * v2.0: KV へのバックアップ処理
-   * 全モニターのデータを一括で保存
-   */
-  private async backupToKV(): Promise<void> {
-    const allData: Record<string, StoredHistoryData> = {};
-    
-    for (const [monitorId, data] of this.memoryCache.entries()) {
-      allData[monitorId] = data;
-    }
-
-    await this.kv.put(BACKUP_KEY, JSON.stringify(allData), {
-      expirationTtl: ssmrc.cache.dataRetentionDays * 24 * 60 * 60, // 7日
-    });
-
-    console.log(`[HistoryService] Backup completed: ${Object.keys(allData).length} monitors`);
-  }
-
-  /**
-   * v2.0: 起動時に KV から復元
-   */
-  async restoreFromBackup(): Promise<void> {
-    if (this.isRestored) {
-      return; // 既に復元済み
-    }
-
-    try {
-      const backup = await this.kv.get(BACKUP_KEY, "json");
-      if (backup) {
-        let restoredMonitors = 0;
-        for (const [monitorId, data] of Object.entries(backup as Record<string, StoredHistoryData>)) {
-          this.memoryCache.set(monitorId, data);
-          restoredMonitors++;
-        }
-        console.log(`[HistoryService] Restored from backup: ${restoredMonitors} monitors`);
-      } else {
-        console.log("[HistoryService] No backup found in KV");
-      }
-    } catch (err) {
-      console.error("[HistoryService] Failed to restore from backup:", err);
-    } finally {
-      this.isRestored = true;
+    if (error) {
+      console.error("[HistoryService] Failed to insert history record:", error);
     }
   }
 
   async getRecords(monitorId: string, limit: number = 100): Promise<HistoryRecord[]> {
-    // v2.0: メモリのみから取得（KV アクセスなし）
-    const data = this.memoryCache.get(monitorId);
-    if (!data) return [];
+    const { data, error } = await this.client
+      .from(HISTORY_TABLE)
+      .select("id, monitor_id, status, status_code, response_time, error_message, recorded_at, bucketed_at")
+      .eq("monitor_id", monitorId)
+      .order("recorded_at", { ascending: false })
+      .limit(limit);
 
-    return data.records.slice(-limit).map((record) => {
-      const recordedAt = new Date(record.recordedAt);
-      const bucketedAt = record.bucketedAt
-        ? new Date(record.bucketedAt)
-        : floorToInterval(recordedAt, ssmrc.cache.bucketIntervalMs);
+    if (error) {
+      console.error("[HistoryService] Failed to fetch records:", error);
+      return [];
+    }
 
-      return HistoryRecord.parse({
-        ...record,
-        recordedAt,
-        bucketedAt,
-      });
-    });
+    const ordered = (data ?? []).reverse();
+    return ordered.map((record) =>
+      HistoryRecord.parse({
+        id: record.id,
+        monitorId: record.monitor_id,
+        status: record.status,
+        statusCode: record.status_code ?? undefined,
+        responseTime: record.response_time,
+        errorMessage: record.error_message ?? undefined,
+        recordedAt: new Date(record.recorded_at),
+        bucketedAt: new Date(record.bucketed_at),
+      }),
+    );
   }
 
   async deleteRecords(monitorId: string): Promise<void> {
-    this.memoryCache.delete(monitorId);
-    // バックアップは次回の一括バックアップ時に更新される
+    const { error } = await this.client.from(HISTORY_TABLE).delete().eq("monitor_id", monitorId);
+    if (error) {
+      console.error("[HistoryService] Failed to delete records:", error);
+    }
   }
 
   async cleanup(retentionDays: number): Promise<void> {
-    // v2.0: メモリ内のデータを7日以前で削除
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - retentionDays);
-    const cutoffTime = cutoffDate.getTime();
 
-    let cleanedMonitors = 0;
-    let cleanedRecords = 0;
+    const { error, count } = await this.client
+      .from(HISTORY_TABLE)
+      .delete({ count: "exact" })
+      .lt("recorded_at", cutoffDate.toISOString());
 
-    for (const [monitorId, data] of this.memoryCache.entries()) {
-      const initialLength = data.records.length;
-      data.records = data.records.filter(
-        (record) => new Date(record.recordedAt).getTime() > cutoffTime,
-      );
-
-      const removedCount = initialLength - data.records.length;
-      cleanedRecords += removedCount;
-
-      if (data.records.length === 0) {
-        this.memoryCache.delete(monitorId);
-        cleanedMonitors++;
-      }
+    if (error) {
+      console.error("[HistoryService] Cleanup failed:", error);
+      return;
     }
 
-    console.log(`[HistoryService] Cleanup completed: ${cleanedRecords} records removed, ${cleanedMonitors} monitors cleared`);
+    console.log(`[HistoryService] Cleanup completed: ${count ?? 0} records removed`);
+  }
+
+  async restoreFromBackup(): Promise<void> {
+    // Supabase では復元不要
   }
 }
 
@@ -316,13 +246,13 @@ let historyServiceInstance: HistoryService | null = null;
 /**
  * 履歴サービスを初期化または取得
  */
-export function initializeHistoryService(kv?: any): HistoryService {
+export function initializeHistoryService(client?: SupabaseClient): HistoryService {
   if (historyServiceInstance) {
     return historyServiceInstance;
   }
 
-  if (kv) {
-    historyServiceInstance = new KVHistoryService(kv);
+  if (client) {
+    historyServiceInstance = new SupabaseHistoryService(client);
   } else {
     historyServiceInstance = new InMemoryHistoryService();
   }

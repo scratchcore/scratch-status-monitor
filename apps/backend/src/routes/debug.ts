@@ -4,6 +4,7 @@ import { getCacheService } from "../services/cacheService";
 import { getHistoryService } from "../services/historyService";
 import { getCleanupStatus } from "../services/cleanupService";
 import { BACKEND_DEFAULTS } from "../config/defaults";
+import { getSupabaseClient } from "../services/supabaseClient";
 
 /**
  * v2.0: デバッグ・監視用 API ルート
@@ -106,27 +107,28 @@ debugRouter.post("/cleanup", async (c) => {
 });
 
 /**
- * KV バックアップ状態を確認
+ * Supabase ストレージ状態を確認
  */
 debugRouter.get("/backup-status", async (c) => {
-  if (!c.env.SCRAC_SSM_KV) {
-    return c.json({
-      error: "KV Store not available",
-    }, { status: 503 });
-  }
-
   try {
-    const cacheBackup = await c.env.SCRAC_SSM_KV.get("backup:cache:snapshot", "json");
-    const historyBackup = await c.env.SCRAC_SSM_KV.get("backup:histories:snapshot", "json");
-    
+    const supabase = getSupabaseClient();
+    const { count: cacheCount, error: cacheError } = await supabase
+      .from("status_cache")
+      .select("key", { count: "exact", head: true });
+    const { count: historyCount, error: historyError } = await supabase
+      .from("history_records")
+      .select("id", { count: "exact", head: true });
+
+    if (cacheError || historyError) {
+      throw cacheError || historyError;
+    }
+
     return c.json({
       cache: {
-        exists: !!cacheBackup,
-        entries: cacheBackup ? Object.keys(cacheBackup).length : 0,
+        entries: cacheCount ?? 0,
       },
       history: {
-        exists: !!historyBackup,
-        monitors: historyBackup ? Object.keys(historyBackup).length : 0,
+        records: historyCount ?? 0,
       },
     });
   } catch (error) {

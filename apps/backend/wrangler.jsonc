@@ -22,30 +22,18 @@
   // 環境変数の設定
   // ローカル開発用: .dev.vars ファイルに以下を設定してください
   // API_TOKEN=your-secret-token-here
+  // SUPABASE_URL=https://xxxxx.supabase.co
+  // SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
   // ENVIRONMENT=development
   "env": {
     "development": {
       "workers_dev": true,
       "preview_urls": true,
-      "kv_namespaces": [
-        {
-          "binding": "SCRAC_SSM_KV",
-          "id": "810bb5e576494859aa950c9346dcb15e",
-          "preview_id": "scrac-ssm-kv-preview",
-        },
-      ],
       "vars": {
         "ENVIRONMENT": "development",
       },
     },
     "production": {
-      "kv_namespaces": [
-        {
-          "binding": "SCRAC_SSM_KV",
-          "id": "810bb5e576494859aa950c9346dcb15e",
-          "preview_id": "scrac-ssm-kv-preview",
-        },
-      ],
       "vars": {
         "ENVIRONMENT": "production",
       },

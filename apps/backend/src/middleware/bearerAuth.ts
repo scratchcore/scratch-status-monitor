@@ -46,10 +46,11 @@ export function createBearerAuthMiddleware(): MiddlewareHandler<{ Bindings: Env 
     // 開発環境では特定のパスを認証から除外
     if (environment === "development") {
       const isTestRoute = path.startsWith("/test/");
+      const isDebugRoute = path.startsWith("/debug/");
       const isDocsRoute = path === "/docs" || path.startsWith("/docs/") || path === "/openapi.json";
       const isRootRoute = path === "/";
 
-      if (isTestRoute || isDocsRoute || isRootRoute) {
+      if (isTestRoute || isDebugRoute || isDocsRoute || isRootRoute) {
         return next();
       }
     }
