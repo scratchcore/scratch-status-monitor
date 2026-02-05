@@ -1,5 +1,6 @@
 import { CACHE_KEY, STATUS_PAGE_QUERY_KEY } from "./config";
 import type { StatusPageLoaderData } from "./types";
+import { fetchAllHistories } from "./server";
 
 // クライアントサイドの BroadcastChannel（複数タブ間で同期）
 let broadcastChannel: BroadcastChannel | null = null;
@@ -40,13 +41,12 @@ export const closeBroadcastChannel = (): void => {
 };
 
 /**
- * 新しいデータを取得して、他のタブに通知
+ * 新しいデータを取得して、他のタブに通知（全データ取得版）
  */
 export const refetchAndBroadcast = async (
-  fetchFn: () => Promise<StatusPageLoaderData>,
   queryClient: QueryClient,
 ): Promise<StatusPageLoaderData> => {
-  const newData = await fetchFn();
+  const newData = await fetchAllHistories();
 
   // クライアント側のキャッシュも更新
   queryClient.setQueryData(STATUS_PAGE_QUERY_KEY, newData);

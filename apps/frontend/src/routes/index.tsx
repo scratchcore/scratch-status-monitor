@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { STATUS_PAGE_QUERY_KEY } from "@/lib/status-page/config";
 // Local imports
-import { fetchHistories, getCachedHistories } from "@/lib/status-page/server";
+import { getCachedHistories } from "@/lib/status-page/server";
 import {
   closeBroadcastChannel,
   initializeBroadcastChannel,
@@ -35,7 +35,7 @@ function App() {
 
   const { data, isPending, error } = useQuery({
     queryKey: STATUS_PAGE_QUERY_KEY,
-    queryFn: () => refetchAndBroadcast(fetchHistories, queryClient),
+    queryFn: () => refetchAndBroadcast(queryClient),
     staleTime: ssmrc.cache.statusTtlMs,
     refetchInterval: (query) => {
       const currentData = query.state.data;
@@ -74,8 +74,6 @@ function App() {
   }
 
   const { histories, nextRefreshAt, refreshIntervalMs } = data;
-
-  console.log("Status Page Data:", data);
 
   return (
     <StatusPageProvider

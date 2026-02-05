@@ -1,4 +1,5 @@
 import { colorMapping, type HistoryRecord, type StatusLevel, statusToTooltip } from "./rc";
+import { ssmrc } from "@scratchcore/ssm-configs";
 
 /**
  * ステータス集約戦略
@@ -11,8 +12,7 @@ type AggregationStrategy = "worst" | "latest" | "majority";
 const DEFAULT_AGGREGATION_STRATEGY: AggregationStrategy = "worst";
 
 export const generatePlaceholderTrackData = (count: number) => {
-  // 7日間分のデータをmemoryCountで分割するので、全体を7日として計算
-  const totalDays = 7;
+  const totalDays = ssmrc.cache.dataRetentionDays;
   const dayPerMemory = totalDays / count;
   const now = new Date();
 
@@ -97,39 +97,83 @@ export const buildMemoryTrackData = (
     (a, b) => new Date(a.recordedAt).getTime() - new Date(b.recordedAt).getTime(),
   );
 
-  // レコードをmemoryCountのグループに分割
-  const groupSize = Math.ceil(sorted.length / memoryCount);
-  const groups: HistoryRecord[][] = [];
+  const now = Date.now();
+  const retentionDays = ssmrc.cache.dataRetentionDays;
+  const maxRetentionMs = retentionDays * 24 * 60 * 60 * 1000;
+  
+  // 実際のデータの時間範囲を取得
+  const oldestRecordTime = new Date(sorted[0].recordedAt).getTime();
+  const newestRecordTime = new Date(sorted[sorted.length - 1].recordedAt).getTime();
+  
+  // 表示範囲の開始時刻を決定
+  // - データが少ない場合: 最古のレコードから開始
+  // - データが十分ある場合: 設定された保持期間分を表示
+  const idealStartTime = now - maxRetentionMs;
+  const startTime = Math.max(oldestRecordTime, idealStartTime);
+  
+  // 表示範囲の終了時刻（現在時刻 または 最新レコード時刻）
+  const endTime = Math.max(newestRecordTime, now);
+  
+  // 実際の表示範囲（ミリ秒）
+  const actualRangeMs = endTime - startTime;
+  
+  // 1メモリが表す時間範囲（ミリ秒）
+  const timeSlotMs = actualRangeMs / memoryCount;
 
-  for (let i = 0; i < memoryCount; i++) {
-    const start = i * groupSize;
-    const end = Math.min(start + groupSize, sorted.length);
-    const group = sorted.slice(start, end);
-    if (group.length > 0) {
-      groups.push(group);
+  // 時間範囲ごとにレコードをグループ化
+  const groups: HistoryRecord[][] = Array.from({ length: memoryCount }, () => []);
+
+  for (const record of sorted) {
+    const recordTime = new Date(record.recordedAt).getTime();
+    
+    // 表示範囲外のレコードはスキップ
+    if (recordTime < startTime || recordTime > endTime) {
+      continue;
+    }
+
+    // このレコードがどのメモリスロットに属するかを計算
+    const slotIndex = Math.min(
+      Math.floor((recordTime - startTime) / timeSlotMs),
+      memoryCount - 1
+    );
+
+    if (slotIndex >= 0 && slotIndex < memoryCount) {
+      groups[slotIndex].push(record);
     }
   }
 
   // 各グループを1メモリに集約
-  const mapped = groups.map((group) => {
+  const mapped = groups.map((group, index) => {
+    // このスロットの代表時刻（スロットの中央）
+    const slotCenterTime = new Date(startTime + (index + 0.5) * timeSlotMs);
+    
+    // 空のスロットの場合
+    if (group.length === 0) {
+      // 未来のスロット（まだデータがない）かどうかを判定
+      const isFutureSlot = slotCenterTime.getTime() > now;
+      
+      return {
+        date: formatDateShort(slotCenterTime.toISOString()),
+        tooltip: "Not measured" as keyof typeof colorMapping,
+        color: colorMapping["Not measured"],
+        isFuture: isFutureSlot,
+      };
+    }
+
+    // レコードがある場合、ステータスを集約
     const statuses = group.map((r) => r.status);
     const aggregated = aggregateStatus(statuses, strategy);
     const tooltip = statusToTooltip[aggregated];
+    
     // グループの日付は最新のレコードの日付を使用
     const lastRecord = group[group.length - 1];
     return {
       date: formatDateShort(lastRecord.recordedAt),
       tooltip,
       color: colorMapping[tooltip],
+      isFuture: false,
     };
   });
-
-  // メモリ数に満たない場合は残りをfillで埋める
-  if (mapped.length < memoryCount) {
-    const missing = memoryCount - mapped.length;
-    const filler = generatePlaceholderTrackData(missing);
-    return [...filler, ...mapped];
-  }
 
   return mapped;
 };

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.3.13/schema.json",
+  "root": false,
+  "extends": "//",
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "double"
+    }
+  },
+  "assist": {
+    "enabled": true,
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
+  }
+}

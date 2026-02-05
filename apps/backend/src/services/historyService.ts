@@ -41,7 +41,7 @@ function floorToInterval(date: Date, intervalMs: number): Date {
  */
 export interface HistoryService {
   saveRecord(monitorId: string, result: StatusCheckResultType): Promise<void>;
-  getRecords(monitorId: string, limit?: number): Promise<HistoryRecord[]>;
+  getRecords(monitorId: string, limit?: number, offset?: number): Promise<HistoryRecord[]>;
   deleteRecords(monitorId: string): Promise<void>;
   cleanup(retentionDays: number): Promise<void>;
   restoreFromBackup(): Promise<void>; // Supabase では no-op
@@ -78,11 +78,20 @@ class InMemoryHistoryService implements HistoryService {
     this.histories.set(monitorId, existing);
   }
 
-  async getRecords(monitorId: string, limit: number = 100): Promise<HistoryRecord[]> {
+  async getRecords(
+    monitorId: string,
+    limit: number = 100,
+    offset: number = 0,
+  ): Promise<HistoryRecord[]> {
     const data = this.histories.get(monitorId);
     if (!data) return [];
 
-    return data.records.slice(-limit).map((record) => {
+    const total = data.records.length;
+    const safeOffset = Math.max(0, offset);
+    const end = Math.max(0, total - safeOffset);
+    const start = Math.max(0, end - limit);
+
+    return data.records.slice(start, end).map((record) => {
       const recordedAt = new Date(record.recordedAt);
       const bucketedAt = record.bucketedAt
         ? new Date(record.bucketedAt)
@@ -131,7 +140,7 @@ class SupabaseHistoryService implements HistoryService {
     const recordedAt = result.checkedAt;
     const bucketedAt = floorToInterval(recordedAt, ssmrc.cache.bucketIntervalMs);
 
-    const { error } = await this.client.from(HISTORY_TABLE).insert({
+    const { error } = await this.client.from(HISTORY_TABLE).upsert({
       id: uuidv4(),
       monitor_id: monitorId,
       status: result.status,
@@ -140,20 +149,24 @@ class SupabaseHistoryService implements HistoryService {
       error_message: result.errorMessage ?? null,
       recorded_at: recordedAt.toISOString(),
       bucketed_at: bucketedAt.toISOString(),
-    });
+    }, { onConflict: "monitor_id,recorded_at" });
 
     if (error) {
       console.error("[HistoryService] Failed to insert history record:", error);
     }
   }
 
-  async getRecords(monitorId: string, limit: number = 100): Promise<HistoryRecord[]> {
+  async getRecords(
+    monitorId: string,
+    limit: number = 100,
+    offset: number = 0,
+  ): Promise<HistoryRecord[]> {
     const { data, error } = await this.client
       .from(HISTORY_TABLE)
       .select("id, monitor_id, status, status_code, response_time, error_message, recorded_at, bucketed_at")
       .eq("monitor_id", monitorId)
       .order("recorded_at", { ascending: false })
-      .limit(limit);
+      .range(offset, offset + limit - 1);
 
     if (error) {
       console.error("[HistoryService] Failed to fetch records:", error);

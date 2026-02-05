@@ -6,6 +6,13 @@ import { StatusCardContext } from "./context";
 import { StatusIcon } from "../icon";
 import { StatusCardChart } from "./chart";
 
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+
 export function StatusCard({
   monitorTooltip,
 }: {
@@ -13,6 +20,10 @@ export function StatusCard({
 }) {
   const data = useContext(StatusCardContext);
   if (!data) return null;
+
+  // トラッカーの開始と終了のラベルを取得
+  const startLabel = data.data.desktop[0]?.date || "開始";
+  const endLabel = data.data.desktop[data.data.desktop.length - 1]?.date || "現在";
 
   return (
     <div key={data.monitor.id} className="space-y-4">
@@ -55,11 +66,18 @@ export function StatusCard({
           className="mt-3 flex w-full sm:hidden"
         />
         <div className="mt-3 flex items-center justify-between text-sm text-gray-500 dark:text-gray-500">
-          <span>7日前</span>
-          <span>今日</span>
+          <span>{startLabel}</span>
+          <span>{endLabel}</span>
         </div>
       </div>
-      <StatusCardChart />
+      <Accordion type="single" collapsible>
+        <AccordionItem value="item-1">
+          <AccordionTrigger>チャート</AccordionTrigger>
+          <AccordionContent>
+            <StatusCardChart />
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
       <div
         className="h-px w-full bg-gray-200 dark:bg-gray-800"
         aria-hidden={true}

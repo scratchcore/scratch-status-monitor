@@ -43,13 +43,18 @@ export function useHistoryPagination(initialHistories: StatusPageLoaderData["his
   });
 
   // autoLoadAll が true で hasNextPage が true なら、次ページを自動読み込み
+  // ただし、既に全ページ読み込み済みかチェック
   useEffect(() => {
     if (!autoLoadAll || !hasNextPage || isFetchingNextPage) {
       return;
     }
 
-    // 次のページを読み込む
-    fetchNextPage();
+    // 次のページを読み込む（1回のみ）
+    const timer = setTimeout(() => {
+      fetchNextPage();
+    }, 100); // わずかな遅延で無限ループ回避
+
+    return () => clearTimeout(timer);
   }, [autoLoadAll, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   // すべてのページのデータを1つの配列に結合
