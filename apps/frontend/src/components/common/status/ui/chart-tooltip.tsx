@@ -1,6 +1,7 @@
 import * as React from "react";
 import * as RechartsPrimitive from "recharts";
 import { cn } from "@/lib/utils";
+import { formatNumber } from "@/lib/i18n/formatters";
 
 /**
  * カスタムチャートツールチップコンテンツ
@@ -8,13 +9,18 @@ import { cn } from "@/lib/utils";
  */
 
 interface CustomChartTooltipContentProps
-  extends Omit<React.ComponentProps<typeof RechartsPrimitive.Tooltip>, "content" | "children">,
+  extends
+    Omit<
+      React.ComponentProps<typeof RechartsPrimitive.Tooltip>,
+      "content" | "children"
+    >,
     Omit<React.ComponentProps<"div">, "color"> {
   hideLabel?: boolean;
   hideIndicator?: boolean;
   hideName?: boolean;
   indicator?: "line" | "dot" | "dashed";
   nameKey?: string;
+  locale?: "ja" | "en";
   /**
    * 値のカスタムフォーマッター
    * @param value - 元の値
@@ -22,7 +28,11 @@ interface CustomChartTooltipContentProps
    * @param payload - ペイロード全体
    * @returns フォーマット済み値
    */
-  valueFormatter?: (value: number | string, dataKey: string, payload: any) => React.ReactNode;
+  valueFormatter?: (
+    value: number | string,
+    dataKey: string,
+    payload: any,
+  ) => React.ReactNode;
   /**
    * 名前のカスタムフォーマッター
    * @param name - 元の名前
@@ -55,6 +65,7 @@ export function StatusCardChartTooltip({
   valueFormatter,
   nameFormatter,
   customLabelFormatter,
+  locale = "ja",
 }: CustomChartTooltipContentProps) {
   // ラベルをメモ化して不要な再描画を防ぐ
   const tooltipLabel = React.useMemo(() => {
@@ -81,7 +92,14 @@ export function StatusCardChartTooltip({
     }
 
     return null;
-  }, [label, labelFormatter, customLabelFormatter, payload, hideLabel, labelClassName]);
+  }, [
+    label,
+    labelFormatter,
+    customLabelFormatter,
+    payload,
+    hideLabel,
+    labelClassName,
+  ]);
 
   if (!active || !payload?.length) {
     return null;
@@ -107,17 +125,30 @@ export function StatusCardChartTooltip({
             // 値のフォーマット
             let formattedValue: React.ReactNode = item.value;
             if (valueFormatter && item.value !== undefined) {
-              formattedValue = valueFormatter(item.value as number | string, dataKey as string, item.payload);
+              formattedValue = valueFormatter(
+                item.value as number | string,
+                dataKey as string,
+                item.payload,
+              );
             } else if (formatter && item?.value !== undefined && item.name) {
-              formattedValue = formatter(item.value as any, item.name as any, item, index, item.payload) as React.ReactNode;
+              formattedValue = formatter(
+                item.value as any,
+                item.name as any,
+                item,
+                index,
+                item.payload,
+              ) as React.ReactNode;
             } else if (typeof item.value === "number") {
-              formattedValue = item.value.toLocaleString();
+              formattedValue = formatNumber(Number(item.value), locale);
             }
 
             // 名前のフォーマット
             let formattedName: React.ReactNode = item.name || dataKey;
             if (nameFormatter) {
-              formattedName = nameFormatter(formattedName as string, dataKey as string);
+              formattedName = nameFormatter(
+                formattedName as string,
+                dataKey as string,
+              );
             }
 
             return (
@@ -135,7 +166,8 @@ export function StatusCardChartTooltip({
                       {
                         "h-2.5 w-2.5": indicator === "dot",
                         "w-1": indicator === "line",
-                        "w-0 border-[1.5px] border-dashed bg-transparent": indicator === "dashed",
+                        "w-0 border-[1.5px] border-dashed bg-transparent":
+                          indicator === "dashed",
                         "my-0.5": nestLabel && indicator === "dashed",
                       },
                     )}
@@ -155,7 +187,11 @@ export function StatusCardChartTooltip({
                 >
                   <div className="grid gap-1.5">
                     {nestLabel ? tooltipLabel : null}
-                    {!hideName && <span className="text-muted-foreground">{formattedName}</span>}
+                    {!hideName && (
+                      <span className="text-muted-foreground">
+                        {formattedName}
+                      </span>
+                    )}
                   </div>
                   {formattedValue !== undefined && (
                     <span className="text-foreground font-mono font-medium tabular-nums">

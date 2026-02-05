@@ -1,6 +1,7 @@
 import { useContext } from "react";
-import { formatDateTime, formatUptime } from "@/lib/status-page/data";
-import { type colorMapping, statusLabel } from "@/lib/status-page/rc";
+import { useIntlayer, useLocale } from "react-intlayer";
+import { formatDateTime, formatUptime, formatDateShort } from "@/lib/status-page/data";
+import { type colorMapping } from "@/lib/status-page/rc";
 import { Tracker } from "../ui/tracker";
 import { StatusCardContext } from "./context";
 import { StatusIcon } from "../ui/icon";
@@ -19,12 +20,15 @@ export function StatusCard({
   monitorTooltip: keyof typeof colorMapping;
 }) {
   const data = useContext(StatusCardContext);
+  const t = useIntlayer("status");
+  const { locale } = useLocale();
   if (!data) return null;
 
   // トラッカーの開始と終了のラベルを取得
-  const startLabel = data.data.desktop[0]?.date || "開始";
-  const endLabel =
-    data.data.desktop[data.data.desktop.length - 1]?.date || "現在";
+  const startDate = data.data.desktop[0]?.date;
+  const endDate = data.data.desktop[data.data.desktop.length - 1]?.date;
+  const startLabel = startDate ? formatDateShort(startDate, locale) : t.card.start;
+  const endLabel = endDate ? formatDateShort(endDate, locale) : t.card.current;
 
   return (
     <div key={data.monitor.id} className="space-y-4">
@@ -37,16 +41,16 @@ export function StatusCard({
             </span>
           </span>
           <span className="text-gray-900 dark:text-gray-50">
-            {formatUptime(data.uptimePercent)}% 稼働率
+            {formatUptime(data.uptimePercent)}% {t.card.uptime}
           </span>
         </p>
         <div className="mt-1 flex flex-wrap gap-3 text-xs text-gray-500 dark:text-gray-500">
-          <span>{statusLabel[data.monitor.status]}</span>
+          <span>{t.statusLevel[data.monitor.status]}</span>
           <span>
-            応答時間:{" "}
+            {t.card.responseTime}:{" "}
             {data.monitor.responseTime ? `${data.monitor.responseTime}ms` : "-"}
           </span>
-          <span>最終チェック: {formatDateTime(data.monitor.recordedAt)}</span>
+          <span>{t.card.lastCheck}: {formatDateTime(data.monitor.recordedAt, locale)}</span>
           {data.monitor.errorMessage ? (
             <span className="text-red-500">{data.monitor.errorMessage}</span>
           ) : null}
@@ -73,7 +77,7 @@ export function StatusCard({
       </div>
       <Accordion type="single" collapsible>
         <AccordionItem value="item-1">
-          <AccordionTrigger>チャート</AccordionTrigger>
+          <AccordionTrigger>{t.card.chart}</AccordionTrigger>
           <AccordionContent>
             <StatusCardChart />
           </AccordionContent>

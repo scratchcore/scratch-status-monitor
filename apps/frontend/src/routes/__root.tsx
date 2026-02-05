@@ -1,12 +1,22 @@
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import type { QueryClient } from "@tanstack/react-query";
-import { createRootRouteWithContext, HeadContent, Scripts } from "@tanstack/react-router";
+import {
+  createRootRouteWithContext,
+  HeadContent,
+  Scripts,
+  useMatches,
+} from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { ThemeProvider } from "next-themes";
-import Header from "../components/Header";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
-import StoreDevtools from "../lib/demo-store-devtools";
+import { defaultLocale, getHTMLTextDir } from "intlayer";
+import { IntlayerProvider } from "react-intlayer";
+import { LocaleSwitcher } from "@/components/LanguageSwitcher";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { fonts } from "@/utils/fonts";
+
 import appCss from "../styles.css?url";
+import fontCss from "../styles/fonts.css?url";
 
 interface MyRouterContext {
   queryClient: QueryClient;
@@ -22,14 +32,16 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         name: "viewport",
         content: "width=device-width, initial-scale=1",
       },
-      {
-        title: "TanStack Start Starter",
-      },
     ],
     links: [
       {
         rel: "stylesheet",
         href: appCss,
+      },
+      ...fonts(),
+      {
+        rel: "stylesheet",
+        href: fontCss,
       },
     ],
   }),
@@ -38,14 +50,25 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 });
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const matches = useMatches();
+
+  const localeRoute = matches.find((match) => match.routeId === "/{-$locale}");
+  const locale = localeRoute?.params?.locale ?? defaultLocale;
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={locale} dir={getHTMLTextDir(locale)} suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
       <body cz-shortcut-listen="true">
-        <Header />
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <IntlayerProvider locale={locale}>
+            <TooltipProvider>
+              <LocaleSwitcher />
+              {children}
+            </TooltipProvider>
+          </IntlayerProvider>
+        </ThemeProvider>
         <TanStackDevtools
           config={{
             position: "bottom-right",
@@ -55,7 +78,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
               name: "Tanstack Router",
               render: <TanStackRouterDevtoolsPanel />,
             },
-            StoreDevtools,
             TanStackQueryDevtools,
           ]}
         />

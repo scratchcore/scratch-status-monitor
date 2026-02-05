@@ -1,0 +1,75 @@
+/* SN Pro – normal */
+
+@font-face {
+  font-family: "sn-pro";
+  src: url("/wp-content/fonts/SNPro-ExtraLight.woff2") format("woff2");
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "sn-pro";
+  src: url("/wp-content/fonts/SNPro-Light.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "sn-pro";
+  src: url("/wp-content/fonts/SNPro-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "sn-pro";
+  src: url("/wp-content/fonts/SNPro-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "sn-pro";
+  src: url("/wp-content/fonts/SNPro-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "sn-pro";
+  src: url("/wp-content/fonts/SNPro-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "sn-pro";
+  src: url("/wp-content/fonts/SNPro-ExtraBold.woff2") format("woff2");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "sn-pro";
+  src: url("/wp-content/fonts/SNPro-Black.woff2") format("woff2");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* italic */
+
+@font-face {
+  font-family: "sn-pro";
+  src: url("/wp-content/fonts/SNPro-Italic.woff2") format("woff2");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}

@@ -5,6 +5,10 @@ import {
   statusToTooltip,
 } from "@/lib/status-page/rc";
 import { ssmrc } from "@scratchcore/ssm-configs";
+import {
+  formatDateShort as formatDateShortI18n,
+  formatDateTime as formatDateTimeI18n,
+} from "@/lib/i18n/formatters";
 
 /**
  * ステータス集約戦略
@@ -15,15 +19,6 @@ import { ssmrc } from "@scratchcore/ssm-configs";
 type AggregationStrategy = "worst" | "latest" | "majority";
 
 const DEFAULT_AGGREGATION_STRATEGY: AggregationStrategy = "worst";
-
-/**
- * 最適化: DateTimeFormat をグローバルに保持（再生成しない）
- */
-const shortDateFormatter = new Intl.DateTimeFormat("ja-JP", {
-  day: "2-digit",
-  month: "short",
-  year: "numeric",
-});
 
 export const generatePlaceholderTrackData = (count: number) => {
   const totalDays = ssmrc.cache.dataRetentionDays;
@@ -36,7 +31,7 @@ export const generatePlaceholderTrackData = (count: number) => {
     const daysAgo = Math.round(totalDays - (i + 1) * dayPerMemory);
     date.setDate(date.getDate() - daysAgo);
     return {
-      date: shortDateFormatter.format(date),
+      date: date.toISOString(),
       tooltip: "Not measured" as keyof typeof colorMapping,
       color: colorMapping["Not measured"],
     };
@@ -86,11 +81,7 @@ export const aggregateStatus = (
   }
 };
 
-export const formatDateShort = (value: string) => {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return shortDateFormatter.format(date);
-};
+export const formatDateShort = formatDateShortI18n;
 
 /**
  * 最適化版: buildMemoryTrackData
@@ -174,7 +165,7 @@ export const buildMemoryTrackData = (
       const isFutureSlot = slotCenterTime.getTime() > now;
 
       return {
-        date: formatDateShort(slotCenterTime.toISOString()),
+        date: slotCenterTime.toISOString(),
         tooltip: "Not measured" as keyof typeof colorMapping,
         color: colorMapping["Not measured"],
         isFuture: isFutureSlot,
@@ -189,7 +180,7 @@ export const buildMemoryTrackData = (
     // グループの日付は最新のレコードの日付を使用
     const lastRecord = group[group.length - 1];
     return {
-      date: formatDateShort(lastRecord.recordedAt),
+      date: lastRecord.recordedAt,
       tooltip,
       color: colorMapping[tooltip],
       isFuture: false,
@@ -199,10 +190,7 @@ export const buildMemoryTrackData = (
   return mapped;
 };
 
-export const formatDateTime = (value: string) => {
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? value : date.toLocaleString("ja-JP");
-};
+export const formatDateTime = formatDateTimeI18n;
 
 export const formatUptime = (value: number) => {
   const normalized = Math.min(100, Math.max(0, value));

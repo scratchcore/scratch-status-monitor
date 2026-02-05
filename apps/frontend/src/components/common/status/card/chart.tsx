@@ -12,10 +12,16 @@ import {
   ComposedChart,
 } from "recharts";
 import { useContext, useMemo, memo } from "react";
+import { useLocale } from "react-intlayer";
 import { StatusCardContext } from "./context";
 import { StatusCardChartTooltip } from "../ui/chart-tooltip";
 import { ChartSkeleton } from "./chart-skeleton";
 import { ssmrc } from "@scratchcore/ssm-configs";
+import {
+  getFullDateTimeFormatter,
+  getMonthDayFormatter,
+  getTimeFormatter,
+} from "@/lib/i18n/formatters";
 
 const chartConfig = {
   responseTime: {
@@ -35,46 +41,27 @@ function floorToInterval(date: Date, intervalMs: number): Date {
 
 /**
  * 日時をフォーマット（フル形式）
- * 最適化: メモ化されたフォーマット関数を使用
+ * ロケールとタイムゾーンに対応
  */
-const formatFullDateTime = (() => {
-  const formatter = new Intl.DateTimeFormat("ja-JP", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  });
-  return (date: Date): string => formatter.format(date);
-})();
+const formatFullDateTime = (date: Date, locale: "ja" | "en"): string => {
+  return getFullDateTimeFormatter(locale).format(date);
+};
 
 /**
  * X軸用のラベルをフォーマット
- * 最適化: メモ化されたフォーマッター
+ * ロケールとタイムゾーンに対応
  */
-const formatXAxisLabel = (() => {
-  const dayFormatter = new Intl.DateTimeFormat("ja-JP", {
-    month: "short",
-    day: "2-digit",
-  });
-  const timeFormatter = new Intl.DateTimeFormat("ja-JP", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+const formatXAxisLabel = (date: Date, locale: "ja" | "en"): string => {
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  const isStartOfDay = hours === 0 && minutes === 0;
 
-  return (date: Date): string => {
-    const hours = date.getHours();
-    const minutes = date.getMinutes();
-    const isStartOfDay = hours === 0 && minutes === 0;
+  if (isStartOfDay) {
+    return getMonthDayFormatter(locale).format(date);
+  }
 
-    if (isStartOfDay) {
-      return dayFormatter.format(date);
-    }
-
-    return timeFormatter.format(date);
-  };
-})();
+  return getTimeFormatter(locale).format(date);
+};
 
 /**
  * チャートレンダリング（内部コンポーネント）
@@ -83,9 +70,11 @@ const formatXAxisLabel = (() => {
 const ChartContent = memo(function ChartContent({
   chartData,
   dateChangeTimestamps,
+  locale,
 }: {
   chartData: any[];
   dateChangeTimestamps: number[];
+  locale: "ja" | "en";
 }) {
   if (chartData.length === 0) {
     return (
@@ -120,10 +109,7 @@ const ChartContent = memo(function ChartContent({
             strokeDasharray="5 5"
             strokeWidth={2}
             label={{
-              value: new Date(timestamp).toLocaleDateString("ja-JP", {
-                month: "short",
-                day: "2-digit",
-              }),
+              value: getMonthDayFormatter(locale).format(new Date(timestamp)),
               position: "insideTopRight",
               offset: -8,
               fill: "hsl(var(--muted-foreground))",
@@ -139,10 +125,7 @@ const ChartContent = memo(function ChartContent({
           domain={[minTimestamp, maxTimestamp]}
           tickFormatter={(timestamp) => {
             const date = new Date(timestamp);
-            return date.toLocaleTimeString("ja-JP", {
-              hour: "2-digit",
-              minute: "2-digit",
-            });
+            return getTimeFormatter(locale).format(date);
           }}
           tickLine={false}
           axisLine={false}
@@ -177,6 +160,7 @@ const ChartContent = memo(function ChartContent({
           }}
           content={
             <StatusCardChartTooltip
+              locale={locale}
               valueFormatter={(value) => {
                 if (typeof value === "number") {
                   return `${Math.round(value)}ms`;
@@ -201,6 +185,8 @@ const ChartContent = memo(function ChartContent({
           fillOpacity={0.2}
           isAnimationActive={false}
           dot={false}
+          // データがない場合に線を途切れさせる
+          connectNulls={false}
         />
       </ComposedChart>
     </ChartContainer>
@@ -209,9 +195,10 @@ const ChartContent = memo(function ChartContent({
 
 export function StatusCardChart() {
   const s = useContext(StatusCardContext);
+  const { locale } = useLocale();
   if (!s) return null;
 
-  // チャートデータをメモ化（s.data.row が変わる時だけ再計算）
+  // チャートデータをメモ化（s.data.row と locale が変わる時だけ再計算）
   const { chartData, dateChangeTimestamps } = useMemo(() => {
     if (!s.data.row || s.data.row.length === 0) {
       return { chartData: [], dateChangeTimestamps: [] };
@@ -258,13 +245,13 @@ export function StatusCardChart() {
 
         return {
           // ツールチップ用フル日時（バケット内の最新レコード）
-          fullDateTime: formatFullDateTime(latestDate),
+          fullDateTime: formatFullDateTime(latestDate, locale),
           // 時間軸（数値）- X軸のdataKeyとして使用
           timestamp: bucketTimestamp,
           // 応答時間（平均）
           responseTime: Math.round(bucket.sum / bucket.count),
           // X軸用ラベル（時間軸での表示）
-          xAxisLabel: formatXAxisLabel(bucketDate),
+          xAxisLabel: formatXAxisLabel(bucketDate, locale),
         };
       })
       .sort((a, b) => a.timestamp - b.timestamp);
@@ -288,7 +275,7 @@ export function StatusCardChart() {
       chartData: data,
       dateChangeTimestamps: dateChanges,
     };
-  }, [s.data.row]);
+  }, [s.data.row, locale]);
 
   // チャート描画部をメモ化されたコンポーネントに分離
   return chartData.length === 0 ? (
@@ -297,6 +284,7 @@ export function StatusCardChart() {
     <ChartContent
       chartData={chartData}
       dateChangeTimestamps={dateChangeTimestamps}
+      locale={locale}
     />
   );
 }

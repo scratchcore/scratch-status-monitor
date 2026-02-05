@@ -1,6 +1,6 @@
 import { cx } from "@/lib/utils";
+import { useIntlayer, useLocale } from "react-intlayer";
 import { StatusIcon } from "../ui/icon";
-import { statusLabel } from "@/lib/status-page/rc";
 import { formatDateTime } from "@/lib/status-page/data";
 import {
   useStatusPageCountdownContext,
@@ -10,6 +10,8 @@ import {
 export function InfoHeader() {
   const s = useStatusPageDataContext();
   const c = useStatusPageCountdownContext();
+  const t = useIntlayer("status");
+  const { locale } = useLocale();
 
   // 最新の履歴レコードからタイムスタンプを取得
   const latestTimestamp =
@@ -33,14 +35,14 @@ export function InfoHeader() {
         />
       </span>
       <h1 className="mt-3 text-lg font-semibold text-gray-900 dark:text-gray-50">
-        全体ステータス: {statusLabel[s.overallStatus]}
+        {t.header.overallStatus}: {t.statusLevel[s.overallStatus]}
       </h1>
       <p className="text-sm text-gray-700 dark:text-gray-300">
-        最終更新: {formatDateTime(latestTimestamp)}
+        {t.header.lastUpdated}: {formatDateTime(latestTimestamp, locale)}
       </p>
       {c.formattedRemaining ? (
         <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-          次回更新: {c.formattedRemaining}
+          {t.header.nextUpdate}: {c.formattedRemaining}
           {s.refreshHint ? `（${s.refreshHint}）` : ""}
         </p>
       ) : null}
