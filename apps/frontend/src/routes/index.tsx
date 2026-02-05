@@ -11,6 +11,7 @@ import {
 } from "@/lib/status-page/sync";
 import { StatusPageProvider } from "@/components/common/status/layout/context";
 import { StatusPageLayoutContainer } from "@/components/common/status/layout/main";
+import { StatusPageSkeleton } from "@/components/common/status/layout/skeleton";
 import { ssmrc } from "@scratchcore/ssm-configs";
 
 export const Route = createFileRoute("/")({
@@ -63,14 +64,7 @@ function App() {
   }
 
   if (isPending) {
-    return (
-      <div className="grid min-h-screen w-full place-items-center">
-        <div className="text-center">
-          <div className="mb-4 inline-block h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-500"></div>
-          <p className="text-gray-600">読み込み中...</p>
-        </div>
-      </div>
-    );
+    return <StatusPageSkeleton />;
   }
 
   const { histories, nextRefreshAt, refreshIntervalMs } = data;

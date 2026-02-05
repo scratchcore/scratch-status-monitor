@@ -11,8 +11,7 @@ export function InfoHeader() {
 
   // 最新の履歴レコードからタイムスタンプを取得
   const latestTimestamp =
-    s.histories[0]?.newestRecord ||
-    new Date().toISOString();
+    s.histories[0]?.newestRecord || new Date().toISOString();
 
   return (
     <div className="flex flex-col items-center">
@@ -22,9 +21,13 @@ export function InfoHeader() {
           `bg-${s.colorSlug}-100 dark:bg-${s.colorSlug}-400/20 dark:to-${s.colorSlug}-500/10`,
         )}
       >
+        <span
+          className={`absolute inline-flex h-10 w-10 scale-65 rounded-full bg-${s.colorSlug}-500 animate-ping`}
+        />
+        <span className="absolute inline-flex w-8 h-8 bg-background rounded-full"/>
         <StatusIcon
           tooltip={s.overallTooltip}
-          className={`h-10 w-10 text-${s.colorSlug}-500`}
+          className={`relative h-10 w-10 text-${s.colorSlug}-500`}
         />
       </span>
       <h1 className="mt-3 text-lg font-semibold text-gray-900 dark:text-gray-50">
