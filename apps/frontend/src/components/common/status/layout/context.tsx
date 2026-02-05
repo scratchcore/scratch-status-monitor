@@ -1,4 +1,4 @@
-import { createContext, ReactNode } from "react";
+import { createContext, ReactNode, useContext } from "react";
 import { useEffect, useMemo, useState } from "react";
 import {
   colorMapping,
@@ -6,22 +6,54 @@ import {
   statusToTooltip,
   type HistoryResponse,
   type StatusLevel,
-} from "../rc";
+} from "@/lib/status-page/rc";
 
-export interface StatusPageContextType {
-  histories: HistoryResponse[];
-  nextRefreshAt?: number;
-  refreshIntervalMs?: number;
-
+/**
+ * 時間カウントダウン専用Context
+ * 他のコンポーネントを巻き込まない（1秒ごと更新）
+ */
+export interface StatusPageCountdownContextType {
   formattedRemaining: string | null;
+}
+
+export const StatusPageCountdownContext =
+  createContext<StatusPageCountdownContextType | null>(null);
+
+export function useStatusPageCountdownContext() {
+  const c = useContext(StatusPageCountdownContext);
+  if (!c) {
+    throw new Error(
+      "useStatusPageCountdownContext must be used within a StatusPageCountdownContext.Provider",
+    );
+  }
+  return c;
+}
+
+/**
+ * ステータス・履歴データ専用Context
+ * データ変更時にだけ更新（滅多に変わらない）
+ */
+export interface StatusPageDataContextType {
+  histories: HistoryResponse[];
+  refreshIntervalMs?: number;
   refreshHint: string | null;
   overallStatus: StatusLevel;
   overallTooltip: keyof typeof colorMapping;
   colorSlug: string;
 }
-export const StatusPageContext = createContext<StatusPageContextType | null>(
-  null,
-);
+
+export const StatusPageDataContext =
+  createContext<StatusPageDataContextType | null>(null);
+
+export function useStatusPageDataContext() {
+  const c = useContext(StatusPageDataContext);
+  if (!c) {
+    throw new Error(
+      "useStatusPageDataContext must be used within a StatusPageDataContext.Provider",
+    );
+  }
+  return c;
+}
 
 export interface StatusPageProviderProps {
   children?: ReactNode;
@@ -29,11 +61,17 @@ export interface StatusPageProviderProps {
   nextRefreshAt?: number;
   refreshIntervalMs?: number;
 }
+
 export function StatusPageProvider({
   children,
   ...props
 }: StatusPageProviderProps) {
   const { nextRefreshAt, refreshIntervalMs, histories } = props;
+
+  // ============================================
+  // COUNTDOWN CONTEXT: 時間カウントダウン専用
+  // （1秒ごと更新、他のコンテンツには影響なし）
+  // ============================================
   const [remainingMs, setRemainingMs] = useState(() => {
     if (!nextRefreshAt) {
       return null;
@@ -64,6 +102,17 @@ export function StatusPageProvider({
     return `${minutes}:${seconds}`;
   }, [remainingMs]);
 
+  const countdownContextValue = useMemo(
+    () => ({
+      formattedRemaining,
+    }),
+    [formattedRemaining],
+  );
+
+  // ============================================
+  // DATA CONTEXT: 履歴・ステータス専用
+  // （データ更新時にだけ更新、計算量多い）
+  // ============================================
   const refreshHint = useMemo(() => {
     if (!refreshIntervalMs) {
       return null;
@@ -77,20 +126,19 @@ export function StatusPageProvider({
     if (!histories || histories.length === 0) {
       return "unknown";
     }
-    
+
     // すべてのモニターの最新レコードを取得
-    const allLatestStatuses = histories
-      .flatMap((history) => {
-        if (!history.records || history.records.length === 0) return [];
-        // 各モニターの最新レコード（配列の最後）を取得
-        const latestRecord = history.records[history.records.length - 1];
-        return latestRecord.status;
-      });
-    
+    const allLatestStatuses = histories.flatMap((history) => {
+      if (!history.records || history.records.length === 0) return [];
+      // 各モニターの最新レコード（配列の最後）を取得
+      const latestRecord = history.records[history.records.length - 1];
+      return latestRecord.status;
+    });
+
     if (allLatestStatuses.length === 0) {
       return "unknown";
     }
-    
+
     // すべてのモニターのステータスから全体ステータスを計算
     if (allLatestStatuses.includes("down")) return "down";
     if (allLatestStatuses.includes("degraded")) return "degraded";
@@ -101,20 +149,30 @@ export function StatusPageProvider({
   const overallTooltip = statusToTooltip[overallStatus];
   const colorSlug = colorSlugMapping[overallTooltip];
 
+  const dataContextValue = useMemo(
+    () => ({
+      histories,
+      refreshIntervalMs,
+      refreshHint,
+      overallStatus,
+      overallTooltip,
+      colorSlug,
+    }),
+    [
+      histories,
+      refreshIntervalMs,
+      refreshHint,
+      overallStatus,
+      overallTooltip,
+      colorSlug,
+    ],
+  );
+
   return (
-    <StatusPageContext.Provider
-      value={{
-        histories,
-        nextRefreshAt,
-        refreshIntervalMs,
-        formattedRemaining,
-        refreshHint,
-        overallStatus,
-        overallTooltip,
-        colorSlug,
-      }}
-    >
-      {children}
-    </StatusPageContext.Provider>
+    <StatusPageDataContext.Provider value={dataContextValue}>
+      <StatusPageCountdownContext.Provider value={countdownContextValue}>
+        {children}
+      </StatusPageCountdownContext.Provider>
+    </StatusPageDataContext.Provider>
   );
 }

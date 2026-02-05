@@ -31,7 +31,7 @@ export const colorMapping = {
 export const statusLabel: Record<StatusLevel, string> = {
   up: "稼働中",
   degraded: "一部障害",
-  down: "障害",
+  down: "停止",
   unknown: "未計測",
 };
 

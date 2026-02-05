@@ -3,7 +3,7 @@ import {
   RiErrorWarningFill,
   RiSettings5Fill,
 } from "@remixicon/react";
-import { colorMapping } from "./rc";
+import { colorMapping } from "@/lib/status-page/rc";
 
 export const StatusIcon = ({
   tooltip,

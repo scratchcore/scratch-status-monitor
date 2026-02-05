@@ -1,9 +1,9 @@
 import { useContext } from "react";
-import { formatDateTime, formatUptime } from "../data";
-import { type colorMapping, statusLabel } from "../rc";
+import { formatDateTime, formatUptime } from "@/lib/status-page/data";
+import { type colorMapping, statusLabel } from "@/lib/status-page/rc";
 import { Tracker } from "../ui/tracker";
 import { StatusCardContext } from "./context";
-import { StatusIcon } from "../icon";
+import { StatusIcon } from "../ui/icon";
 import { StatusCardChart } from "./chart";
 
 import {
@@ -23,7 +23,8 @@ export function StatusCard({
 
   // トラッカーの開始と終了のラベルを取得
   const startLabel = data.data.desktop[0]?.date || "開始";
-  const endLabel = data.data.desktop[data.data.desktop.length - 1]?.date || "現在";
+  const endLabel =
+    data.data.desktop[data.data.desktop.length - 1]?.date || "現在";
 
   return (
     <div key={data.monitor.id} className="space-y-4">
@@ -36,7 +37,7 @@ export function StatusCard({
             </span>
           </span>
           <span className="text-gray-900 dark:text-gray-50">
-            {formatUptime(data.uptimePercent)}% uptime
+            {formatUptime(data.uptimePercent)}% 稼働率
           </span>
         </p>
         <div className="mt-1 flex flex-wrap gap-3 text-xs text-gray-500 dark:text-gray-500">

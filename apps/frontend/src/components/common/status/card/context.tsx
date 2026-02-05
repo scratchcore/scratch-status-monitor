@@ -1,6 +1,6 @@
 import { createContext, ReactNode } from "react";
-import { buildMemoryTrackData } from "../data";
-import type { HistoryRecord } from "../rc";
+import { buildMemoryTrackData } from "@/lib/status-page/data";
+import type { HistoryRecord } from "@/lib/status-page/rc";
 
 export interface MonitorHistoryRecord extends HistoryRecord {
   label: string;

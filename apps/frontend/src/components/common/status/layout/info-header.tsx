@@ -1,13 +1,15 @@
 import { cx } from "@/lib/utils";
-import { StatusIcon } from "../icon";
-import { statusLabel } from "../rc";
-import { useContext } from "react";
-import { formatDateTime } from "../data";
-import { StatusPageContext } from "./context";
+import { StatusIcon } from "../ui/icon";
+import { statusLabel } from "@/lib/status-page/rc";
+import { formatDateTime } from "@/lib/status-page/data";
+import {
+  useStatusPageCountdownContext,
+  useStatusPageDataContext,
+} from "./context";
 
 export function InfoHeader() {
-  const s = useContext(StatusPageContext);
-  if (!s) return null;
+  const s = useStatusPageDataContext();
+  const c = useStatusPageCountdownContext();
 
   // 最新の履歴レコードからタイムスタンプを取得
   const latestTimestamp =
@@ -24,7 +26,7 @@ export function InfoHeader() {
         <span
           className={`absolute inline-flex h-10 w-10 scale-65 rounded-full bg-${s.colorSlug}-500 animate-ping`}
         />
-        <span className="absolute inline-flex w-8 h-8 bg-background rounded-full"/>
+        <span className="absolute inline-flex w-8 h-8 bg-background rounded-full" />
         <StatusIcon
           tooltip={s.overallTooltip}
           className={`relative h-10 w-10 text-${s.colorSlug}-500`}
@@ -36,9 +38,9 @@ export function InfoHeader() {
       <p className="text-sm text-gray-700 dark:text-gray-300">
         最終更新: {formatDateTime(latestTimestamp)}
       </p>
-      {s.formattedRemaining ? (
+      {c.formattedRemaining ? (
         <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-          次回更新まで: {s.formattedRemaining}
+          次回更新: {c.formattedRemaining}
           {s.refreshHint ? `（${s.refreshHint}）` : ""}
         </p>
       ) : null}

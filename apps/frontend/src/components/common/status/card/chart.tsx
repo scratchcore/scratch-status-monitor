@@ -11,9 +11,10 @@ import {
   ReferenceLine,
   ComposedChart,
 } from "recharts";
-import { useContext, useMemo } from "react";
+import { useContext, useMemo, memo } from "react";
 import { StatusCardContext } from "./context";
 import { StatusCardChartTooltip } from "../ui/chart-tooltip";
+import { ChartSkeleton } from "./chart-skeleton";
 import { ssmrc } from "@scratchcore/ssm-configs";
 
 const chartConfig = {
@@ -34,9 +35,10 @@ function floorToInterval(date: Date, intervalMs: number): Date {
 
 /**
  * 日時をフォーマット（フル形式）
+ * 最適化: メモ化されたフォーマット関数を使用
  */
-function formatFullDateTime(date: Date): string {
-  return date.toLocaleString("ja-JP", {
+const formatFullDateTime = (() => {
+  const formatter = new Intl.DateTimeFormat("ja-JP", {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
@@ -44,28 +46,166 @@ function formatFullDateTime(date: Date): string {
     minute: "2-digit",
     second: "2-digit",
   });
-}
+  return (date: Date): string => formatter.format(date);
+})();
 
 /**
  * X軸用のラベルをフォーマット
+ * 最適化: メモ化されたフォーマッター
  */
-function formatXAxisLabel(date: Date): string {
-  const hours = date.getHours();
-  const minutes = date.getMinutes();
-  const isStartOfDay = hours === 0 && minutes === 0;
-
-  if (isStartOfDay) {
-    return date.toLocaleDateString("ja-JP", {
-      month: "short",
-      day: "2-digit",
-    });
-  }
-
-  return date.toLocaleTimeString("ja-JP", {
+const formatXAxisLabel = (() => {
+  const dayFormatter = new Intl.DateTimeFormat("ja-JP", {
+    month: "short",
+    day: "2-digit",
+  });
+  const timeFormatter = new Intl.DateTimeFormat("ja-JP", {
     hour: "2-digit",
     minute: "2-digit",
   });
-}
+
+  return (date: Date): string => {
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const isStartOfDay = hours === 0 && minutes === 0;
+
+    if (isStartOfDay) {
+      return dayFormatter.format(date);
+    }
+
+    return timeFormatter.format(date);
+  };
+})();
+
+/**
+ * チャートレンダリング（内部コンポーネント）
+ * useMemo で計算したデータに基づいて描画
+ */
+const ChartContent = memo(function ChartContent({
+  chartData,
+  dateChangeTimestamps,
+}: {
+  chartData: any[];
+  dateChangeTimestamps: number[];
+}) {
+  if (chartData.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-56 text-gray-500 dark:text-gray-400">
+        チャートデータがありません
+      </div>
+    );
+  }
+
+  const minTimestamp = Math.min(...chartData.map((d) => d.timestamp));
+  const maxTimestamp = Math.max(...chartData.map((d) => d.timestamp));
+
+  return (
+    <ChartContainer config={chartConfig} className="w-full h-56">
+      <ComposedChart
+        accessibilityLayer
+        data={chartData}
+        margin={{ left: 0, right: 0, top: 12, bottom: 0 }}
+      >
+        <CartesianGrid
+          vertical={true}
+          strokeDasharray="3 3"
+          stroke="hsl(var(--border) / 0.3)"
+        />
+
+        {/* 日付が変わる箇所に縦線を表示 */}
+        {dateChangeTimestamps.map((timestamp, idx) => (
+          <ReferenceLine
+            key={`date-change-${idx}`}
+            x={timestamp}
+            stroke="hsl(var(--muted-foreground))"
+            strokeDasharray="5 5"
+            strokeWidth={2}
+            label={{
+              value: new Date(timestamp).toLocaleDateString("ja-JP", {
+                month: "short",
+                day: "2-digit",
+              }),
+              position: "insideTopRight",
+              offset: -8,
+              fill: "hsl(var(--muted-foreground))",
+              fontSize: 12,
+              fontWeight: 600,
+            }}
+          />
+        ))}
+
+        <XAxis
+          dataKey="timestamp"
+          type="number"
+          domain={[minTimestamp, maxTimestamp]}
+          tickFormatter={(timestamp) => {
+            const date = new Date(timestamp);
+            return date.toLocaleTimeString("ja-JP", {
+              hour: "2-digit",
+              minute: "2-digit",
+            });
+          }}
+          tickLine={false}
+          axisLine={false}
+          tickMargin={8}
+          stroke="currentColor"
+          style={{ fontSize: "0.75rem" }}
+          // X軸の目盛りを5個程度表示
+          ticks={Array.from(
+            { length: 5 },
+            (_, i) => minTimestamp + ((maxTimestamp - minTimestamp) * i) / 4,
+          )}
+        />
+        <YAxis
+          tickLine={false}
+          axisLine={false}
+          tickMargin={8}
+          stroke="currentColor"
+          style={{ fontSize: "0.75rem" }}
+          label={{
+            value: `応答時間 (ms)`,
+            angle: -90,
+            position: "insideLeft",
+          }}
+        />
+        <ChartTooltip
+          cursor={{ fill: "rgba(0, 0, 0, 0.1)" }}
+          contentStyle={{
+            backgroundColor: "hsl(var(--background))",
+            border: "1px solid hsl(var(--border))",
+            borderRadius: "0.5rem",
+            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+          }}
+          content={
+            <StatusCardChartTooltip
+              valueFormatter={(value) => {
+                if (typeof value === "number") {
+                  return `${Math.round(value)}ms`;
+                }
+                return String(value);
+              }}
+              nameFormatter={(name) => {
+                return (
+                  chartConfig[name as keyof typeof chartConfig]?.label || name
+                );
+              }}
+            />
+          }
+          labelFormatter={(value) => {
+            const data = chartData.find((d) => d.timestamp === value);
+            return data?.fullDateTime || String(value);
+          }}
+        />
+        <Area
+          dataKey="responseTime"
+          type="monotone"
+          fillOpacity={0.2}
+          isAnimationActive={false}
+          dot={false}
+        />
+      </ComposedChart>
+    </ChartContainer>
+  );
+});
 
 export function StatusCardChart() {
   const s = useContext(StatusCardContext);
@@ -150,121 +290,13 @@ export function StatusCardChart() {
     };
   }, [s.data.row]);
 
-  // チャートが表示できるデータがあるかチェック
-  if (chartData.length === 0) {
-    return (
-      <div className="flex items-center justify-center h-56 text-gray-500 dark:text-gray-400">
-        チャートデータがありません
-      </div>
-    );
-  }
-
-  const minTimestamp = Math.min(...chartData.map((d) => d.timestamp));
-  const maxTimestamp = Math.max(...chartData.map((d) => d.timestamp));
-
-  return (
-    <ChartContainer config={chartConfig} className="w-full h-56">
-      <ComposedChart
-        accessibilityLayer
-        data={chartData}
-        margin={{ left: 0, right: 0, top: 12, bottom: 0 }}
-      >
-        <CartesianGrid
-          vertical={true}
-          strokeDasharray="3 3"
-          stroke="hsl(var(--border) / 0.3)"
-        />
-
-        {/* 日付が変わる箇所に縦線を表示 */}
-        {dateChangeTimestamps.map((timestamp, idx) => (
-          <ReferenceLine
-            key={`date-change-${idx}`}
-            x={timestamp}
-            stroke="hsl(var(--muted-foreground))"
-            strokeDasharray="5 5"
-            strokeWidth={2}
-            label={{
-              value: new Date(timestamp).toLocaleDateString("ja-JP", {
-                month: "short",
-                day: "2-digit",
-              }),
-              position: "insideTopRight",
-              offset: -8,
-              fill: "hsl(var(--muted-foreground))",
-              fontSize: 12,
-              fontWeight: 600,
-            }}
-          />
-        ))}
-
-        <XAxis
-          dataKey="timestamp"
-          type="number"
-          domain={[minTimestamp, maxTimestamp]}
-          tickFormatter={(timestamp) => {
-            const date = new Date(timestamp);
-            return date.toLocaleTimeString("ja-JP", {
-              hour: "2-digit",
-              minute: "2-digit",
-            });
-          }}
-          tickLine={false}
-          axisLine={false}
-          tickMargin={8}
-          stroke="currentColor"
-          style={{ fontSize: "0.75rem" }}
-          // X軸の目盛りを5個程度表示
-          ticks={Array.from(
-            { length: 5 },
-            (_, i) => minTimestamp + ((maxTimestamp - minTimestamp) * i) / 4,
-          )}
-        />
-        <YAxis
-          tickLine={false}
-          axisLine={false}
-          tickMargin={8}
-          stroke="currentColor"
-          style={{ fontSize: "0.75rem" }}
-          label={{ value: "応答時間 (ms)", angle: -90, position: "insideLeft" }}
-        />
-        <ChartTooltip
-          cursor={{ fill: "rgba(0, 0, 0, 0.1)" }}
-          contentStyle={{
-            backgroundColor: "hsl(var(--background))",
-            border: "1px solid hsl(var(--border))",
-            borderRadius: "0.5rem",
-            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-          }}
-          content={
-            <StatusCardChartTooltip
-              valueFormatter={(value) => {
-                if (typeof value === "number") {
-                  return `${Math.round(value)}ms`;
-                }
-                return String(value);
-              }}
-              nameFormatter={(name) => {
-                return (
-                  chartConfig[name as keyof typeof chartConfig]?.label || name
-                );
-              }}
-            />
-          }
-          labelFormatter={(value) => {
-            const data = chartData.find((d) => d.timestamp === value);
-            return data?.fullDateTime || String(value);
-          }}
-        />
-        <Area
-          dataKey="responseTime"
-          type="monotone"
-          // stroke="hsl(var(--chart-1))"
-          // fill="hsl(var(--chart-1))"
-          fillOpacity={0.2}
-          isAnimationActive={false}
-          dot={false}
-        />
-      </ComposedChart>
-    </ChartContainer>
+  // チャート描画部をメモ化されたコンポーネントに分離
+  return chartData.length === 0 ? (
+    <ChartSkeleton />
+  ) : (
+    <ChartContent
+      chartData={chartData}
+      dateChangeTimestamps={dateChangeTimestamps}
+    />
   );
 }

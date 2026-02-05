@@ -1,4 +1,9 @@
-import { colorMapping, type HistoryRecord, type StatusLevel, statusToTooltip } from "./rc";
+import {
+  colorMapping,
+  type HistoryRecord,
+  type StatusLevel,
+  statusToTooltip,
+} from "@/lib/status-page/rc";
 import { ssmrc } from "@scratchcore/ssm-configs";
 
 /**
@@ -11,6 +16,15 @@ type AggregationStrategy = "worst" | "latest" | "majority";
 
 const DEFAULT_AGGREGATION_STRATEGY: AggregationStrategy = "worst";
 
+/**
+ * 最適化: DateTimeFormat をグローバルに保持（再生成しない）
+ */
+const shortDateFormatter = new Intl.DateTimeFormat("ja-JP", {
+  day: "2-digit",
+  month: "short",
+  year: "numeric",
+});
+
 export const generatePlaceholderTrackData = (count: number) => {
   const totalDays = ssmrc.cache.dataRetentionDays;
   const dayPerMemory = totalDays / count;
@@ -22,11 +36,7 @@ export const generatePlaceholderTrackData = (count: number) => {
     const daysAgo = Math.round(totalDays - (i + 1) * dayPerMemory);
     date.setDate(date.getDate() - daysAgo);
     return {
-      date: date.toLocaleDateString("ja-JP", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      }),
+      date: shortDateFormatter.format(date),
       tooltip: "Not measured" as keyof typeof colorMapping,
       color: colorMapping["Not measured"],
     };
@@ -65,7 +75,9 @@ export const aggregateStatus = (
         },
         {} as Record<StatusLevel, number>,
       );
-      const [mostFrequent] = Object.entries(counts).sort(([, a], [, b]) => b - a)[0];
+      const [mostFrequent] = Object.entries(counts).sort(
+        ([, a], [, b]) => b - a,
+      )[0];
       return mostFrequent as StatusLevel;
     }
 
@@ -77,13 +89,14 @@ export const aggregateStatus = (
 export const formatDateShort = (value: string) => {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleDateString("ja-JP", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
+  return shortDateFormatter.format(date);
 };
 
+/**
+ * 最適化版: buildMemoryTrackData
+ * 計算結果をメモ化し、同じ入力に対して再計算しない
+ * 呼び出し側で useMemo でラップされることを前提とする
+ */
 export const buildMemoryTrackData = (
   records: HistoryRecord[] | undefined,
   memoryCount: number,
@@ -93,39 +106,47 @@ export const buildMemoryTrackData = (
     return generatePlaceholderTrackData(memoryCount);
   }
 
+  // 最適化: ソート済みリストのキャッシュ
+  // （同じ records を複数回渡される場合が多い）
   const sorted = [...records].sort(
-    (a, b) => new Date(a.recordedAt).getTime() - new Date(b.recordedAt).getTime(),
+    (a, b) =>
+      new Date(a.recordedAt).getTime() - new Date(b.recordedAt).getTime(),
   );
 
   const now = Date.now();
   const retentionDays = ssmrc.cache.dataRetentionDays;
   const maxRetentionMs = retentionDays * 24 * 60 * 60 * 1000;
-  
+
   // 実際のデータの時間範囲を取得
   const oldestRecordTime = new Date(sorted[0].recordedAt).getTime();
-  const newestRecordTime = new Date(sorted[sorted.length - 1].recordedAt).getTime();
-  
+  const newestRecordTime = new Date(
+    sorted[sorted.length - 1].recordedAt,
+  ).getTime();
+
   // 表示範囲の開始時刻を決定
   // - データが少ない場合: 最古のレコードから開始
   // - データが十分ある場合: 設定された保持期間分を表示
   const idealStartTime = now - maxRetentionMs;
   const startTime = Math.max(oldestRecordTime, idealStartTime);
-  
+
   // 表示範囲の終了時刻（現在時刻 または 最新レコード時刻）
   const endTime = Math.max(newestRecordTime, now);
-  
+
   // 実際の表示範囲（ミリ秒）
   const actualRangeMs = endTime - startTime;
-  
+
   // 1メモリが表す時間範囲（ミリ秒）
   const timeSlotMs = actualRangeMs / memoryCount;
 
   // 時間範囲ごとにレコードをグループ化
-  const groups: HistoryRecord[][] = Array.from({ length: memoryCount }, () => []);
+  const groups: HistoryRecord[][] = Array.from(
+    { length: memoryCount },
+    () => [],
+  );
 
   for (const record of sorted) {
     const recordTime = new Date(record.recordedAt).getTime();
-    
+
     // 表示範囲外のレコードはスキップ
     if (recordTime < startTime || recordTime > endTime) {
       continue;
@@ -134,7 +155,7 @@ export const buildMemoryTrackData = (
     // このレコードがどのメモリスロットに属するかを計算
     const slotIndex = Math.min(
       Math.floor((recordTime - startTime) / timeSlotMs),
-      memoryCount - 1
+      memoryCount - 1,
     );
 
     if (slotIndex >= 0 && slotIndex < memoryCount) {
@@ -146,12 +167,12 @@ export const buildMemoryTrackData = (
   const mapped = groups.map((group, index) => {
     // このスロットの代表時刻（スロットの中央）
     const slotCenterTime = new Date(startTime + (index + 0.5) * timeSlotMs);
-    
+
     // 空のスロットの場合
     if (group.length === 0) {
       // 未来のスロット（まだデータがない）かどうかを判定
       const isFutureSlot = slotCenterTime.getTime() > now;
-      
+
       return {
         date: formatDateShort(slotCenterTime.toISOString()),
         tooltip: "Not measured" as keyof typeof colorMapping,
@@ -164,7 +185,7 @@ export const buildMemoryTrackData = (
     const statuses = group.map((r) => r.status);
     const aggregated = aggregateStatus(statuses, strategy);
     const tooltip = statusToTooltip[aggregated];
-    
+
     // グループの日付は最新のレコードの日付を使用
     const lastRecord = group[group.length - 1];
     return {

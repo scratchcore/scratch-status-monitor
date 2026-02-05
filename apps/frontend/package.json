@@ -11,7 +11,8 @@
     "lint": "biome lint",
     "check": "biome check",
     "deploy": "pnpm run build && wrangler deploy --minify --env production",
-    "cf-typegen": "wrangler types"
+    "cf-typegen": "wrangler types",
+    "machine-translate": "inlang machine translate --project project.inlang"
   },
   "dependencies": {
     "@cloudflare/vite-plugin": "^1.23.0",
