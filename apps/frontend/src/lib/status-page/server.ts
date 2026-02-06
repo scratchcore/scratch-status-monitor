@@ -3,6 +3,8 @@ import { ssmrc } from "@scratchcore/ssm-configs";
 import type { HistoryApiEnvelope, StatusPageLoaderData } from "./types";
 import { getEnv } from "@/plugins/envrc";
 
+const FETCH_TIMEOUT_MS = 30000; // 30秒
+
 /**
  * Server Function: サーバーサイドでバックエンドAPIから履歴データ取得（段階的）
  */
@@ -15,31 +17,91 @@ const fetchHistoriesServerFn = createServerFn({ method: "GET" })
     const limit = data?.limit ?? 100;
     const offset = data?.offset ?? 0;
 
-    const historyResponse = await fetch(
-      `${baseUrl}/history?limit=${limit}&offset=${offset}`,
-      {
+    const url = `${baseUrl}/history?limit=${limit}&offset=${offset}`;
+
+    console.log("[fetchHistoriesServerFn] リクエスト開始:", {
+      url,
+      timestamp: new Date().toISOString(),
+    });
+
+    const startTime = performance.now();
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+
+    try {
+      const historyResponse = await fetch(url, {
+        signal: controller.signal,
         headers: {
           accept: "application/json",
           authorization: `Bearer ${API_TOKEN}`,
         },
-      },
-    );
+      });
 
-    if (!historyResponse.ok) {
-      throw new Error("履歴の取得に失敗しました");
+      const elapsed = performance.now() - startTime;
+
+      console.log("[fetchHistoriesServerFn] レスポンス受信:", {
+        status: historyResponse.status,
+        statusText: historyResponse.statusText,
+        url: historyResponse.url,
+        elapsed: `${elapsed.toFixed(2)}ms`,
+        timestamp: new Date().toISOString(),
+      });
+
+      if (!historyResponse.ok) {
+        let errorMessage = `HTTPエラー: ${historyResponse.status} ${historyResponse.statusText}`;
+        try {
+          const errorBody = await historyResponse.text();
+          if (errorBody) {
+            errorMessage += `\nレスポンス本体: ${errorBody}`;
+          }
+        } catch {
+          // レスポンス読み込み失敗は無視
+        }
+
+        console.error("[fetchHistoriesServerFn] リクエスト失敗:", {
+          status: historyResponse.status,
+          statusText: historyResponse.statusText,
+          url: historyResponse.url,
+          elapsed: `${elapsed.toFixed(2)}ms`,
+          headers: Object.fromEntries(historyResponse.headers.entries()),
+          message: errorMessage,
+        });
+
+        throw new Error(errorMessage);
+      }
+
+      const historyJson = (await historyResponse.json()) as HistoryApiEnvelope;
+
+      console.log("[fetchHistoriesServerFn] データ取得成功:", {
+        recordCount: historyJson.data?.length ?? 0,
+        elapsed: `${elapsed.toFixed(2)}ms`,
+      });
+
+      // 次回更新予定時刻を計算
+      const now = Date.now();
+      const nextRefreshAt = now + ssmrc.cache.statusTtlMs;
+
+      return {
+        histories: historyJson.data,
+        nextRefreshAt,
+        refreshIntervalMs: ssmrc.cache.statusTtlMs,
+      };
+    } catch (error) {
+      clearTimeout(timeoutId);
+
+      const elapsed = performance.now() - startTime;
+
+      if (error instanceof DOMException && error.name === "AbortError") {
+        const message = `[fetchHistoriesServerFn] タイムアウト: ${FETCH_TIMEOUT_MS}ms以内にレスポンスがありません`;
+        console.error(message, { elapsed: `${elapsed.toFixed(2)}ms` });
+        throw new Error(`バックエンドが応答しません (タイムアウト: ${(FETCH_TIMEOUT_MS / 1000).toFixed(0)}秒)。バックエンドのCPU使用率を確認してください。`);
+      }
+
+      throw error;
+    } finally {
+      clearTimeout(timeoutId);
     }
-
-    const historyJson = (await historyResponse.json()) as HistoryApiEnvelope;
-
-    // 次回更新予定時刻を計算
-    const now = Date.now();
-    const nextRefreshAt = now + ssmrc.cache.statusTtlMs;
-
-    return {
-      histories: historyJson.data,
-      nextRefreshAt,
-      refreshIntervalMs: ssmrc.cache.statusTtlMs,
-    };
   });
 
 export const fetchHistories = async (params?: {

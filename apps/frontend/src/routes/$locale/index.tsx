@@ -1,8 +1,10 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useIntlayer } from "react-intlayer";
+import { AlertCircle } from "lucide-react";
 import { STATUS_PAGE_QUERY_KEY } from "@/lib/status-page/config";
+import type { StatusPageLoaderData } from "@/lib/status-page/types";
 // Local imports
 import { getCachedHistories } from "@/lib/status-page/server";
 import {
@@ -18,7 +20,13 @@ import { InfoHeader } from "@/components/common/status/layout/info-header";
 import { Monitors } from "@/components/common/status/layout/monitors";
 import { Footer } from "@/components/footer";
 
-export const Route = createFileRoute("/{-$locale}/")({
+const DEFAULT_LOADER_DATA: StatusPageLoaderData = {
+  histories: [],
+  nextRefreshAt: Date.now(),
+  refreshIntervalMs: ssmrc.cache.statusTtlMs,
+};
+
+export const Route = createFileRoute("/$locale/")({
   head: ({ params }) => {
     const { locale } = params;
     return {
@@ -26,7 +34,17 @@ export const Route = createFileRoute("/{-$locale}/")({
     };
   },
   loader: async () => {
-    return getCachedHistories();
+    try {
+      return await getCachedHistories();
+    } catch (error) {
+      console.error(
+        "[Status Page Loader] 履歴の取得に失敗しました:",
+        error instanceof Error ? error.message : String(error),
+        error
+      );
+      // デフォルトデータを返してアプリを続行
+      return DEFAULT_LOADER_DATA;
+    }
   },
   component: App,
 });
@@ -59,20 +77,7 @@ function App() {
     initialData: loaderData,
   });
 
-  if (error) {
-    return (
-      <div className="grid min-h-screen w-full place-items-center">
-        <div className="max-w-md rounded-lg border border-red-200 bg-red-50 p-4">
-          <h1 className="text-lg font-semibold text-red-900">
-            {t.error.title}
-          </h1>
-          <p className="mt-2 text-sm text-red-700">
-            {error instanceof Error ? error.message : t.error.unknown}
-          </p>
-        </div>
-      </div>
-    );
-  }
+  const [dismissedError, setDismissedError] = useState(false);
 
   if (isPending) {
     return <StatusPageSkeleton />;
@@ -87,6 +92,31 @@ function App() {
       refreshIntervalMs={refreshIntervalMs}
     >
       <div className="max-w-3xl pt-20 mx-auto">
+        {/* エラーアラート */}
+        {error && !dismissedError && (
+          <div className="mb-4 flex gap-3 rounded-md border border-yellow-200 bg-yellow-50 p-4">
+            <div className="flex-shrink-0">
+              <AlertCircle className="h-5 w-5 text-yellow-600" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-sm font-medium text-yellow-800">
+                データ取得エラー
+              </h3>
+              <p className="mt-1 text-sm text-yellow-700">
+                {error instanceof Error
+                  ? error.message
+                  : "履歴データの取得に失敗しました"}
+              </p>
+            </div>
+            <button
+              onClick={() => setDismissedError(true)}
+              className="flex-shrink-0 text-yellow-400 hover:text-yellow-500"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
         <InfoHeader />
         <Monitors />
         <Footer />

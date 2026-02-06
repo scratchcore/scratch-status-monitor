@@ -1,9 +1,13 @@
-import type { IntlayerConfig } from "intlayer";
+import { Locales, type IntlayerConfig } from "intlayer";
 
 const config: IntlayerConfig = {
   internationalization: {
-    defaultLocale: "ja",
-    locales: ["ja", "en"],
+    locales: [Locales.JAPANESE, Locales.ENGLISH],
+    requiredLocales: [Locales.JAPANESE],
+    defaultLocale: Locales.JAPANESE,
+  },
+  routing: {
+    mode: "prefix-all",
   },
   content: {
     contentDir: ["./src/content"],

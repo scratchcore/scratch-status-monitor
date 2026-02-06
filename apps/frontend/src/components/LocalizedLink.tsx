@@ -4,7 +4,7 @@ import { Link, type LinkComponentProps } from "@tanstack/react-router";
 import { useLocale } from "react-intlayer";
 import { getPrefix } from "intlayer";
 
-export const LOCALE_ROUTE = "{-$locale}" as const;
+export const LOCALE_ROUTE = "$locale" as const;
 
 // メインユーティリティ
 export type RemoveLocaleParam<T> = T extends string

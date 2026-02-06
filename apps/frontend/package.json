@@ -15,6 +15,7 @@
     "machine-translate": "inlang machine translate --project project.inlang"
   },
   "dependencies": {
+    "@base-ui/react": "^1.1.0",
     "@cloudflare/vite-plugin": "^1.23.0",
     "@faker-js/faker": "^10.2.0",
     "@orpc/client": "^1.13.4",

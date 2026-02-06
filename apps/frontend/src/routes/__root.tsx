@@ -1,58 +1,62 @@
-import { TanStackDevtools } from "@tanstack/react-devtools";
-import type { QueryClient } from "@tanstack/react-query";
 import {
   createRootRouteWithContext,
   HeadContent,
   Scripts,
   useMatches,
+  useRouteContext,
 } from "@tanstack/react-router";
-import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
-import { ThemeProvider } from "next-themes";
+
+import type { QueryClient } from "@tanstack/react-query";
+
+import { TanStackDevtools } from "@tanstack/react-devtools";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
+import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+
 import { defaultLocale, getHTMLTextDir } from "intlayer";
 import { IntlayerProvider } from "react-intlayer";
-import { LocaleSwitcher } from "@/components/LanguageSwitcher";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { fonts } from "@/utils/fonts";
 
-import appCss from "../styles.css?url";
-import fontCss from "../styles/fonts.css?url";
+import { ThemeProvider } from "next-themes";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 interface MyRouterContext {
   queryClient: QueryClient;
 }
 
-export const Route = createRootRouteWithContext<MyRouterContext>()({
-  head: () => ({
-    meta: [
-      {
-        charSet: "utf-8",
-      },
-      {
-        name: "viewport",
-        content: "width=device-width, initial-scale=1",
-      },
-    ],
-    links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
-      ...fonts(),
-      {
-        rel: "stylesheet",
-        href: fontCss,
-      },
-    ],
-  }),
+function RootErrorComponent() {
+  return (
+    <div className="w-full min-h-screen flex flex-col items-center justify-center p-4 bg-destructive/10">
+      <div className="max-w-md space-y-4">
+        <h1 className="text-2xl font-bold text-destructive">エラーが発生しました</h1>
+        <div className="bg-white p-4 rounded-md border border-destructive/30 space-y-2">
+          <p className="text-sm text-muted-foreground">
+            問題が発生した場合は、以下をお試しください：
+          </p>
+          <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+            <li>ページをリロードする</li>
+            <li>ブラウザの開発ツール（F12）でコンソールを確認</li>
+            <li>ネットワークタブでリクエスト/レスポンスを確認</li>
+          </ul>
+        </div>
+        <button
+          onClick={() => window.location.reload()}
+          className="w-full px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+        >
+          ページをリロード
+        </button>
+      </div>
+    </div>
+  );
+}
 
+export const Route = createRootRouteWithContext<MyRouterContext>()({
   shellComponent: RootDocument,
+  errorComponent: RootErrorComponent,
 });
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   const matches = useMatches();
 
-  const localeRoute = matches.find((match) => match.routeId === "/{-$locale}");
+  const localeRoute = matches.find((match) => match.routeId === "/$locale");
   const locale = localeRoute?.params?.locale ?? defaultLocale;
 
   return (
@@ -63,10 +67,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <body cz-shortcut-listen="true">
         <ThemeProvider>
           <IntlayerProvider locale={locale}>
-            <TooltipProvider>
-              <LocaleSwitcher />
-              {children}
-            </TooltipProvider>
+            <TooltipProvider>{children}</TooltipProvider>
           </IntlayerProvider>
         </ThemeProvider>
         <TanStackDevtools
