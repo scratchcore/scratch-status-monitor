@@ -3,18 +3,21 @@ import {
   HeadContent,
   Scripts,
   useMatches,
-  useRouteContext,
 } from "@tanstack/react-router";
 
 import type { QueryClient } from "@tanstack/react-query";
 
+// devtools
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 
+// i18n
 import { defaultLocale, getHTMLTextDir } from "intlayer";
-import { IntlayerProvider } from "react-intlayer";
 
+// Providers
+import { IntlayerProvider } from "react-intlayer";
+import { NuqsAdapter } from "nuqs/adapters/tanstack-router";
 import { ThemeProvider } from "next-themes";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
@@ -26,7 +29,9 @@ function RootErrorComponent() {
   return (
     <div className="w-full min-h-screen flex flex-col items-center justify-center p-4 bg-destructive/10">
       <div className="max-w-md space-y-4">
-        <h1 className="text-2xl font-bold text-destructive">エラーが発生しました</h1>
+        <h1 className="text-2xl font-bold text-destructive">
+          エラーが発生しました
+        </h1>
         <div className="bg-white p-4 rounded-md border border-destructive/30 space-y-2">
           <p className="text-sm text-muted-foreground">
             問題が発生した場合は、以下をお試しください：
@@ -65,11 +70,13 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body cz-shortcut-listen="true">
-        <ThemeProvider>
-          <IntlayerProvider locale={locale}>
-            <TooltipProvider>{children}</TooltipProvider>
-          </IntlayerProvider>
-        </ThemeProvider>
+        <IntlayerProvider locale={locale}>
+          <NuqsAdapter>
+            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+              <TooltipProvider>{children}</TooltipProvider>
+            </ThemeProvider>
+          </NuqsAdapter>
+        </IntlayerProvider>
         <TanStackDevtools
           config={{
             position: "bottom-right",

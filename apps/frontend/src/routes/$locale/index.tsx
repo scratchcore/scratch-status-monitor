@@ -95,7 +95,7 @@ function App() {
         {/* エラーアラート */}
         {error && !dismissedError && (
           <div className="mb-4 flex gap-3 rounded-md border border-yellow-200 bg-yellow-50 p-4">
-            <div className="flex-shrink-0">
+            <div className="shrink-0">
               <AlertCircle className="h-5 w-5 text-yellow-600" />
             </div>
             <div className="flex-1">
@@ -110,7 +110,7 @@ function App() {
             </div>
             <button
               onClick={() => setDismissedError(true)}
-              className="flex-shrink-0 text-yellow-400 hover:text-yellow-500"
+              className="shrink-0 text-yellow-400 hover:text-yellow-500"
             >
               ✕
             </button>
@@ -119,7 +119,6 @@ function App() {
 
         <InfoHeader />
         <Monitors />
-        <Footer />
       </div>
     </StatusPageProvider>
   );

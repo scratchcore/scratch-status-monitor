@@ -4,21 +4,26 @@ import { buildMemoryTrackData } from "@/lib/status-page/data";
 import { statusToTooltip } from "@/lib/status-page/rc";
 import { StatusCardProvider } from "../card/context";
 import { StatusCard } from "../card";
+import { ssmrc } from "@scratchcore/ssm-configs";
+import type { HistoryResponse } from "@/lib/status-page/rc";
 
 /**
  * MonitorCard: 個別モニターカードをメモ化
  * 親の再レンダリングに影響されない
  */
+
 const MonitorCard = memo(function MonitorCard({
+  monitor,
   history,
 }: {
-  history: any;
+  monitor: (typeof ssmrc.monitors)[0];
+  history?: HistoryResponse;
 }) {
-  // memo化されているため、history の参照が変わらない限り再レンダリングなし
-  const monitorRecords = history.records as any[];
+  const monitorRecords = history?.records as any[] | undefined;
 
   // データフォーマッターを一度だけ実行
   const trackData = useMemo(() => {
+    if (!monitorRecords) return null;
     return {
       desktop: buildMemoryTrackData(monitorRecords, 90),
       tablet: buildMemoryTrackData(monitorRecords, 60),
@@ -26,51 +31,57 @@ const MonitorCard = memo(function MonitorCard({
     };
   }, [monitorRecords]);
 
-  const latestRecord = monitorRecords[monitorRecords.length - 1];
-  if (!latestRecord) return null;
+  const latestRecord = monitorRecords?.[monitorRecords.length - 1];
+  const monitorTooltip = latestRecord
+    ? statusToTooltip[latestRecord.status as keyof typeof statusToTooltip]
+    : undefined;
 
-  const monitorTooltip = statusToTooltip[latestRecord.status as keyof typeof statusToTooltip];
   const monitorWithLabel = {
-    ...latestRecord,
-    label: history.label,
+    ...(latestRecord ?? {}),
+    label: history?.label ?? monitor.label,
   };
 
   return (
     <StatusCardProvider
       value={{
         monitor: monitorWithLabel,
-        uptimePercent: history.stats.uptime,
-        data: {
-          row: monitorRecords,
-          desktop: trackData.desktop,
-          tablet: trackData.tablet,
-          mobile: trackData.mobile,
-        },
+        uptimePercent: history?.stats.uptime,
+        data: trackData
+          ? {
+              row: monitorRecords!,
+              desktop: trackData.desktop,
+              tablet: trackData.tablet,
+              mobile: trackData.mobile,
+            }
+          : undefined,
       }}
     >
-      <StatusCard monitorTooltip={monitorTooltip} />
+      <StatusCard monitorTooltip={monitorTooltip ?? "Not measured"} />
     </StatusCardProvider>
   );
 });
 
 export function Monitors() {
   const s = useContext(StatusPageDataContext);
-  if (!s) return null;
-  const { histories } = s;
+  const { histories = [] } = s || {};
 
-  if (!histories || histories.length === 0) {
-    return null;
-  }
-
-  // 履歴に変更がなければ、このメモリは再計算されない
-  const monitorCards = useMemo(() => {
-    return histories.map((history) => (
-      <MonitorCard key={history.monitorId} history={history} />
-    ));
+  // 静的な設定からモニターマップを作成
+  const historiesMap = useMemo(() => {
+    return new Map(histories.map((h) => [h.monitorId, h]));
   }, [histories]);
 
+  // 全モニターをレンダリング（データがない場合でもカード構造は表示）
+  const monitorCards = useMemo(() => {
+    return ssmrc.monitors.map((monitor) => {
+      const history = historiesMap.get(monitor.id);
+      return (
+        <MonitorCard key={monitor.id} monitor={monitor} history={history} />
+      );
+    });
+  }, [historiesMap]);
+
   return (
-    <div className="relative w-full rounded-lg border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 mt-10 space-y-6">
+    <div className="relative w-full rounded-lg border p-6 text-left shadow-sm bg-card mt-10 space-y-6">
       {monitorCards}
     </div>
   );

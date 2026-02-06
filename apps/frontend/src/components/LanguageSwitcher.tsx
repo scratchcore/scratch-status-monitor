@@ -7,30 +7,36 @@ import type { FileRouteTypes } from "@/routeTree.gen";
 
 import { LOCALE_ROUTE } from "./LocalizedLink";
 
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from "@/components/ui/combobox";
+import { InputGroupAddon } from "./ui/input-group";
+import { RiTranslate2 } from "@remixicon/react";
+
 export const LocaleSwitcher: FC = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
-  const { availableLocales, locale } = useLocale();
+  const { availableLocales, locale, setLocale } = useLocale();
 
   const pathWithoutLocale = getPathWithoutLocale(pathname) || "/";
   const normalizedPath = pathWithoutLocale === "/" ? "" : pathWithoutLocale;
 
-  const handleLocaleChange = (nextLocale: string) => {
-    if (nextLocale === locale) {
+  const handleLocaleChange = (nextLocale: string | null) => {
+    if (!nextLocale || nextLocale === locale) {
       return;
     }
+
+    setLocale(nextLocale);
 
     const localizedTo =
       `/${LOCALE_ROUTE}${normalizedPath}` as FileRouteTypes["to"];
     const { localePrefix } = getPrefix(nextLocale);
-
-    console.log("[LocaleSwitcher] 言語変更:", {
-      from: locale,
-      to: nextLocale,
-      navigateTo: localizedTo,
-      localePrefix,
-    });
 
     void navigate({
       to: localizedTo,
@@ -38,22 +44,36 @@ export const LocaleSwitcher: FC = () => {
     });
   };
 
+  const languages = availableLocales.map((lang) => ({
+    label: getLocaleName(lang),
+    value: lang,
+  }));
+
   return (
-    <div className="flex gap-2">
-      {availableLocales.map((localeEl) => (
-        <button
-          key={localeEl}
-          onClick={() => handleLocaleChange(localeEl)}
-          className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-            localeEl === locale
-              ? "bg-primary text-primary-foreground"
-              : "bg-muted text-muted-foreground hover:bg-muted/80"
-          }`}
-          aria-current={localeEl === locale ? "page" : undefined}
-        >
-          {getLocaleName(localeEl)}
-        </button>
-      ))}
-    </div>
+    <Combobox
+      items={languages}
+      itemToStringValue={(lang: (typeof languages)[number]) => lang.label}
+      value={languages.find((l) => l.value === locale)}
+      onValueChange={(e) => (e ? handleLocaleChange(e?.value) : void 0)}
+    >
+      <ComboboxInput className="w-fit max-w-40" placeholder="Select a language">
+        <InputGroupAddon>
+          <RiTranslate2 />
+        </InputGroupAddon>
+      </ComboboxInput>
+      <ComboboxContent className="max-w-40">
+        <ComboboxEmpty>No items found.</ComboboxEmpty>
+        <ComboboxList>
+          {(item) => (
+            <ComboboxItem key={item.value} value={item}>
+              <span className="truncate">{item.label}</span>
+              <span className="text-muted-foreground ml-auto text-xs">
+                {item.value.toUpperCase()}
+              </span>
+            </ComboboxItem>
+          )}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
   );
 };

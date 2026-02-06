@@ -6,6 +6,7 @@ import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { validatePrefix, defaultLocale } from "intlayer";
 
 import { NotFoundComponent } from "./404";
+import { Footer } from "@/components/footer";
 
 export const Route = createFileRoute("/$locale")({
   head: () => ({
@@ -52,6 +53,15 @@ export const Route = createFileRoute("/$locale")({
       to: "/$locale/404",
     });
   },
-  component: Outlet,
+  component: RootDocument,
   notFoundComponent: NotFoundComponent,
 });
+
+function RootDocument() {
+  return (
+    <div>
+      <Outlet />
+      <Footer />
+    </div>
+  );
+}

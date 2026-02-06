@@ -26,7 +26,7 @@ import {
 const chartConfig = {
   responseTime: {
     label: "応答時間",
-    color: "hsl(var(--chart-1))",
+    color: "var(--chart-1)",
   },
 } satisfies ChartConfig;
 
@@ -78,7 +78,7 @@ const ChartContent = memo(function ChartContent({
 }) {
   if (chartData.length === 0) {
     return (
-      <div className="flex items-center justify-center h-56 text-gray-500 dark:text-gray-400">
+      <div className="flex items-center justify-center h-56 text-muted-foreground">
         チャートデータがありません
       </div>
     );
@@ -97,7 +97,7 @@ const ChartContent = memo(function ChartContent({
         <CartesianGrid
           vertical={true}
           strokeDasharray="3 3"
-          stroke="hsl(var(--border) / 0.3)"
+          stroke="var(--muted)"
         />
 
         {/* 日付が変わる箇所に縦線を表示 */}
@@ -105,14 +105,14 @@ const ChartContent = memo(function ChartContent({
           <ReferenceLine
             key={`date-change-${idx}`}
             x={timestamp}
-            stroke="hsl(var(--muted-foreground))"
+            stroke="var(--muted-foreground)"
             strokeDasharray="5 5"
             strokeWidth={2}
             label={{
               value: getMonthDayFormatter(locale).format(new Date(timestamp)),
               position: "insideTopRight",
               offset: -8,
-              fill: "hsl(var(--muted-foreground))",
+              fill: "var(--muted-foreground)",
               fontSize: 12,
               fontWeight: 600,
             }}
@@ -153,8 +153,8 @@ const ChartContent = memo(function ChartContent({
         <ChartTooltip
           cursor={{ fill: "rgba(0, 0, 0, 0.1)" }}
           contentStyle={{
-            backgroundColor: "hsl(var(--background))",
-            border: "1px solid hsl(var(--border))",
+            backgroundColor: "var(--background)",
+            border: "1px solid var(--border)",
             borderRadius: "0.5rem",
             boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
           }}
@@ -196,11 +196,11 @@ const ChartContent = memo(function ChartContent({
 export function StatusCardChart() {
   const s = useContext(StatusCardContext);
   const { locale } = useLocale();
-  if (!s) return null;
+  if (!s || !s.data) return null;
 
   // チャートデータをメモ化（s.data.row と locale が変わる時だけ再計算）
   const { chartData, dateChangeTimestamps } = useMemo(() => {
-    if (!s.data.row || s.data.row.length === 0) {
+    if (!s.data || !s.data.row || s.data.row.length === 0) {
       return { chartData: [], dateChangeTimestamps: [] };
     }
 
@@ -275,7 +275,7 @@ export function StatusCardChart() {
       chartData: data,
       dateChangeTimestamps: dateChanges,
     };
-  }, [s.data.row, locale]);
+  }, [s.data, locale]);
 
   // チャート描画部をメモ化されたコンポーネントに分離
   return chartData.length === 0 ? (
