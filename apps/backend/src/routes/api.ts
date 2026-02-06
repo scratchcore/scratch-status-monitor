@@ -29,6 +29,9 @@ const applyCacheHeaders = (response: Response) => {
 
 const getCacheKey = (c: any) => new Request(c.req.url, { method: "GET" });
 
+const shouldBypassCache = (c: any) =>
+  c.req.header("x-cache-bust") === "1" || c.req.query("cache-bust") === "1";
+
 /**
  * ルータ
  * ステータス・履歴・統計情報に関するエンドポイントを提供
@@ -70,7 +73,7 @@ export const createApiRouter = () => {
   router.get("/status", async (c) => {
     const cacheKey = getCacheKey(c);
     const cache = await caches.open("ssm-api");
-    const cached = await cache.match(cacheKey);
+    const cached = shouldBypassCache(c) ? null : await cache.match(cacheKey);
     if (cached) {
       return cached;
     }
@@ -149,7 +152,7 @@ export const createApiRouter = () => {
   router.get("/history", async (c) => {
     const cacheKey = getCacheKey(c);
     const cache = await caches.open("ssm-api");
-    const cached = await cache.match(cacheKey);
+    const cached = shouldBypassCache(c) ? null : await cache.match(cacheKey);
     if (cached) {
       return cached;
     }
@@ -206,7 +209,7 @@ export const createApiRouter = () => {
   router.get("/history/:monitorId", async (c) => {
     const cacheKey = getCacheKey(c);
     const cache = await caches.open("ssm-api");
-    const cached = await cache.match(cacheKey);
+    const cached = shouldBypassCache(c) ? null : await cache.match(cacheKey);
     if (cached) {
       return cached;
     }
@@ -271,7 +274,7 @@ export const createApiRouter = () => {
   router.get("/stats/:monitorId", async (c) => {
     const cacheKey = getCacheKey(c);
     const cache = await caches.open("ssm-api");
-    const cached = await cache.match(cacheKey);
+    const cached = shouldBypassCache(c) ? null : await cache.match(cacheKey);
     if (cached) {
       return cached;
     }

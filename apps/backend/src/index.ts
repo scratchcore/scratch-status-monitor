@@ -96,8 +96,9 @@ async function handleCron(
     }
 
     const baseUrl = env.API_BASE_URL.replace(/\/$/, "");
-    const headers = {
-      authorization: `Bearer ${env.API_TOKEN}`,
+      const headers = {
+        authorization: `Bearer ${env.API_TOKEN}`,
+        "x-cache-bust": "1",
     };
 
     const warmTargets = [
