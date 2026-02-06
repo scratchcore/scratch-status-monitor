@@ -5,7 +5,6 @@ import { errorHandler } from "./middleware/errorHandler";
 import mainMiddleware from "./middleware/main";
 import { createOpenAPIRoutes } from "./openapi-routes";
 import { createApiRouter } from "./routes/api";
-import debugRouter from "./routes/debug";
 import { initializeCacheService } from "./services/cacheService";
 import { initializeHistoryService } from "./services/historyService";
 import { startPeriodicCleanup } from "./services/cleanupService";
@@ -43,9 +42,6 @@ app.use("*", createBearerAuthMiddleware());
 // (OpenAPI スキーマ生成の前に実行される必要があります)
 const apiRouter = createApiRouter();
 app.route("", apiRouter);
-
-// v2.0: デバッグ・監視用ルート
-app.route("/debug", debugRouter);
 
 // OpenAPI ルートを統合
 const openAPIApp = await createOpenAPIRoutes();

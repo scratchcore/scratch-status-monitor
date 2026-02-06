@@ -6,9 +6,28 @@ import {
   getMonitorStatsHandler,
 } from "../procedures/history";
 import { getStatusHandler, refreshStatusHandler } from "../procedures/status";
-import { HistoryResponse, HistoryStats, StatusResponse } from "@scratchcore/ssm-types";
-import { type APIEndpointMetadata, registerEndpoint } from "../types/api-metadata";
+import {
+  HistoryResponse,
+  HistoryStats,
+  StatusResponse,
+} from "@scratchcore/ssm-types";
+import {
+  type APIEndpointMetadata,
+  registerEndpoint,
+} from "../types/api-metadata";
 import { UUIDSchema } from "../utils/validators";
+import { ssmrc } from "@scratchcore/ssm-configs";
+
+const CACHE_TTL_SECONDS = Math.floor(ssmrc.cache.statusTtlMs / 1000);
+
+const applyCacheHeaders = (response: Response) => {
+  response.headers.set(
+    "Cache-Control",
+    `public, max-age=${CACHE_TTL_SECONDS}, s-maxage=${CACHE_TTL_SECONDS}, stale-while-revalidate=${CACHE_TTL_SECONDS}`,
+  );
+};
+
+const getCacheKey = (c: any) => new Request(c.req.url, { method: "GET" });
 
 /**
  * ルータ
@@ -18,7 +37,10 @@ export const createApiRouter = () => {
   const router = new Hono();
 
   // メタデータ登録ヘルパー関数
-  const _registerAndHandle = (metadata: APIEndpointMetadata, handler: (c: any) => Promise<any>) => {
+  const _registerAndHandle = (
+    metadata: APIEndpointMetadata,
+    handler: (c: any) => Promise<any>,
+  ) => {
     registerEndpoint(metadata);
     return handler;
   };
@@ -46,40 +68,50 @@ export const createApiRouter = () => {
   });
 
   router.get("/status", async (c) => {
+    const cacheKey = getCacheKey(c);
+    const cache = await caches.open("ssm-api");
+    const cached = await cache.match(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
     const status = await getStatusHandler();
-    return c.json({
+    const response = c.json({
       success: true,
       data: status,
     });
+    applyCacheHeaders(response);
+    await cache.put(cacheKey, response.clone());
+    return response;
   });
 
-  // POST /api/status/refresh - ステータスを強制更新
-  registerEndpoint({
-    method: "post",
-    path: "/status/refresh",
-    tags: ["Status"],
-    summary: "ステータスを強制更新",
-    description: "全モニターを再チェックして最新ステータスを取得",
-    operationId: "refreshStatus",
-    responses: {
-      "200": {
-        schema: StatusResponse,
-        description: "ステータス更新成功",
-      },
-      "500": {
-        description: "サーバーエラー",
-      },
-    },
-  });
+  // // POST /api/status/refresh - ステータスを強制更新
+  // registerEndpoint({
+  //   method: "post",
+  //   path: "/status/refresh",
+  //   tags: ["Status"],
+  //   summary: "ステータスを強制更新",
+  //   description: "全モニターを再チェックして最新ステータスを取得",
+  //   operationId: "refreshStatus",
+  //   responses: {
+  //     "200": {
+  //       schema: StatusResponse,
+  //       description: "ステータス更新成功",
+  //     },
+  //     "500": {
+  //       description: "サーバーエラー",
+  //     },
+  //   },
+  // });
 
-  router.post("/status/refresh", async (c) => {
-    const status = await refreshStatusHandler();
-    return c.json({
-      success: true,
-      data: status,
-      message: "Status refreshed successfully",
-    });
-  });
+  // router.post("/status/refresh", async (c) => {
+  //   const status = await refreshStatusHandler();
+  //   return c.json({
+  //     success: true,
+  //     data: status,
+  //     message: "Status refreshed successfully",
+  //   });
+  // });
 
   /**
    * 履歴エンドポイント
@@ -115,16 +147,26 @@ export const createApiRouter = () => {
   });
 
   router.get("/history", async (c) => {
+    const cacheKey = getCacheKey(c);
+    const cache = await caches.open("ssm-api");
+    const cached = await cache.match(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
     const limitParam = c.req.query("limit");
     const offsetParam = c.req.query("offset");
     const limit = limitParam ? parseInt(limitParam, 10) : 100;
     const offset = offsetParam ? parseInt(offsetParam, 10) : 0;
 
     const histories = await getAllMonitorsHistoryHandler({ limit, offset });
-    return c.json({
+    const response = c.json({
       success: true,
       data: histories,
     });
+    applyCacheHeaders(response);
+    await cache.put(cacheKey, response.clone());
+    return response;
   });
 
   // GET /api/history/:monitorId - 特定のモニターの履歴を取得
@@ -162,6 +204,13 @@ export const createApiRouter = () => {
   });
 
   router.get("/history/:monitorId", async (c) => {
+    const cacheKey = getCacheKey(c);
+    const cache = await caches.open("ssm-api");
+    const cached = await cache.match(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
     const monitorId = c.req.param("monitorId");
     const limitParam = c.req.query("limit");
     const offsetParam = c.req.query("offset");
@@ -174,10 +223,13 @@ export const createApiRouter = () => {
       offset,
     });
 
-    return c.json({
+    const response = c.json({
       success: true,
       data: history,
     });
+    applyCacheHeaders(response);
+    await cache.put(cacheKey, response.clone());
+    return response;
   });
 
   /**
@@ -217,6 +269,13 @@ export const createApiRouter = () => {
   });
 
   router.get("/stats/:monitorId", async (c) => {
+    const cacheKey = getCacheKey(c);
+    const cache = await caches.open("ssm-api");
+    const cached = await cache.match(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
     const monitorId = c.req.param("monitorId");
     const limitParam = c.req.query("limit");
     const limit = limitParam ? parseInt(limitParam, 10) : 100;
@@ -226,10 +285,13 @@ export const createApiRouter = () => {
       limit,
     });
 
-    return c.json({
+    const response = c.json({
       success: true,
       data: stats,
     });
+    applyCacheHeaders(response);
+    await cache.put(cacheKey, response.clone());
+    return response;
   });
 
   return router;
