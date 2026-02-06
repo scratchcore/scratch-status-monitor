@@ -25,17 +25,20 @@
   // SUPABASE_URL=https://xxxxx.supabase.co
   // SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
   // ENVIRONMENT=development
+  // API_BASE_URL=https://api.ssm.scra.cc
   "env": {
     "development": {
       "workers_dev": true,
       "preview_urls": true,
       "vars": {
         "ENVIRONMENT": "development",
+        "API_BASE_URL": "http://localhost:8787",
       },
     },
     "production": {
       "vars": {
         "ENVIRONMENT": "production",
+        "API_BASE_URL": "https://api.ssm.scra.cc",
       },
     },
   },

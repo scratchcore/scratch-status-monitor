@@ -83,6 +83,47 @@ async function handleCron(_event: ScheduledEvent, env: Env): Promise<void> {
     console.log(
       `Monitor check completed. Overall status: ${result.overallStatus}`,
     );
+
+    if (!env.API_BASE_URL || !env.API_TOKEN) {
+      console.warn(
+        "[Cron] API_BASE_URL または API_TOKEN が未設定のためキャッシュウォームをスキップします。",
+      );
+      return;
+    }
+
+    const baseUrl = env.API_BASE_URL.replace(/\/$/, "");
+    const headers = {
+      authorization: `Bearer ${env.API_TOKEN}`,
+    };
+
+    const warmTargets = [
+      `${baseUrl}/status`,
+      `${baseUrl}/history?limit=100&offset=0`,
+    ];
+
+    console.log("[Cron] キャッシュウォーム開始:", warmTargets);
+
+    await Promise.all(
+      warmTargets.map(async (url) => {
+        try {
+          const response = await app.fetch(
+            new Request(url, {
+              method: "GET",
+              headers,
+            }),
+          );
+          console.log("[Cron] キャッシュウォーム結果:", {
+            url,
+            status: response.status,
+          });
+        } catch (error) {
+          console.error("[Cron] キャッシュウォーム失敗:", {
+            url,
+            error: error instanceof Error ? error.message : String(error),
+          });
+        }
+      }),
+    );
   } catch (error) {
     console.error("Error during scheduled monitor check:", error);
     throw error;

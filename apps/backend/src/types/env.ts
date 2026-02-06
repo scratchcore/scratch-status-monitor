@@ -26,4 +26,11 @@ export interface Env {
    * production: 本番環境（テストルート無効）
    */
   ENVIRONMENT?: "development" | "production";
+
+  /**
+   * API のベース URL（cron のキャッシュウォーム用）
+   * 環境変数: API_BASE_URL
+   * 例: https://api.ssm.scra.cc
+   */
+  API_BASE_URL?: string;
 }
