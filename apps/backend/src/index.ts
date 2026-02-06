@@ -97,7 +97,6 @@ async function handleCron(_event: ScheduledEvent, env: Env): Promise<void> {
     };
 
     const warmTargets = [
-      `${baseUrl}/status`,
       `${baseUrl}/history?limit=100&offset=0`,
     ];
 
