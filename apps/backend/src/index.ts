@@ -72,7 +72,11 @@ showRoutes(app, {
  * Cron Trigger ハンドラー
  * v2.0: 全モニターをチェックし、Supabase に保存
  */
-async function handleCron(_event: ScheduledEvent, env: Env): Promise<void> {
+async function handleCron(
+  _event: ScheduledEvent,
+  env: Env,
+  ctx: ExecutionContext,
+): Promise<void> {
   try {
     const supabase = initializeSupabaseClient(env);
     initializeCacheService(supabase);
@@ -110,6 +114,8 @@ async function handleCron(_event: ScheduledEvent, env: Env): Promise<void> {
               method: "GET",
               headers,
             }),
+            env,
+            ctx,
           );
           console.log("[Cron] キャッシュウォーム結果:", {
             url,
