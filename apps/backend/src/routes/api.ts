@@ -1,4 +1,4 @@
-import { Hono } from "hono";
+import { Context, Hono } from "hono";
 import { z } from "zod";
 import {
   getAllMonitorsHistoryHandler,
@@ -17,6 +17,8 @@ import {
 } from "../types/api-metadata";
 import { UUIDSchema } from "../utils/validators";
 import { ssmrc } from "@scratchcore/ssm-configs";
+import { BlankEnv, BlankInput } from "hono/types";
+import type { Env } from "../types/env";
 
 const CACHE_TTL_SECONDS = Math.floor(ssmrc.cache.statusTtlMs / 1000);
 
@@ -27,9 +29,10 @@ const applyCacheHeaders = (response: Response) => {
   );
 };
 
-const getCacheKey = (c: any) => new Request(c.req.url, { method: "GET" });
+const getCacheKey = (c: Context<{ Bindings: Env }>) =>
+  new Request(c.req.url, { method: "GET" });
 
-const shouldBypassCache = (c: any) =>
+const shouldBypassCache = (c: Context<{ Bindings: Env }>) =>
   c.req.header("x-cache-bust") === "1" || c.req.query("cache-bust") === "1";
 
 /**
@@ -39,13 +42,31 @@ const shouldBypassCache = (c: any) =>
 export const createApiRouter = () => {
   const router = new Hono();
 
-  // メタデータ登録ヘルパー関数
-  const _registerAndHandle = (
-    metadata: APIEndpointMetadata,
-    handler: (c: any) => Promise<any>,
+  const _cacheableHandler = (
+    handler: (c: Context<{ Bindings: Env }>) => Promise<Response>,
   ) => {
-    registerEndpoint(metadata);
-    return handler;
+    return async (c: Context<{ Bindings: Env }>) => {
+      const isBypass = shouldBypassCache(c);
+      const cache = await caches.open("ssm-api");
+
+      if (!isBypass) {
+        const cacheKey = getCacheKey(c);
+        const cached = await cache.match(cacheKey);
+        if (cached) {
+          console.log("[API] CACHE HIT:", { url: c.req.url });
+          return cached;
+        }
+      } else {
+        console.log("[API] CACHE BYPASS:", { url: c.req.url });
+      }
+
+      const response = await handler(c);
+      applyCacheHeaders(response);
+      
+      const cacheKey = getCacheKey(c);
+      await cache.put(cacheKey, response.clone());
+      return response;
+    };
   };
 
   /**
@@ -70,23 +91,16 @@ export const createApiRouter = () => {
     },
   });
 
-  router.get("/status", async (c) => {
-    const cacheKey = getCacheKey(c);
-    const cache = await caches.open("ssm-api");
-    const cached = shouldBypassCache(c) ? null : await cache.match(cacheKey);
-    if (cached) {
-      return cached;
-    }
-
-    const status = await getStatusHandler();
-    const response = c.json({
-      success: true,
-      data: status,
-    });
-    applyCacheHeaders(response);
-    await cache.put(cacheKey, response.clone());
-    return response;
-  });
+  router.get(
+    "/status",
+    _cacheableHandler(async (c) => {
+      const status = await getStatusHandler();
+      return c.json({
+        success: true,
+        data: status,
+      });
+    }),
+  );
 
   // // POST /api/status/refresh - ステータスを強制更新
   // registerEndpoint({
@@ -149,28 +163,21 @@ export const createApiRouter = () => {
     },
   });
 
-  router.get("/history", async (c) => {
-    const cacheKey = getCacheKey(c);
-    const cache = await caches.open("ssm-api");
-    const cached = shouldBypassCache(c) ? null : await cache.match(cacheKey);
-    if (cached) {
-      return cached;
-    }
+  router.get(
+    "/history",
+    _cacheableHandler(async (c) => {
+      const limitParam = c.req.query("limit");
+      const offsetParam = c.req.query("offset");
+      const limit = limitParam ? parseInt(limitParam, 10) : 100;
+      const offset = offsetParam ? parseInt(offsetParam, 10) : 0;
 
-    const limitParam = c.req.query("limit");
-    const offsetParam = c.req.query("offset");
-    const limit = limitParam ? parseInt(limitParam, 10) : 100;
-    const offset = offsetParam ? parseInt(offsetParam, 10) : 0;
-
-    const histories = await getAllMonitorsHistoryHandler({ limit, offset });
-    const response = c.json({
-      success: true,
-      data: histories,
-    });
-    applyCacheHeaders(response);
-    await cache.put(cacheKey, response.clone());
-    return response;
-  });
+      const histories = await getAllMonitorsHistoryHandler({ limit, offset });
+      return c.json({
+        success: true,
+        data: histories,
+      });
+    }),
+  );
 
   // GET /api/history/:monitorId - 特定のモニターの履歴を取得
   registerEndpoint({
@@ -206,34 +213,27 @@ export const createApiRouter = () => {
     },
   });
 
-  router.get("/history/:monitorId", async (c) => {
-    const cacheKey = getCacheKey(c);
-    const cache = await caches.open("ssm-api");
-    const cached = shouldBypassCache(c) ? null : await cache.match(cacheKey);
-    if (cached) {
-      return cached;
-    }
+  router.get(
+    "/history/:monitorId",
+    _cacheableHandler(async (c) => {
+      const monitorId = c.req.param("monitorId");
+      const limitParam = c.req.query("limit");
+      const offsetParam = c.req.query("offset");
+      const limit = limitParam ? parseInt(limitParam, 10) : 100;
+      const offset = offsetParam ? parseInt(offsetParam, 10) : 0;
 
-    const monitorId = c.req.param("monitorId");
-    const limitParam = c.req.query("limit");
-    const offsetParam = c.req.query("offset");
-    const limit = limitParam ? parseInt(limitParam, 10) : 100;
-    const offset = offsetParam ? parseInt(offsetParam, 10) : 0;
+      const history = await getMonitorHistoryHandler({
+        monitorId,
+        limit,
+        offset,
+      });
 
-    const history = await getMonitorHistoryHandler({
-      monitorId,
-      limit,
-      offset,
-    });
-
-    const response = c.json({
-      success: true,
-      data: history,
-    });
-    applyCacheHeaders(response);
-    await cache.put(cacheKey, response.clone());
-    return response;
-  });
+      return c.json({
+        success: true,
+        data: history,
+      });
+    }),
+  );
 
   /**
    * 統計情報エンドポイント
@@ -271,31 +271,24 @@ export const createApiRouter = () => {
     },
   });
 
-  router.get("/stats/:monitorId", async (c) => {
-    const cacheKey = getCacheKey(c);
-    const cache = await caches.open("ssm-api");
-    const cached = shouldBypassCache(c) ? null : await cache.match(cacheKey);
-    if (cached) {
-      return cached;
-    }
+  router.get(
+    "/stats/:monitorId",
+    _cacheableHandler(async (c) => {
+      const monitorId = c.req.param("monitorId");
+      const limitParam = c.req.query("limit");
+      const limit = limitParam ? parseInt(limitParam, 10) : 100;
 
-    const monitorId = c.req.param("monitorId");
-    const limitParam = c.req.query("limit");
-    const limit = limitParam ? parseInt(limitParam, 10) : 100;
+      const stats = await getMonitorStatsHandler({
+        monitorId,
+        limit,
+      });
 
-    const stats = await getMonitorStatsHandler({
-      monitorId,
-      limit,
-    });
-
-    const response = c.json({
-      success: true,
-      data: stats,
-    });
-    applyCacheHeaders(response);
-    await cache.put(cacheKey, response.clone());
-    return response;
-  });
+      return c.json({
+        success: true,
+        data: stats,
+      });
+    }),
+  );
 
   return router;
 };
