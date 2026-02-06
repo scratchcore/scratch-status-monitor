@@ -96,40 +96,72 @@ async function handleCron(
     }
 
     const baseUrl = env.API_BASE_URL.replace(/\/$/, "");
-      const headers = {
-        authorization: `Bearer ${env.API_TOKEN}`,
-        "x-cache-bust": "1",
+    const headers = {
+      authorization: `Bearer ${env.API_TOKEN}`,
+      "x-cache-bust": "1",
     };
 
-    const warmTargets = [
-      `${baseUrl}/history?limit=100&offset=0`,
-    ];
+    console.log("[Cron] キャッシュウォーム開始");
 
-    console.log("[Cron] キャッシュウォーム開始:", warmTargets);
+    // ステータスエンドポイントをウォーム
+    try {
+      const statusUrl = `${baseUrl}/status`;
+      const statusResponse = await app.fetch(
+        new Request(statusUrl, {
+          method: "GET",
+          headers,
+        }),
+        env,
+        ctx,
+      );
+      console.log("[Cron] /status ウォーム結果:", {
+        url: statusUrl,
+        status: statusResponse.status,
+      });
+    } catch (error) {
+      console.error("[Cron] /status ウォーム失敗:", {
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
 
-    await Promise.all(
-      warmTargets.map(async (url) => {
-        try {
-          const response = await app.fetch(
-            new Request(url, {
-              method: "GET",
-              headers,
-            }),
-            env,
-            ctx,
-          );
-          console.log("[Cron] キャッシュウォーム結果:", {
-            url,
-            status: response.status,
-          });
-        } catch (error) {
-          console.error("[Cron] キャッシュウォーム失敗:", {
-            url,
-            error: error instanceof Error ? error.message : String(error),
-          });
+    // 履歴エンドポイントを全ページウォーム（hasMore=falseまで）
+    let offset = 0;
+    const limit = 100;
+    let hasMore = true;
+
+    while (hasMore) {
+      try {
+        const historyUrl = `${baseUrl}/history?limit=${limit}&offset=${offset}`;
+        const historyResponse = await app.fetch(
+          new Request(historyUrl, {
+            method: "GET",
+            headers,
+          }),
+          env,
+          ctx,
+        );
+
+        console.log("[Cron] /history ウォーム結果:", {
+          url: historyUrl,
+          status: historyResponse.status,
+          offset,
+        });
+
+        if (historyResponse.ok) {
+          const data: any = await historyResponse.json();
+          hasMore = data?.hasMore ?? false;
+          offset += limit;
+        } else {
+          hasMore = false;
         }
-      }),
-    );
+      } catch (error) {
+        console.error("[Cron] /history ウォーム失敗:", {
+          offset,
+          error: error instanceof Error ? error.message : String(error),
+        });
+        hasMore = false;
+      }
+    }
   } catch (error) {
     console.error("Error during scheduled monitor check:", error);
     throw error;
