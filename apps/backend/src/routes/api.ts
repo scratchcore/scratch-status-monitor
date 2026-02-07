@@ -21,6 +21,7 @@ import {
   CACHE_NAMESPACE,
   applyCacheHeaders,
   buildCacheKey,
+  getCronAlignedTtlSeconds,
 } from "../services/cdnCacheService";
 import { createLogger } from "../services/logger";
 
@@ -56,12 +57,14 @@ export const createApiRouter = () => {
       }
 
       const response = await handler(c);
-      applyCacheHeaders(response);
+      const ttlSeconds = getCronAlignedTtlSeconds();
+      applyCacheHeaders(response, ttlSeconds);
 
       const cacheKey = buildCacheKey(c.req.url);
       logger.info("CACHE WRITE", {
         url: c.req.url,
         status: response.status,
+        ttlSeconds,
       });
       await cache.put(cacheKey, response.clone());
       return response;

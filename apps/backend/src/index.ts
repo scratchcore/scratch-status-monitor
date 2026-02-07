@@ -12,11 +12,6 @@ import { checkAllMonitors } from "./services/monitorService";
 import type { Env } from "./types/env";
 import { generateOpenAPISchema } from "./utils/openapi";
 import { initializeSupabaseClient } from "./services/supabaseClient";
-import {
-  upsertHistoryCdnCache,
-  upsertStatusCdnCache,
-} from "./services/cdnCacheService";
-import { getAllMonitorsHistoryHandler } from "./procedures/history";
 import { createLogger } from "./services/logger";
 
 const logger = createLogger("Cron");
@@ -110,38 +105,6 @@ async function handleCron(
 
     // 2. クリーンアップを実行（古いデータを削除）
     await runCleanup();
-
-    if (!env.API_BASE_URL) {
-      logger.warn("API_BASE_URL not set, skipping CDN cache update");
-      return;
-    }
-
-    await upsertStatusCdnCache(env.API_BASE_URL, result);
-    logger.info("CDN cache updated", { endpoint: "/status" });
-
-    const limit = 100;
-    let offset = 0;
-
-    while (true) {
-      const histories = await getAllMonitorsHistoryHandler({
-        limit,
-        offset,
-      });
-      await upsertHistoryCdnCache(env.API_BASE_URL, histories, limit, offset);
-
-      const hasMore = histories.some((history) => history.hasMore);
-      logger.info("CDN cache updated", {
-        endpoint: "/history",
-        offset,
-        hasMore,
-      });
-
-      if (!hasMore) {
-        break;
-      }
-
-      offset += limit;
-    }
 
     const endTime = Date.now();
     logger.info(`Scheduled task completed. ${endTime - startTime}ms`);

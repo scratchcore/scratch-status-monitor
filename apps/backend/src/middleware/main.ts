@@ -13,13 +13,13 @@ mainMiddleware.use("*", logger());
 // docs: https://hono.dev/docs/middleware/builtin/request-id
 mainMiddleware.use("*", requestId());
 
-// docs: https://hono.dev/docs/middleware/builtin/csrf
-mainMiddleware.use(
-  "*",
-  csrf({
-    origin: (origin) => /https:\/\/(\w+\.)?ssm\.scra\.cc$/.test(origin),
-  }),
-);
+// // docs: https://hono.dev/docs/middleware/builtin/csrf
+// mainMiddleware.use(
+//   "*",
+//   csrf({
+//     origin: (origin) => /https:\/\/(\w+\.)?ssm\.scra\.cc$/.test(origin),
+//   }),
+// );
 
 // docs: https://hono.dev/docs/middleware/builtin/timeout
 mainMiddleware.use("*", timeout(10000)); // タイムアウトを10秒に設定
