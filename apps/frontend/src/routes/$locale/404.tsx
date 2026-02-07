@@ -5,9 +5,6 @@ import { LocalizedLink } from "@/components/LocalizedLink";
 
 export const Route = createFileRoute("/$locale/404")({
   component: NotFoundComponent,
-  onEnter: () => {
-    window.scrollTo(0, 0);
-  },
 });
 
 export function NotFoundComponent() {

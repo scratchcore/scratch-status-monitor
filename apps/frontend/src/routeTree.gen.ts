@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LocaleRouteRouteImport } from './routes/$locale/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LocaleIndexRouteImport } from './routes/$locale/index'
+import { Route as SSplatRouteImport } from './routes/s/$'
 import { Route as LocaleTeamRouteImport } from './routes/$locale/team'
 import { Route as LocaleAboutRouteImport } from './routes/$locale/about'
 import { Route as Locale404RouteImport } from './routes/$locale/404'
@@ -31,6 +32,11 @@ const LocaleIndexRoute = LocaleIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => LocaleRouteRoute,
+} as any)
+const SSplatRoute = SSplatRouteImport.update({
+  id: '/s/$',
+  path: '/s/$',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const LocaleTeamRoute = LocaleTeamRouteImport.update({
   id: '/team',
@@ -60,6 +66,7 @@ export interface FileRoutesByFullPath {
   '/$locale/404': typeof Locale404Route
   '/$locale/about': typeof LocaleAboutRoute
   '/$locale/team': typeof LocaleTeamRoute
+  '/s/$': typeof SSplatRoute
   '/$locale/': typeof LocaleIndexRoute
 }
 export interface FileRoutesByTo {
@@ -68,6 +75,7 @@ export interface FileRoutesByTo {
   '/$locale/404': typeof Locale404Route
   '/$locale/about': typeof LocaleAboutRoute
   '/$locale/team': typeof LocaleTeamRoute
+  '/s/$': typeof SSplatRoute
   '/$locale': typeof LocaleIndexRoute
 }
 export interface FileRoutesById {
@@ -78,6 +86,7 @@ export interface FileRoutesById {
   '/$locale/404': typeof Locale404Route
   '/$locale/about': typeof LocaleAboutRoute
   '/$locale/team': typeof LocaleTeamRoute
+  '/s/$': typeof SSplatRoute
   '/$locale/': typeof LocaleIndexRoute
 }
 export interface FileRouteTypes {
@@ -89,6 +98,7 @@ export interface FileRouteTypes {
     | '/$locale/404'
     | '/$locale/about'
     | '/$locale/team'
+    | '/s/$'
     | '/$locale/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -97,6 +107,7 @@ export interface FileRouteTypes {
     | '/$locale/404'
     | '/$locale/about'
     | '/$locale/team'
+    | '/s/$'
     | '/$locale'
   id:
     | '__root__'
@@ -106,12 +117,14 @@ export interface FileRouteTypes {
     | '/$locale/404'
     | '/$locale/about'
     | '/$locale/team'
+    | '/s/$'
     | '/$locale/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LocaleRouteRoute: typeof LocaleRouteRouteWithChildren
+  SSplatRoute: typeof SSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -136,6 +149,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/$locale/'
       preLoaderRoute: typeof LocaleIndexRouteImport
       parentRoute: typeof LocaleRouteRoute
+    }
+    '/s/$': {
+      id: '/s/$'
+      path: '/s/$'
+      fullPath: '/s/$'
+      preLoaderRoute: typeof SSplatRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/$locale/team': {
       id: '/$locale/team'
@@ -191,6 +211,7 @@ const LocaleRouteRouteWithChildren = LocaleRouteRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LocaleRouteRoute: LocaleRouteRouteWithChildren,
+  SSplatRoute: SSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

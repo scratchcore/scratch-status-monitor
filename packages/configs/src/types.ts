@@ -4,6 +4,7 @@ export namespace ssmrcType {
     monitors: monitor[];
     checks: checks;
     cache: cache;
+    shortUrls: shortUrl[];
   }
   export interface category {
     id: string;
@@ -53,5 +54,17 @@ export namespace ssmrcType {
      * デフォルト: 10000 = 10秒
      */
     timeoutMs: number;
+  }
+
+  export interface shortUrl {
+    /**
+     * 短縮URLキー（パラメータ）
+     * 例: "faq", "gh/repo"
+     */
+    key: string;
+    /**
+     * リダイレクト先のURL
+     */
+    url: string;
   }
 }

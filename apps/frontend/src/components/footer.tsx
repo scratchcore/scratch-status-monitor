@@ -2,6 +2,7 @@ import {
   RiCopyrightLine,
   RiCreativeCommonsByLine,
   RiCreativeCommonsNcLine,
+  RiExternalLinkLine,
 } from "@remixicon/react";
 import { ThemeTogglerButton } from "./animate-ui/components/buttons/theme-toggler";
 import { LocaleSwitcher } from "./LanguageSwitcher";
@@ -28,16 +29,19 @@ const items: Items[] = [
     title: "リソース",
     links: [
       { name: "概要", to: "/about" },
-      { name: "使い方", to: "/docs/usage" },
-      { name: "仕組み", to: "/docs/how-it-works" },
-      { name: "FAQ", to: "/docs/faq" },
+      { name: "使い方", to: "/usage" },
+      { name: "仕組み", to: "/how-it-works" },
+      {
+        name: "FAQ",
+        href: "/s/gh/faq",
+      },
     ],
   },
   {
     title: "運営",
     links: [
       { name: "チーム", to: "/team" },
-      { name: "GitHub", href: "https://github.com/scratchcore" },
+      { name: "GitHub", href: "/s/gh/org" },
     ],
   },
 ];
@@ -62,6 +66,8 @@ export function Footer() {
                   {item.links.map((link) => {
                     const isInternalLink = "to" in link && link.to !== undefined;
                     const isExternalLink = "href" in link && link.href !== undefined;
+                    const className =
+                      "inline-flex items-center whitespace-nowrap text-sm font-medium hover:opacity-90 transition-all duration-100 hover:underline hover:underline-offset-4";
 
                     return (
                       <div
@@ -70,22 +76,28 @@ export function Footer() {
                       >
                         {isInternalLink ? (
                           <LocalizedLink
-                            className="whitespace-nowrap text-sm font-medium"
+                            className={className}
                             to={link.to as To}
                             title={link.name}
                             resetScroll={true}
+                            activeOptions={{ exact: true }}
+                            activeProps={{
+                              className:
+                                "text-primary opacity-50 cursor-not-allowed pointer-events-none",
+                            }}
                           >
                             {link.name}
                           </LocalizedLink>
                         ) : isExternalLink ? (
                           <LocalizedLink
-                            className="whitespace-nowrap text-sm font-medium"
+                            className={className}
                             href={link.href}
                             title={link.name}
                             target="_blank"
                             rel="noopener noreferrer"
                           >
                             {link.name}
+                            <RiExternalLinkLine size={14} className="ml-1" />
                           </LocalizedLink>
                         ) : null}
                         {link.badge && (

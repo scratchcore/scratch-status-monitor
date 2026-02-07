@@ -107,6 +107,7 @@ function App() {
               </p>
             </div>
             <button
+              type="button"
               onClick={() => setDismissedError(true)}
               className="shrink-0 text-yellow-400 hover:text-yellow-500"
             >
