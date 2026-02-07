@@ -1,14 +1,14 @@
+import { ssmrc } from "@scratchcore/ssm-configs";
+import {
+  formatDateShort as formatDateShortI18n,
+  formatDateTime as formatDateTimeI18n,
+} from "@/lib/i18n/formatters";
 import {
   colorMapping,
   type HistoryRecord,
   type StatusLevel,
   statusToTooltip,
 } from "@/lib/status-page/rc";
-import { ssmrc } from "@scratchcore/ssm-configs";
-import {
-  formatDateShort as formatDateShortI18n,
-  formatDateTime as formatDateTimeI18n,
-} from "@/lib/i18n/formatters";
 
 /**
  * ステータス集約戦略
@@ -45,7 +45,7 @@ export const generatePlaceholderTrackData = (count: number) => {
  */
 export const aggregateStatus = (
   statuses: StatusLevel[],
-  strategy: AggregationStrategy = DEFAULT_AGGREGATION_STRATEGY,
+  strategy: AggregationStrategy = DEFAULT_AGGREGATION_STRATEGY
 ): StatusLevel => {
   if (statuses.length === 0) return "unknown";
 
@@ -68,11 +68,9 @@ export const aggregateStatus = (
           acc[status] = (acc[status] || 0) + 1;
           return acc;
         },
-        {} as Record<StatusLevel, number>,
+        {} as Record<StatusLevel, number>
       );
-      const [mostFrequent] = Object.entries(counts).sort(
-        ([, a], [, b]) => b - a,
-      )[0];
+      const [mostFrequent] = Object.entries(counts).sort(([, a], [, b]) => b - a)[0];
       return mostFrequent as StatusLevel;
     }
 
@@ -91,7 +89,7 @@ export const formatDateShort = formatDateShortI18n;
 export const buildMemoryTrackData = (
   records: HistoryRecord[] | undefined,
   memoryCount: number,
-  strategy: AggregationStrategy = DEFAULT_AGGREGATION_STRATEGY,
+  strategy: AggregationStrategy = DEFAULT_AGGREGATION_STRATEGY
 ) => {
   if (!records || records.length === 0) {
     return generatePlaceholderTrackData(memoryCount);
@@ -100,8 +98,7 @@ export const buildMemoryTrackData = (
   // 最適化: ソート済みリストのキャッシュ
   // （同じ records を複数回渡される場合が多い）
   const sorted = [...records].sort(
-    (a, b) =>
-      new Date(a.recordedAt).getTime() - new Date(b.recordedAt).getTime(),
+    (a, b) => new Date(a.recordedAt).getTime() - new Date(b.recordedAt).getTime()
   );
 
   const now = Date.now();
@@ -110,9 +107,7 @@ export const buildMemoryTrackData = (
 
   // 実際のデータの時間範囲を取得
   const oldestRecordTime = new Date(sorted[0].recordedAt).getTime();
-  const newestRecordTime = new Date(
-    sorted[sorted.length - 1].recordedAt,
-  ).getTime();
+  const newestRecordTime = new Date(sorted[sorted.length - 1].recordedAt).getTime();
 
   // 表示範囲の開始時刻を決定
   // - データが少ない場合: 最古のレコードから開始
@@ -130,10 +125,7 @@ export const buildMemoryTrackData = (
   const timeSlotMs = actualRangeMs / memoryCount;
 
   // 時間範囲ごとにレコードをグループ化
-  const groups: HistoryRecord[][] = Array.from(
-    { length: memoryCount },
-    () => [],
-  );
+  const groups: HistoryRecord[][] = Array.from({ length: memoryCount }, () => []);
 
   for (const record of sorted) {
     const recordTime = new Date(record.recordedAt).getTime();
@@ -144,10 +136,7 @@ export const buildMemoryTrackData = (
     }
 
     // このレコードがどのメモリスロットに属するかを計算
-    const slotIndex = Math.min(
-      Math.floor((recordTime - startTime) / timeSlotMs),
-      memoryCount - 1,
-    );
+    const slotIndex = Math.min(Math.floor((recordTime - startTime) / timeSlotMs), memoryCount - 1);
 
     if (slotIndex >= 0 && slotIndex < memoryCount) {
       groups[slotIndex].push(record);

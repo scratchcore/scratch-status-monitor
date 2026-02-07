@@ -1,5 +1,5 @@
-import { bearerAuth } from "hono/bearer-auth";
 import type { Context, MiddlewareHandler } from "hono";
+import { bearerAuth } from "hono/bearer-auth";
 import type { Env } from "../types/env";
 
 /**
@@ -25,20 +25,20 @@ export function createBearerAuthMiddleware(): MiddlewareHandler<{ Bindings: Env 
       // 本番環境では fail-closed（全ルートを拒否）
       if (environment === "production") {
         console.error(
-          "API_TOKEN is not set in production. All requests are blocked until API_TOKEN is configured.",
+          "API_TOKEN is not set in production. All requests are blocked until API_TOKEN is configured."
         );
         return c.json(
           {
             success: false,
             message: "API authentication is not configured",
           },
-          { status: 503 },
+          { status: 503 }
         );
       }
 
       // 開発環境では認証をスキップ
       console.warn(
-        "API_TOKEN is not set. Bearer authentication is disabled. Set API_TOKEN in environment variables to enable authentication.",
+        "API_TOKEN is not set. Bearer authentication is disabled. Set API_TOKEN in environment variables to enable authentication."
       );
       return next();
     }

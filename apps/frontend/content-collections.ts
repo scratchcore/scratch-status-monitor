@@ -1,9 +1,7 @@
 import { defineCollection, defineConfig } from "@content-collections/core";
 import { compileMDX } from "@content-collections/mdx";
-
-import { z } from "zod";
-
 import remarkGfm from "remark-gfm";
+import { z } from "zod";
 
 const content = defineCollection({
   name: "content",

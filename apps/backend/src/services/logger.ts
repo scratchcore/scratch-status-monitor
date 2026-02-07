@@ -31,7 +31,7 @@ export class Logger {
       metadata,
     };
     const formattedLog = formatLog(entry);
-    
+
     if (level === "ERROR") {
       console.error(formattedLog);
     } else if (level === "WARN") {

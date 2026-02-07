@@ -1,30 +1,21 @@
 import { useContext } from "react";
 import { useIntlayer, useLocale } from "react-intlayer";
 import {
-  formatDateTime,
-  formatUptime,
-  formatDateShort,
-} from "@/lib/status-page/data";
-import { type colorMapping } from "@/lib/status-page/rc";
-import { Tracker } from "../ui/tracker";
-import { StatusCardContext } from "./context";
-import { StatusIcon } from "../ui/icon";
-import { StatusCardChart } from "./chart";
-import { Skeleton } from "@/components/ui/skeleton";
-
-import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
+import { formatDateShort, formatDateTime, formatUptime } from "@/lib/status-page/data";
+import type { colorMapping } from "@/lib/status-page/rc";
+import { StatusIcon } from "../ui/icon";
+import { Tracker } from "../ui/tracker";
+import { StatusCardChart } from "./chart";
+import { StatusCardContext } from "./context";
 
-export function StatusCard({
-  monitorTooltip,
-}: {
-  monitorTooltip?: keyof typeof colorMapping;
-}) {
+export function StatusCard({ monitorTooltip }: { monitorTooltip?: keyof typeof colorMapping }) {
   const data = useContext(StatusCardContext);
   const t = useIntlayer("status");
   const { locale } = useLocale();
@@ -34,9 +25,7 @@ export function StatusCard({
   const desktopData = data.data?.desktop;
   const startDate = desktopData?.[0]?.date;
   const endDate = desktopData?.[desktopData.length - 1]?.date;
-  const startLabel = startDate
-    ? formatDateShort(startDate, locale)
-    : t.card.start;
+  const startLabel = startDate ? formatDateShort(startDate, locale) : t.card.start;
   const endLabel = endDate ? formatDateShort(endDate, locale) : t.card.current;
 
   return (
@@ -57,20 +46,14 @@ export function StatusCard({
         </div>
         {data.data ? (
           <div className="mt-1 flex flex-wrap gap-3 text-xs text-muted-foreground">
-            <span>
-              {data.monitor.status ? t.statusLevel[data.monitor.status] : "-"}
-            </span>
+            <span>{data.monitor.status ? t.statusLevel[data.monitor.status] : "-"}</span>
             <span>
               {t.card.responseTime}:{" "}
-              {data.monitor.responseTime
-                ? `${data.monitor.responseTime}ms`
-                : "-"}
+              {data.monitor.responseTime ? `${data.monitor.responseTime}ms` : "-"}
             </span>
             <span>
               {t.card.lastCheck}:{" "}
-              {data.monitor.recordedAt
-                ? formatDateTime(data.monitor.recordedAt, locale)
-                : "-"}
+              {data.monitor.recordedAt ? formatDateTime(data.monitor.recordedAt, locale) : "-"}
             </span>
             {data.monitor.errorMessage ? (
               <span className="text-red-500">{data.monitor.errorMessage}</span>
@@ -84,21 +67,13 @@ export function StatusCard({
         )}
         {data.data ? (
           <>
-            <Tracker
-              hoverEffect
-              data={data.data.desktop}
-              className="mt-3 hidden w-full lg:flex"
-            />
+            <Tracker hoverEffect data={data.data.desktop} className="mt-3 hidden w-full lg:flex" />
             <Tracker
               hoverEffect
               data={data.data.tablet}
               className="mt-3 hidden w-full sm:flex lg:hidden"
             />
-            <Tracker
-              hoverEffect
-              data={data.data.mobile}
-              className="mt-3 flex w-full sm:hidden"
-            />
+            <Tracker hoverEffect data={data.data.mobile} className="mt-3 flex w-full sm:hidden" />
             <div className="mt-3 flex items-center justify-between text-sm text-muted-foreground">
               <span>{startLabel}</span>
               <span>{endLabel}</span>

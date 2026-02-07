@@ -7,14 +7,14 @@ export const health = os
   .input(
     z.object({
       verbose: z.boolean().optional(),
-    }),
+    })
   )
   .output(
     z.object({
       status: z.string(),
       message: z.string(),
       timestamp: z.date(),
-    }),
+    })
   )
   .handler(async ({ input }) => {
     return {
@@ -29,7 +29,7 @@ export const ping = os
   .output(
     z.object({
       pong: z.string(),
-    }),
+    })
   )
   .handler(() => {
     return { pong: "pong" };
@@ -40,12 +40,12 @@ export const echo = os
   .input(
     z.object({
       message: z.string(),
-    }),
+    })
   )
   .output(
     z.object({
       echo: z.string(),
-    }),
+    })
   )
   .handler(async ({ input }) => {
     return {

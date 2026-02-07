@@ -1,4 +1,4 @@
-import { ssmrcType } from "./types";
+import type { ssmrcType } from "./types";
 
 export const cache: ssmrcType.cache = {
   // キャッシュの有効期限（ミリ秒）

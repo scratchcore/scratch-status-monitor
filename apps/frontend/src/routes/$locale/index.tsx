@@ -1,10 +1,14 @@
+import { ssmrc } from "@scratchcore/ssm-configs";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
+import { AlertCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useIntlayer } from "react-intlayer";
-import { AlertCircle } from "lucide-react";
+import { StatusPageProvider } from "@/components/common/status/layout/context";
+import { InfoHeader } from "@/components/common/status/layout/info-header";
+import { Monitors } from "@/components/common/status/layout/monitors";
+import { StatusPageSkeleton } from "@/components/common/status/layout/skeleton";
 import { STATUS_PAGE_QUERY_KEY } from "@/lib/status-page/config";
-import type { StatusPageLoaderData } from "@/lib/status-page/types";
 // Local imports
 import { getCachedHistories } from "@/lib/status-page/server";
 import {
@@ -12,12 +16,8 @@ import {
   initializeBroadcastChannel,
   refetchAndBroadcast,
 } from "@/lib/status-page/sync";
-import { StatusPageProvider } from "@/components/common/status/layout/context";
-import { StatusPageSkeleton } from "@/components/common/status/layout/skeleton";
-import { ssmrc } from "@scratchcore/ssm-configs";
+import type { StatusPageLoaderData } from "@/lib/status-page/types";
 import { seo } from "@/utils/seo";
-import { InfoHeader } from "@/components/common/status/layout/info-header";
-import { Monitors } from "@/components/common/status/layout/monitors";
 
 const DEFAULT_LOADER_DATA: StatusPageLoaderData = {
   histories: [],
@@ -39,7 +39,7 @@ export const Route = createFileRoute("/$locale/")({
       console.error(
         "[Status Page Loader] 履歴の取得に失敗しました:",
         error instanceof Error ? error.message : String(error),
-        error,
+        error
       );
       // デフォルトデータを返してアプリを続行
       return DEFAULT_LOADER_DATA;
@@ -54,7 +54,7 @@ export const Route = createFileRoute("/$locale/")({
 function App() {
   const loaderData = Route.useLoaderData();
   const queryClient = useQueryClient();
-  const t = useIntlayer("status");
+  const _t = useIntlayer("status");
 
   // BroadcastChannel を初期化
   useEffect(() => {
@@ -101,13 +101,9 @@ function App() {
               <AlertCircle className="h-5 w-5 text-yellow-600" />
             </div>
             <div className="flex-1">
-              <h3 className="text-sm font-medium text-yellow-800">
-                データ取得エラー
-              </h3>
+              <h3 className="text-sm font-medium text-yellow-800">データ取得エラー</h3>
               <p className="mt-1 text-sm text-yellow-700">
-                {error instanceof Error
-                  ? error.message
-                  : "履歴データの取得に失敗しました"}
+                {error instanceof Error ? error.message : "履歴データの取得に失敗しました"}
               </p>
             </div>
             <button

@@ -12,7 +12,7 @@ export const Tracker = forwardRef<HTMLDivElement, TrackerProps<MemoryBlockProps>
       hoverEffect,
       ...props
     },
-    forwardedRef,
+    forwardedRef
   ) => {
     return (
       <div
@@ -30,5 +30,5 @@ export const Tracker = forwardRef<HTMLDivElement, TrackerProps<MemoryBlockProps>
         ))}
       </div>
     );
-  },
+  }
 );

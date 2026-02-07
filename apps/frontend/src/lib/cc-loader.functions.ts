@@ -7,10 +7,7 @@ export function getContent(locale: string, dir: string) {
   } = configuration;
 
   const hasDefaultLocaleContent = allContents.find((item) => {
-    return (
-      item._meta.fileName === `${defaultLocale}.mdx` &&
-      item._meta.directory === dir
-    );
+    return item._meta.fileName === `${defaultLocale}.mdx` && item._meta.directory === dir;
   });
 
   if (!hasDefaultLocaleContent) {
@@ -18,13 +15,11 @@ export function getContent(locale: string, dir: string) {
   }
 
   const matchedContent = allContents.find((item) => {
-    return (
-      item._meta.fileName === `${locale}.mdx` && item._meta.directory === dir
-    );
+    return item._meta.fileName === `${locale}.mdx` && item._meta.directory === dir;
   });
 
   return {
-    isDefault: matchedContent ? false : true,
+    isDefault: !matchedContent,
     res: matchedContent ?? hasDefaultLocaleContent,
   };
 }

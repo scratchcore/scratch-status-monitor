@@ -1,11 +1,8 @@
-import { cx } from "@/lib/utils";
 import { useIntlayer, useLocale } from "react-intlayer";
-import { StatusIcon } from "../ui/icon";
 import { formatDateTime } from "@/lib/status-page/data";
-import {
-  useStatusPageCountdownContext,
-  useStatusPageDataContext,
-} from "./context";
+import { cx } from "@/lib/utils";
+import { StatusIcon } from "../ui/icon";
+import { useStatusPageCountdownContext, useStatusPageDataContext } from "./context";
 
 export function InfoHeader() {
   const s = useStatusPageDataContext();
@@ -14,15 +11,14 @@ export function InfoHeader() {
   const { locale } = useLocale();
 
   // 最新の履歴レコードからタイムスタンプを取得
-  const latestTimestamp =
-    s.histories[0]?.newestRecord || new Date().toISOString();
+  const latestTimestamp = s.histories[0]?.newestRecord || new Date().toISOString();
 
   return (
     <div className="flex flex-col items-center">
       <span
         className={cx(
           "mx-auto inline-flex items-center justify-center rounded-full",
-          `bg-${s.colorSlug}-100 dark:bg-${s.colorSlug}-400/20 dark:to-${s.colorSlug}-500/10`,
+          `bg-${s.colorSlug}-100 dark:bg-${s.colorSlug}-400/20 dark:to-${s.colorSlug}-500/10`
         )}
       >
         <span

@@ -6,13 +6,13 @@ import mainMiddleware from "./middleware/main";
 import { createOpenAPIRoutes } from "./openapi-routes";
 import { createApiRouter } from "./routes/api";
 import { initializeCacheService } from "./services/cacheService";
-import { initializeHistoryService } from "./services/historyService";
 import { runCleanup } from "./services/cleanupService";
+import { initializeHistoryService } from "./services/historyService";
+import { createLogger } from "./services/logger";
 import { checkAllMonitors } from "./services/monitorService";
+import { initializeSupabaseClient } from "./services/supabaseClient";
 import type { Env } from "./types/env";
 import { generateOpenAPISchema } from "./utils/openapi";
-import { initializeSupabaseClient } from "./services/supabaseClient";
-import { createLogger } from "./services/logger";
 
 const logger = createLogger("Cron");
 
@@ -86,11 +86,7 @@ showRoutes(app, {
  * Cron Trigger ハンドラー
  * v2.0: 全モニターをチェックし、Supabase に保存
  */
-async function handleCron(
-  _event: ScheduledEvent,
-  env: Env,
-  ctx: ExecutionContext,
-): Promise<void> {
+async function handleCron(_event: ScheduledEvent, env: Env, _ctx: ExecutionContext): Promise<void> {
   try {
     const startTime = Date.now();
     logger.info("Scheduled task started");

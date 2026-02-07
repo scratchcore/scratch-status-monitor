@@ -8,7 +8,7 @@ export function localeToIntl(locale: SupportedLocale): string {
     ja: "ja-JP",
     en: "en-US",
   };
-  
+
   return localeMap[locale] || "ja-JP";
 }
 

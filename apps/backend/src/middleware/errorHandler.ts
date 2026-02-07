@@ -1,5 +1,5 @@
-import { z } from "zod";
 import { createErrorResponse, ERROR_MESSAGES, type ErrorCode } from "@scratchcore/ssm-types";
+import { z } from "zod";
 
 /**
  * Zod バリデーションエラーを整形
@@ -33,9 +33,9 @@ export const errorHandler = () => {
           createErrorResponse(
             "VALIDATION_ERROR",
             ERROR_MESSAGES.INVALID_INPUT,
-            formatZodError(error),
+            formatZodError(error)
           ),
-          { status: 400 },
+          { status: 400 }
         );
       }
 
@@ -66,7 +66,7 @@ export const errorHandler = () => {
 export class APIError extends Error {
   constructor(
     public code: ErrorCode,
-    message: string,
+    message: string
   ) {
     super(`API_ERROR:${code}:${message}`);
     this.name = "APIError";

@@ -1,27 +1,16 @@
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-} from "@/components/ui/chart";
-import {
-  Area,
-  CartesianGrid,
-  XAxis,
-  YAxis,
-  ReferenceLine,
-  ComposedChart,
-} from "recharts";
-import { useContext, useMemo, memo } from "react";
-import { useLocale } from "react-intlayer";
-import { StatusCardContext } from "./context";
-import { StatusCardChartTooltip } from "../ui/chart-tooltip";
-import { ChartSkeleton } from "./chart-skeleton";
 import { ssmrc } from "@scratchcore/ssm-configs";
+import { memo, useContext, useMemo } from "react";
+import { useLocale } from "react-intlayer";
+import { Area, CartesianGrid, ComposedChart, ReferenceLine, XAxis, YAxis } from "recharts";
+import { type ChartConfig, ChartContainer, ChartTooltip } from "@/components/ui/chart";
 import {
   getFullDateTimeFormatter,
   getMonthDayFormatter,
   getTimeFormatter,
 } from "@/lib/i18n/formatters";
+import { StatusCardChartTooltip } from "../ui/chart-tooltip";
+import { ChartSkeleton } from "./chart-skeleton";
+import { StatusCardContext } from "./context";
 
 const chartConfig = {
   responseTime: {
@@ -94,11 +83,7 @@ const ChartContent = memo(function ChartContent({
         data={chartData}
         margin={{ left: 0, right: 0, top: 12, bottom: 0 }}
       >
-        <CartesianGrid
-          vertical={true}
-          strokeDasharray="3 3"
-          stroke="var(--muted)"
-        />
+        <CartesianGrid vertical={true} strokeDasharray="3 3" stroke="var(--muted)" />
 
         {/* 日付が変わる箇所に縦線を表示 */}
         {dateChangeTimestamps.map((timestamp, idx) => (
@@ -135,7 +120,7 @@ const ChartContent = memo(function ChartContent({
           // X軸の目盛りを5個程度表示
           ticks={Array.from(
             { length: 5 },
-            (_, i) => minTimestamp + ((maxTimestamp - minTimestamp) * i) / 4,
+            (_, i) => minTimestamp + ((maxTimestamp - minTimestamp) * i) / 4
           )}
         />
         <YAxis
@@ -168,9 +153,7 @@ const ChartContent = memo(function ChartContent({
                 return String(value);
               }}
               nameFormatter={(name) => {
-                return (
-                  chartConfig[name as keyof typeof chartConfig]?.label || name
-                );
+                return chartConfig[name as keyof typeof chartConfig]?.label || name;
               }}
             />
           }

@@ -52,7 +52,7 @@ export type APIResponse = z.infer<typeof APIResponse>;
 export function createErrorResponse(
   code: ErrorCode,
   message: string,
-  details?: any,
+  details?: any
 ): ErrorResponse {
   return {
     success: false,

@@ -7,7 +7,7 @@ const logger = createLogger("CleanupService");
 /**
  * v2.0: クリーンアップサービス
  * 古いデータをSupabaseから削除して、ストレージを最適化
- * 
+ *
  * 注意: Cloudflare WorkersではsetIntervalは使用せず、cronトリガーで定期実行します
  */
 
@@ -26,7 +26,7 @@ export async function runCleanup(): Promise<void> {
   try {
     const historyService = getHistoryService();
     await historyService.cleanup(retentionDays);
-    
+
     lastCleanupTime = now;
     logger.info("Cleanup completed successfully");
   } catch (err) {

@@ -1,4 +1,4 @@
-import { AnyRouteMatch } from "@tanstack/react-router";
+import type { AnyRouteMatch } from "@tanstack/react-router";
 
 export const fonts = () => {
   const spWoff2 = (slug: string, type: string) => {

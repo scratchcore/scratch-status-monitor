@@ -1,14 +1,14 @@
-import { z } from "zod";
-import { APIError } from "../middleware/errorHandler";
 import type {
   HistoryResponse as HistoryResponseType,
   HistoryStats as HistoryStatsType,
 } from "@scratchcore/ssm-types";
+import { z } from "zod";
+import { BACKEND_DEFAULTS } from "../config/defaults";
+import { APIError } from "../middleware/errorHandler";
 import { calculateHistoryStats, getHistoryService } from "../services/historyService";
+import { createLogger } from "../services/logger";
 import { getStatus } from "../services/monitorService";
 import { UUIDSchema } from "../utils/validators";
-import { BACKEND_DEFAULTS } from "../config/defaults";
-import { createLogger } from "../services/logger";
 
 const logger = createLogger("HistoryHandler");
 
@@ -47,7 +47,10 @@ export async function getMonitorHistoryHandler(input: {
     }
 
     // 統計情報を計算（全レコードを使用して正確な統計を算出）
-    const allRecordsForStats = await historyService.getRecords(monitorId, BACKEND_DEFAULTS.HISTORY_RECORDS_LIMIT);
+    const allRecordsForStats = await historyService.getRecords(
+      monitorId,
+      BACKEND_DEFAULTS.HISTORY_RECORDS_LIMIT
+    );
     const stats = calculateHistoryStats(monitorId, allRecordsForStats);
 
     const response: HistoryResponseType = {
@@ -102,16 +105,19 @@ export async function getAllMonitorsHistoryHandler(input: {
     const { limit = 100, offset = 0 } = validated;
     const status = await getStatus();
 
-        const historyService = getHistoryService();
-        const results = await Promise.all(
+    const historyService = getHistoryService();
+    const results = await Promise.all(
       status.monitors.map(async (monitor) => {
         // hasMore 判定のため、1件多く取得（offset を考慮）
-            const allRecords = await historyService.getRecords(monitor.id, limit + 1, offset);
-            const records = allRecords.slice(0, limit);
-            const hasMore = allRecords.length > limit;
+        const allRecords = await historyService.getRecords(monitor.id, limit + 1, offset);
+        const records = allRecords.slice(0, limit);
+        const hasMore = allRecords.length > limit;
 
         // 統計情報を計算（全レコードを使用して正確な統計を算出）
-        const allRecordsForStats = await historyService.getRecords(monitor.id, BACKEND_DEFAULTS.HISTORY_RECORDS_LIMIT);
+        const allRecordsForStats = await historyService.getRecords(
+          monitor.id,
+          BACKEND_DEFAULTS.HISTORY_RECORDS_LIMIT
+        );
         const stats = calculateHistoryStats(monitor.id, allRecordsForStats);
 
         const response: HistoryResponseType = {
@@ -134,7 +140,7 @@ export async function getAllMonitorsHistoryHandler(input: {
           },
         };
         return response;
-      }),
+      })
     );
 
     return results;

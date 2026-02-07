@@ -13,7 +13,7 @@ export const URLSchema = z
   .url("有効なURLである必要があります")
   .refine(
     (url) => url.startsWith("http://") || url.startsWith("https://"),
-    "HTTPまたはHTTPSのURLである必要があります",
+    "HTTPまたはHTTPSのURLである必要があります"
   );
 
 /**

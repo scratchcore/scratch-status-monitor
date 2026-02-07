@@ -1,11 +1,11 @@
 import { ssmrc } from "@scratchcore/ssm-configs";
-import { v4 as uuidv4 } from "uuid";
 import {
   HistoryRecord,
   HistoryStats,
   type StatusCheckResult as StatusCheckResultType,
 } from "@scratchcore/ssm-types";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { v4 as uuidv4 } from "uuid";
 import { createLogger } from "./logger";
 
 const logger = createLogger("HistoryService");
@@ -84,7 +84,7 @@ class InMemoryHistoryService implements HistoryService {
   async getRecords(
     monitorId: string,
     limit: number = 100,
-    offset: number = 0,
+    offset: number = 0
   ): Promise<HistoryRecord[]> {
     const data = this.histories.get(monitorId);
     if (!data) return [];
@@ -119,7 +119,7 @@ class InMemoryHistoryService implements HistoryService {
 
     for (const [monitorId, data] of this.histories.entries()) {
       data.records = data.records.filter(
-        (record) => new Date(record.recordedAt).getTime() > cutoffTime,
+        (record) => new Date(record.recordedAt).getTime() > cutoffTime
       );
 
       if (data.records.length === 0) {
@@ -143,16 +143,19 @@ class SupabaseHistoryService implements HistoryService {
     const recordedAt = result.checkedAt;
     const bucketedAt = floorToInterval(recordedAt, ssmrc.cache.bucketIntervalMs);
 
-    const { error } = await this.client.from(HISTORY_TABLE).upsert({
-      id: uuidv4(),
-      monitor_id: monitorId,
-      status: result.status,
-      status_code: result.statusCode ?? null,
-      response_time: result.responseTime,
-      error_message: result.errorMessage ?? null,
-      recorded_at: recordedAt.toISOString(),
-      bucketed_at: bucketedAt.toISOString(),
-    }, { onConflict: "monitor_id,recorded_at" });
+    const { error } = await this.client.from(HISTORY_TABLE).upsert(
+      {
+        id: uuidv4(),
+        monitor_id: monitorId,
+        status: result.status,
+        status_code: result.statusCode ?? null,
+        response_time: result.responseTime,
+        error_message: result.errorMessage ?? null,
+        recorded_at: recordedAt.toISOString(),
+        bucketed_at: bucketedAt.toISOString(),
+      },
+      { onConflict: "monitor_id,recorded_at" }
+    );
 
     if (error) {
       logger.error("Failed to insert history record", {
@@ -164,11 +167,13 @@ class SupabaseHistoryService implements HistoryService {
   async getRecords(
     monitorId: string,
     limit: number = 100,
-    offset: number = 0,
+    offset: number = 0
   ): Promise<HistoryRecord[]> {
     const { data, error } = await this.client
       .from(HISTORY_TABLE)
-      .select("id, monitor_id, status, status_code, response_time, error_message, recorded_at, bucketed_at")
+      .select(
+        "id, monitor_id, status, status_code, response_time, error_message, recorded_at, bucketed_at"
+      )
       .eq("monitor_id", monitorId)
       .order("recorded_at", { ascending: false })
       .range(offset, offset + limit - 1);
@@ -191,7 +196,7 @@ class SupabaseHistoryService implements HistoryService {
         errorMessage: record.error_message ?? undefined,
         recordedAt: new Date(record.recorded_at),
         bucketedAt: new Date(record.bucketed_at),
-      }),
+      })
     );
   }
 

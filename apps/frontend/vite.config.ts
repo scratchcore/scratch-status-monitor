@@ -1,16 +1,15 @@
-import { defineConfig } from "vite";
 import { fileURLToPath, URL } from "node:url";
-
-// plugins
-import tsConfigPaths from "vite-tsconfig-paths";
-import { envCheckPlugin } from "./src/plugins/envrc/vite-plugin";
 import { cloudflare } from "@cloudflare/vite-plugin";
-import { intlayer, intlayerProxy } from "vite-intlayer";
 import contentCollections from "@content-collections/vite";
 import tailwindcss from "@tailwindcss/vite";
 import { devtools } from "@tanstack/devtools-vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact from "@vitejs/plugin-react";
+import { defineConfig } from "vite";
+import { intlayer, intlayerProxy } from "vite-intlayer";
+// plugins
+import tsConfigPaths from "vite-tsconfig-paths";
+import { envCheckPlugin } from "./src/plugins/envrc/vite-plugin";
 
 const config = defineConfig({
   resolve: {
@@ -31,8 +30,7 @@ const config = defineConfig({
     devtools(),
     tanstackStart({
       router: {
-        routeFileIgnorePattern:
-          ".content.(ts|tsx|js|mjs|cjs|jsx|json|jsonc|json5)$",
+        routeFileIgnorePattern: ".content.(ts|tsx|js|mjs|cjs|jsx|json|jsonc|json5)$",
       },
     }),
     viteReact(),

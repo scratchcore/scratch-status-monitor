@@ -1,11 +1,11 @@
-import { memo, useContext, useMemo } from "react";
-import { StatusPageDataContext } from "./context";
-import { buildMemoryTrackData } from "@/lib/status-page/data";
-import { statusToTooltip } from "@/lib/status-page/rc";
-import { StatusCardProvider } from "../card/context";
-import { StatusCard } from "../card";
 import { ssmrc } from "@scratchcore/ssm-configs";
+import { memo, useContext, useMemo } from "react";
+import { buildMemoryTrackData } from "@/lib/status-page/data";
 import type { HistoryResponse } from "@/lib/status-page/rc";
+import { statusToTooltip } from "@/lib/status-page/rc";
+import { StatusCard } from "../card";
+import { StatusCardProvider } from "../card/context";
+import { StatusPageDataContext } from "./context";
 
 /**
  * MonitorCard: 個別モニターカードをメモ化
@@ -74,9 +74,7 @@ export function Monitors() {
   const monitorCards = useMemo(() => {
     return ssmrc.monitors.map((monitor) => {
       const history = historiesMap.get(monitor.id);
-      return (
-        <MonitorCard key={monitor.id} monitor={monitor} history={history} />
-      );
+      return <MonitorCard key={monitor.id} monitor={monitor} history={history} />;
     });
   }, [historiesMap]);
 

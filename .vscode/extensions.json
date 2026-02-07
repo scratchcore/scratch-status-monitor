@@ -1,5 +1,3 @@
 {
-  "recommendations": [
-    "intlayer.intlayer-vs-code-extension"
-  ]
+  "recommendations": ["biomejs.biome", "intlayer.intlayer-vs-code-extension"]
 }

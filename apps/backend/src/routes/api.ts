@@ -1,29 +1,22 @@
-import { Context, Hono } from "hono";
+import { HistoryResponse, HistoryStats, StatusResponse } from "@scratchcore/ssm-types";
+import { type Context, Hono } from "hono";
 import { z } from "zod";
 import {
   getAllMonitorsHistoryHandler,
   getMonitorHistoryHandler,
   getMonitorStatsHandler,
 } from "../procedures/history";
-import { getStatusHandler, refreshStatusHandler } from "../procedures/status";
+import { getStatusHandler } from "../procedures/status";
 import {
-  HistoryResponse,
-  HistoryStats,
-  StatusResponse,
-} from "@scratchcore/ssm-types";
-import {
-  type APIEndpointMetadata,
-  registerEndpoint,
-} from "../types/api-metadata";
-import { UUIDSchema } from "../utils/validators";
-import type { Env } from "../types/env";
-import {
-  CACHE_NAMESPACE,
   applyCacheHeaders,
   buildCacheKey,
+  CACHE_NAMESPACE,
   getCronAlignedTtlSeconds,
 } from "../services/cdnCacheService";
 import { createLogger } from "../services/logger";
+import { registerEndpoint } from "../types/api-metadata";
+import type { Env } from "../types/env";
+import { UUIDSchema } from "../utils/validators";
 
 const logger = createLogger("API");
 
@@ -37,9 +30,7 @@ const shouldBypassCache = (c: Context<{ Bindings: Env }>) =>
 export const createApiRouter = () => {
   const router = new Hono();
 
-  const _cacheableHandler = (
-    handler: (c: Context<{ Bindings: Env }>) => Promise<Response>,
-  ) => {
+  const _cacheableHandler = (handler: (c: Context<{ Bindings: Env }>) => Promise<Response>) => {
     return async (c: Context<{ Bindings: Env }>) => {
       const isBypass = shouldBypassCache(c);
       const cache = await caches.open(CACHE_NAMESPACE);
@@ -101,7 +92,7 @@ export const createApiRouter = () => {
         success: true,
         data: status,
       });
-    }),
+    })
   );
 
   // // POST /api/status/refresh - ステータスを強制更新
@@ -178,7 +169,7 @@ export const createApiRouter = () => {
         success: true,
         data: histories,
       });
-    }),
+    })
   );
 
   // GET /api/history/:monitorId - 特定のモニターの履歴を取得
@@ -234,7 +225,7 @@ export const createApiRouter = () => {
         success: true,
         data: history,
       });
-    }),
+    })
   );
 
   /**
@@ -289,7 +280,7 @@ export const createApiRouter = () => {
         success: true,
         data: stats,
       });
-    }),
+    })
   );
 
   return router;

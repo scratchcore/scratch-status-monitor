@@ -1,12 +1,8 @@
+import { RiTranslate2 } from "@remixicon/react";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { getLocaleName, getPathWithoutLocale, getPrefix } from "intlayer";
 import type { FC } from "react";
 import { useLocale } from "react-intlayer";
-
-import type { FileRouteTypes } from "@/routeTree.gen";
-
-import { LOCALE_ROUTE } from "./LocalizedLink";
-
 import {
   Combobox,
   ComboboxContent,
@@ -15,8 +11,9 @@ import {
   ComboboxItem,
   ComboboxList,
 } from "@/components/ui/combobox";
+import type { FileRouteTypes } from "@/routeTree.gen";
+import { LOCALE_ROUTE } from "./LocalizedLink";
 import { InputGroupAddon } from "./ui/input-group";
-import { RiTranslate2 } from "@remixicon/react";
 
 export const LocaleSwitcher: FC = () => {
   const { pathname } = useLocation();
@@ -34,8 +31,7 @@ export const LocaleSwitcher: FC = () => {
 
     setLocale(nextLocale);
 
-    const localizedTo =
-      `/${LOCALE_ROUTE}${normalizedPath}` as FileRouteTypes["to"];
+    const localizedTo = `/${LOCALE_ROUTE}${normalizedPath}` as FileRouteTypes["to"];
     const { localePrefix } = getPrefix(nextLocale);
 
     void navigate({

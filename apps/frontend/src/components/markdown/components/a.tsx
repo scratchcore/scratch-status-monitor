@@ -1,10 +1,10 @@
-import { AnchorHTMLAttributes } from "react";
+import type { AnchorHTMLAttributes } from "react";
 
 export interface MarkdownAProps extends AnchorHTMLAttributes<HTMLAnchorElement> {}
 export const markdown_a = (props: MarkdownAProps) => {
   const { href, ...rest } = props;
   let isExternal = false;
-  if (href && href.startsWith("http")) {
+  if (href?.startsWith("http")) {
     isExternal = true;
   }
 
@@ -17,4 +17,3 @@ export const markdown_a = (props: MarkdownAProps) => {
     />
   );
 };
-

@@ -1,4 +1,4 @@
-import { ssmrcType } from "./types";
+import type { ssmrcType } from "./types";
 
 export const monitors: ssmrcType.monitor[] = [
   {

@@ -1,5 +1,5 @@
-import { createContext, ReactNode } from "react";
-import { buildMemoryTrackData } from "@/lib/status-page/data";
+import { createContext, type ReactNode } from "react";
+import type { buildMemoryTrackData } from "@/lib/status-page/data";
 import type { HistoryRecord } from "@/lib/status-page/rc";
 
 export interface MonitorHistoryRecord extends HistoryRecord {
@@ -23,13 +23,6 @@ export interface StatusCardProviderProps {
   children: ReactNode;
   value: MonitorData;
 }
-export const StatusCardProvider = ({
-  children,
-  value,
-}: StatusCardProviderProps) => {
-  return (
-    <StatusCardContext.Provider value={value}>
-      {children}
-    </StatusCardContext.Provider>
-  );
+export const StatusCardProvider = ({ children, value }: StatusCardProviderProps) => {
+  return <StatusCardContext.Provider value={value}>{children}</StatusCardContext.Provider>;
 };

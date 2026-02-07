@@ -1,10 +1,8 @@
 import { useNavigate } from "@tanstack/react-router";
 import { getPrefix } from "intlayer";
 import { useLocale } from "react-intlayer";
-
-import type { FileRouteTypes } from "@/routeTree.gen";
-
 import { LOCALE_ROUTE } from "@/components/LocalizedLink";
+import type { FileRouteTypes } from "@/routeTree.gen";
 
 export const useLocalizedNavigate = () => {
   const navigate = useNavigate();
@@ -22,7 +20,7 @@ export const useLocalizedNavigate = () => {
   type LocalizedTo = StripLocalePrefix<FileRouteTypes["to"]>;
 
   type LocalizedNavigate = (
-    args: ({ to: LocalizedTo } & Record<string, unknown>) | LocalizedTo,
+    args: ({ to: LocalizedTo } & Record<string, unknown>) | LocalizedTo
   ) => ReturnType<typeof navigate>;
 
   const localizedNavigate: LocalizedNavigate = (args) => {

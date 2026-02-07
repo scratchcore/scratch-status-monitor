@@ -10,12 +10,12 @@
     {
       "pattern": "ssm.scra.cc",
       "zone_name": "scra.cc",
-      "custom_domain": true,
-    },
+      "custom_domain": true
+    }
   ],
   "observability": {
     "enabled": true,
-    "head_sampling_rate": 1,
+    "head_sampling_rate": 1
   },
   "env": {
     "development": {
@@ -23,19 +23,19 @@
         {
           "pattern": "dev.ssm.scra.cc",
           "zone_name": "scra.cc",
-          "custom_domain": true,
-        },
+          "custom_domain": true
+        }
       ],
       "vars": {
         "ENVIRONMENT": "development",
-        "VITE_BACKEND_URL": "https://api.ssm.scra.cc",
-      },
+        "VITE_BACKEND_URL": "https://api.ssm.scra.cc"
+      }
     },
     "production": {
       "vars": {
         "ENVIRONMENT": "production",
-        "VITE_BACKEND_URL": "https://api.ssm.scra.cc",
-      },
-    },
-  },
+        "VITE_BACKEND_URL": "https://api.ssm.scra.cc"
+      }
+    }
+  }
 }

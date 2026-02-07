@@ -1,7 +1,7 @@
 import * as React from "react";
-import * as RechartsPrimitive from "recharts";
-import { cn } from "@/lib/utils";
+import type * as RechartsPrimitive from "recharts";
 import { formatNumber } from "@/lib/i18n/formatters";
+import { cn } from "@/lib/utils";
 
 /**
  * カスタムチャートツールチップコンテンツ
@@ -9,11 +9,7 @@ import { formatNumber } from "@/lib/i18n/formatters";
  */
 
 interface CustomChartTooltipContentProps
-  extends
-    Omit<
-      React.ComponentProps<typeof RechartsPrimitive.Tooltip>,
-      "content" | "children"
-    >,
+  extends Omit<React.ComponentProps<typeof RechartsPrimitive.Tooltip>, "content" | "children">,
     Omit<React.ComponentProps<"div">, "color"> {
   hideLabel?: boolean;
   hideIndicator?: boolean;
@@ -28,11 +24,7 @@ interface CustomChartTooltipContentProps
    * @param payload - ペイロード全体
    * @returns フォーマット済み値
    */
-  valueFormatter?: (
-    value: number | string,
-    dataKey: string,
-    payload: any,
-  ) => React.ReactNode;
+  valueFormatter?: (value: number | string, dataKey: string, payload: any) => React.ReactNode;
   /**
    * 名前のカスタムフォーマッター
    * @param name - 元の名前
@@ -85,21 +77,12 @@ export function StatusCardChartTooltip({
     // 通常のラベルフォーマッター
     if (labelFormatter) {
       return (
-        <div className={cn("font-medium", labelClassName)}>
-          {labelFormatter(label, payload)}
-        </div>
+        <div className={cn("font-medium", labelClassName)}>{labelFormatter(label, payload)}</div>
       );
     }
 
     return null;
-  }, [
-    label,
-    labelFormatter,
-    customLabelFormatter,
-    payload,
-    hideLabel,
-    labelClassName,
-  ]);
+  }, [label, labelFormatter, customLabelFormatter, payload, hideLabel, labelClassName]);
 
   if (!active || !payload?.length) {
     return null;
@@ -111,7 +94,7 @@ export function StatusCardChartTooltip({
     <div
       className={cn(
         "border-border/50 bg-background grid min-w-32 items-start gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs shadow-xl",
-        className,
+        className
       )}
     >
       {!nestLabel ? tooltipLabel : null}
@@ -128,7 +111,7 @@ export function StatusCardChartTooltip({
               formattedValue = valueFormatter(
                 item.value as number | string,
                 dataKey as string,
-                item.payload,
+                item.payload
               );
             } else if (formatter && item?.value !== undefined && item.name) {
               formattedValue = formatter(
@@ -136,7 +119,7 @@ export function StatusCardChartTooltip({
                 item.name as any,
                 item,
                 index,
-                item.payload,
+                item.payload
               ) as React.ReactNode;
             } else if (typeof item.value === "number") {
               formattedValue = formatNumber(Number(item.value), locale);
@@ -145,10 +128,7 @@ export function StatusCardChartTooltip({
             // 名前のフォーマット
             let formattedName: React.ReactNode = item.name || dataKey;
             if (nameFormatter) {
-              formattedName = nameFormatter(
-                formattedName as string,
-                dataKey as string,
-              );
+              formattedName = nameFormatter(formattedName as string, dataKey as string);
             }
 
             return (
@@ -156,21 +136,17 @@ export function StatusCardChartTooltip({
                 key={item.dataKey}
                 className={cn(
                   "[&>svg]:text-muted-foreground flex w-full flex-wrap items-stretch gap-2 [&>svg]:h-2.5 [&>svg]:w-2.5",
-                  indicator === "dot" && "items-center",
+                  indicator === "dot" && "items-center"
                 )}
               >
                 {!hideIndicator && (
                   <div
-                    className={cn(
-                      "shrink-0 rounded-xs border-(--color-border) bg-(--color-bg)",
-                      {
-                        "h-2.5 w-2.5": indicator === "dot",
-                        "w-1": indicator === "line",
-                        "w-0 border-[1.5px] border-dashed bg-transparent":
-                          indicator === "dashed",
-                        "my-0.5": nestLabel && indicator === "dashed",
-                      },
-                    )}
+                    className={cn("shrink-0 rounded-xs border-(--color-border) bg-(--color-bg)", {
+                      "h-2.5 w-2.5": indicator === "dot",
+                      "w-1": indicator === "line",
+                      "w-0 border-[1.5px] border-dashed bg-transparent": indicator === "dashed",
+                      "my-0.5": nestLabel && indicator === "dashed",
+                    })}
                     style={
                       {
                         "--color-bg": indicatorColor,
@@ -182,16 +158,12 @@ export function StatusCardChartTooltip({
                 <div
                   className={cn(
                     "flex flex-1 justify-between leading-none",
-                    nestLabel ? "items-end" : "items-center",
+                    nestLabel ? "items-end" : "items-center"
                   )}
                 >
                   <div className="grid gap-1.5">
                     {nestLabel ? tooltipLabel : null}
-                    {!hideName && (
-                      <span className="text-muted-foreground">
-                        {formattedName}
-                      </span>
-                    )}
+                    {!hideName && <span className="text-muted-foreground">{formattedName}</span>}
                   </div>
                   {formattedValue !== undefined && (
                     <span className="text-foreground font-mono font-medium tabular-nums">

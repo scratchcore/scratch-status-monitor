@@ -8,10 +8,10 @@ export function InfoHeaderSkeleton() {
     <div className="flex flex-col items-center">
       {/* ステータスアイコン */}
       <Skeleton className="h-10 w-10 rounded-full" />
-      
+
       {/* タイトル */}
       <Skeleton className="mt-3 h-7 w-48" />
-      
+
       {/* ステータステキスト */}
       <div className="mt-4 space-y-2">
         <Skeleton className="h-4 w-40" />
@@ -87,11 +87,7 @@ export function MonitorCardSkeleton() {
 /**
  * モニター一覧のスケルトン表示
  */
-export function MonitorsContainerSkeleton({
-  monitorCount = 8,
-}: {
-  monitorCount?: number;
-}) {
+export function MonitorsContainerSkeleton({ monitorCount = 8 }: { monitorCount?: number }) {
   return (
     <div className="relative mt-10 w-full space-y-6 rounded-lg border border-gray-200 bg-white p-6 text-left shadow-sm dark:border-gray-900 dark:bg-[#090E1A]">
       {Array.from({ length: monitorCount }).map((_, i) => (

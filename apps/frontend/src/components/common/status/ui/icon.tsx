@@ -4,7 +4,7 @@ import {
   RiIndeterminateCircleLine,
   RiSettings5Fill,
 } from "@remixicon/react";
-import { colorMapping } from "@/lib/status-page/rc";
+import type { colorMapping } from "@/lib/status-page/rc";
 
 export const StatusIcon = ({
   tooltip,

@@ -1,11 +1,10 @@
-import { createContext, ReactNode, useContext } from "react";
-import { useEffect, useMemo, useState } from "react";
+import { createContext, type ReactNode, useContext, useEffect, useMemo, useState } from "react";
 import {
-  colorMapping,
+  type colorMapping,
   colorSlugMapping,
-  statusToTooltip,
   type HistoryResponse,
   type StatusLevel,
+  statusToTooltip,
 } from "@/lib/status-page/rc";
 
 /**
@@ -16,14 +15,15 @@ export interface StatusPageCountdownContextType {
   formattedRemaining: string | null;
 }
 
-export const StatusPageCountdownContext =
-  createContext<StatusPageCountdownContextType | null>(null);
+export const StatusPageCountdownContext = createContext<StatusPageCountdownContextType | null>(
+  null
+);
 
 export function useStatusPageCountdownContext() {
   const c = useContext(StatusPageCountdownContext);
   if (!c) {
     throw new Error(
-      "useStatusPageCountdownContext must be used within a StatusPageCountdownContext.Provider",
+      "useStatusPageCountdownContext must be used within a StatusPageCountdownContext.Provider"
     );
   }
   return c;
@@ -42,14 +42,13 @@ export interface StatusPageDataContextType {
   colorSlug: string;
 }
 
-export const StatusPageDataContext =
-  createContext<StatusPageDataContextType | null>(null);
+export const StatusPageDataContext = createContext<StatusPageDataContextType | null>(null);
 
 export function useStatusPageDataContext() {
   const c = useContext(StatusPageDataContext);
   if (!c) {
     throw new Error(
-      "useStatusPageDataContext must be used within a StatusPageDataContext.Provider",
+      "useStatusPageDataContext must be used within a StatusPageDataContext.Provider"
     );
   }
   return c;
@@ -62,10 +61,7 @@ export interface StatusPageProviderProps {
   refreshIntervalMs?: number;
 }
 
-export function StatusPageProvider({
-  children,
-  ...props
-}: StatusPageProviderProps) {
+export function StatusPageProvider({ children, ...props }: StatusPageProviderProps) {
   const { nextRefreshAt, refreshIntervalMs, histories } = props;
 
   // ============================================
@@ -106,7 +102,7 @@ export function StatusPageProvider({
     () => ({
       formattedRemaining,
     }),
-    [formattedRemaining],
+    [formattedRemaining]
   );
 
   // ============================================
@@ -158,14 +154,7 @@ export function StatusPageProvider({
       overallTooltip,
       colorSlug,
     }),
-    [
-      histories,
-      refreshIntervalMs,
-      refreshHint,
-      overallStatus,
-      overallTooltip,
-      colorSlug,
-    ],
+    [histories, refreshIntervalMs, refreshHint, overallStatus, overallTooltip, colorSlug]
   );
 
   return (

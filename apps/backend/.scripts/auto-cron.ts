@@ -33,9 +33,7 @@ async function startAutoCron(): Promise<void> {
 
   const onRun = async () => {
     const now = new Date();
-    const result = await fetch(
-      "http://localhost:8787/cdn-cgi/handler/scheduled",
-    );
+    const result = await fetch("http://localhost:8787/cdn-cgi/handler/scheduled");
     if (!result.ok) {
       throw new Error(`HTTP error! status: ${result.status}`);
     }

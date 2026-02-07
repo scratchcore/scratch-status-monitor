@@ -38,7 +38,7 @@ export const createOpenAPIRoutes = async () => {
           },
         },
       },
-    }),
+    })
   );
 
   /**

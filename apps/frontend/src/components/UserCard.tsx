@@ -1,7 +1,7 @@
+import { RiGithubFill, RiGlobalLine, RiTwitterXLine } from "@remixicon/react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Card } from "./ui/card";
-import { RiGithubFill, RiGlobalLine, RiTwitterXLine } from "@remixicon/react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 interface UserCardLinkIconProps {
@@ -33,12 +33,7 @@ export interface UserCardGroupProps extends React.ComponentProps<"div"> {
 }
 export const UserCardGroup = (props: UserCardGroupProps) => {
   const { className, ...rest } = props;
-  return (
-    <div
-      className={cn("grid gap-6 md:grid-cols-2 lg:grid-cols-3", className)}
-      {...rest}
-    />
-  );
+  return <div className={cn("grid gap-6 md:grid-cols-2 lg:grid-cols-3", className)} {...rest} />;
 };
 
 export interface UserCardProps {
@@ -56,9 +51,7 @@ export const UserCard = (props: UserCardProps) => {
 
   const sosialLinks = {
     github: links?.github ? `https://github.com/${links.github}` : undefined,
-    twitter: links?.twitter
-      ? `https://twitter.com/${links.twitter}`
-      : undefined,
+    twitter: links?.twitter ? `https://twitter.com/${links.twitter}` : undefined,
     website: links?.website ? links.website : undefined,
   };
 
@@ -68,7 +61,7 @@ export const UserCard = (props: UserCardProps) => {
         <div className="flex items-center gap-2">
           <div className="">
             <Avatar size="lg">
-              <AvatarImage src={sosialLinks.github + ".png"} />
+              <AvatarImage src={`${sosialLinks.github}.png`} />
               <AvatarFallback>{name.charAt(0)}</AvatarFallback>
             </Avatar>
           </div>

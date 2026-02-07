@@ -26,19 +26,13 @@ export function NotFoundComponent() {
             404
           </h1>
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="font-bold text-6xl text-primary md:text-8xl">
-              404
-            </span>
+            <span className="font-bold text-6xl text-primary md:text-8xl">404</span>
           </div>
         </div>
 
-        <h2 className="font-bold text-2xl text-muted-foreground md:text-4xl">
-          {title}
-        </h2>
+        <h2 className="font-bold text-2xl text-muted-foreground md:text-4xl">{title}</h2>
 
-        <p className="font-medium text-destructive text-lg italic">
-          {lostMessage}
-        </p>
+        <p className="font-medium text-destructive text-lg italic">{lostMessage}</p>
 
         <p className="max-w-md text-muted-foreground text-xl">{subtitle}</p>
 

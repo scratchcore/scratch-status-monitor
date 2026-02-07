@@ -9,15 +9,15 @@
     {
       "pattern": "api.ssm.scra.cc",
       "zone_name": "scra.cc",
-      "custom_domain": true,
-    },
+      "custom_domain": true
+    }
   ],
   "triggers": {
-    "crons": ["*/5 * * * *"],
+    "crons": ["*/5 * * * *"]
   },
   "observability": {
     "enabled": true,
-    "head_sampling_rate": 1,
+    "head_sampling_rate": 1
   },
   // 環境変数の設定
   // ローカル開発用: .dev.vars ファイルに以下を設定してください
@@ -32,14 +32,14 @@
       "preview_urls": true,
       "vars": {
         "ENVIRONMENT": "development",
-        "API_BASE_URL": "http://localhost:8787",
-      },
+        "API_BASE_URL": "http://localhost:8787"
+      }
     },
     "production": {
       "vars": {
         "ENVIRONMENT": "production",
-        "API_BASE_URL": "https://api.ssm.scra.cc",
-      },
-    },
-  },
+        "API_BASE_URL": "https://api.ssm.scra.cc"
+      }
+    }
+  }
 }

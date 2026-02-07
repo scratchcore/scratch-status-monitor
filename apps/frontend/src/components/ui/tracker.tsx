@@ -29,7 +29,7 @@ const Block = ({ color, tooltip, defaultBackgroundColor, hoverEffect }: TrackerB
             className={cx(
               "size-full rounded-[1px]",
               color || defaultBackgroundColor,
-              hoverEffect ? "hover:opacity-50" : "",
+              hoverEffect ? "hover:opacity-50" : ""
             )}
           />
         </div>
@@ -46,7 +46,7 @@ const Block = ({ color, tooltip, defaultBackgroundColor, hoverEffect }: TrackerB
             // text color
             "text-white dark:text-gray-900",
             // background color
-            "bg-gray-900 dark:bg-gray-50",
+            "bg-gray-900 dark:bg-gray-50"
           )}
         >
           {tooltip}
@@ -73,7 +73,7 @@ const Tracker = forwardRef<HTMLDivElement, TrackerProps>(
       hoverEffect,
       ...props
     },
-    forwardedRef,
+    forwardedRef
   ) => {
     return (
       <div
@@ -91,7 +91,7 @@ const Tracker = forwardRef<HTMLDivElement, TrackerProps>(
         ))}
       </div>
     );
-  },
+  }
 );
 
 export { Tracker, type TrackerBlockProps };

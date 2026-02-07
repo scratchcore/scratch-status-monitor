@@ -131,9 +131,7 @@ class SupabaseCacheService implements CacheService {
       expires_at: new Date(expiresAt).toISOString(),
     };
 
-    const { error } = await this.client
-      .from(CACHE_TABLE)
-      .upsert(payload, { onConflict: "key" });
+    const { error } = await this.client.from(CACHE_TABLE).upsert(payload, { onConflict: "key" });
 
     if (error) {
       logger.error("Failed to upsert cache to Supabase", {

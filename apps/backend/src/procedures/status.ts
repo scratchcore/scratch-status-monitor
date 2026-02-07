@@ -1,9 +1,9 @@
+import type { StatusResponse as StatusResponseType } from "@scratchcore/ssm-types";
 import { z } from "zod";
 import { APIError } from "../middleware/errorHandler";
-import type { StatusResponse as StatusResponseType } from "@scratchcore/ssm-types";
+import { createLogger } from "../services/logger";
 import { checkAllMonitors, getStatus } from "../services/monitorService";
 import { UUIDSchema } from "../utils/validators";
-import { createLogger } from "../services/logger";
 
 const logger = createLogger("StatusHandler");
 

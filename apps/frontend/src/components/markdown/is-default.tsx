@@ -10,8 +10,8 @@ export function IsDefaultNotice() {
     <Alert className="mb-8">
       <RiInformationLine />
       <AlertDescription>
-        You are viewing the default language content because your preferred
-        language is not available.
+        You are viewing the default language content because your preferred language is not
+        available.
       </AlertDescription>
     </Alert>
   );

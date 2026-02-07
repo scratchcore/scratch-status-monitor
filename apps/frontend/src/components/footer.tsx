@@ -3,10 +3,10 @@ import {
   RiCreativeCommonsByLine,
   RiCreativeCommonsNcLine,
 } from "@remixicon/react";
-import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
-import { LocaleSwitcher } from "./LanguageSwitcher";
-import { LocalizedLink, To } from "./LocalizedLink";
 import { ThemeTogglerButton } from "./animate-ui/components/buttons/theme-toggler";
+import { LocaleSwitcher } from "./LanguageSwitcher";
+import { LocalizedLink, type To } from "./LocalizedLink";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 type LinkItem =
   | { name: string; to: string; href?: never; badge?: string }
@@ -56,19 +56,12 @@ export function Footer() {
               />
             </figure>
             {items.map((item) => (
-              <div
-                key={item.title}
-                className="flex flex-col items-start gap-y-4"
-              >
-                <div className="text-sm font-bold text-foreground">
-                  {item.title}
-                </div>
+              <div key={item.title} className="flex flex-col items-start gap-y-4">
+                <div className="text-sm font-bold text-foreground">{item.title}</div>
                 <div className="flex flex-col items-start gap-y-1.5">
                   {item.links.map((link) => {
-                    const isInternalLink =
-                      "to" in link && link.to !== undefined;
-                    const isExternalLink =
-                      "href" in link && link.href !== undefined;
+                    const isInternalLink = "to" in link && link.to !== undefined;
+                    const isExternalLink = "href" in link && link.href !== undefined;
 
                     return (
                       <div

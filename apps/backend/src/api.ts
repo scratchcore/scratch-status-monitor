@@ -1,5 +1,5 @@
-import { z } from "zod";
 import { HistoryResponse, HistoryStats, StatusResponse } from "@scratchcore/ssm-types";
+import { z } from "zod";
 
 /**
  * oRPC API 定義
@@ -66,7 +66,7 @@ export const monitorQueries = {
         label: z.string(),
         category: z.string(),
         url: z.url(),
-      }),
+      })
     ),
   },
 

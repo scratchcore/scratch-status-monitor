@@ -1,7 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { getContent } from "@/lib/cc-loader.functions";
-import { Markdown } from "@/components/markdown/render";
 import { IsDefaultNotice } from "@/components/markdown/is-default";
+import { Markdown } from "@/components/markdown/render";
+import { getContent } from "@/lib/cc-loader.functions";
 
 const PAGE_KEY = "about";
 

@@ -1,7 +1,7 @@
-import { createServerFn } from "@tanstack/react-start";
 import { ssmrc } from "@scratchcore/ssm-configs";
-import type { HistoryApiEnvelope, StatusPageLoaderData } from "./types";
+import { createServerFn } from "@tanstack/react-start";
 import { getEnv } from "@/plugins/envrc";
+import type { HistoryApiEnvelope, StatusPageLoaderData } from "./types";
 
 const FETCH_TIMEOUT_MS = 30000; // 30秒
 
@@ -95,7 +95,9 @@ const fetchHistoriesServerFn = createServerFn({ method: "GET" })
       if (error instanceof DOMException && error.name === "AbortError") {
         const message = `[fetchHistoriesServerFn] タイムアウト: ${FETCH_TIMEOUT_MS}ms以内にレスポンスがありません`;
         console.error(message, { elapsed: `${elapsed.toFixed(2)}ms` });
-        throw new Error(`バックエンドが応答しません (タイムアウト: ${(FETCH_TIMEOUT_MS / 1000).toFixed(0)}秒)。バックエンドのCPU使用率を確認してください。`);
+        throw new Error(
+          `バックエンドが応答しません (タイムアウト: ${(FETCH_TIMEOUT_MS / 1000).toFixed(0)}秒)。バックエンドのCPU使用率を確認してください。`
+        );
       }
 
       throw error;
@@ -117,10 +119,7 @@ export const fetchHistories = async (params?: {
 export const fetchAllHistories = async (): Promise<StatusPageLoaderData> => {
   const PAGE_SIZE = 100;
   let offset = 0;
-  const historiesMap = new Map<
-    string,
-    StatusPageLoaderData["histories"][number]
-  >();
+  const historiesMap = new Map<string, StatusPageLoaderData["histories"][number]>();
   let hasMore = true;
 
   let a = 0;
@@ -169,10 +168,7 @@ export const fetchAllHistories = async (): Promise<StatusPageLoaderData> => {
       return true;
     });
 
-    deduped.sort(
-      (a, b) =>
-        new Date(a.recordedAt).getTime() - new Date(b.recordedAt).getTime(),
-    );
+    deduped.sort((a, b) => new Date(a.recordedAt).getTime() - new Date(b.recordedAt).getTime());
 
     b += deduped.length;
 

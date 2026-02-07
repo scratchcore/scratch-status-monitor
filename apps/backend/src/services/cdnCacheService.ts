@@ -14,14 +14,14 @@ export const applyCacheHeaders = (response: Response, ttlSeconds?: number) => {
   const ttl = typeof ttlSeconds === "number" ? ttlSeconds : CACHE_TTL_SECONDS;
   response.headers.set(
     "Cache-Control",
-    `public, max-age=${ttl}, s-maxage=${ttl}, stale-while-revalidate=${ttl}`,
+    `public, max-age=${ttl}, s-maxage=${ttl}, stale-while-revalidate=${ttl}`
   );
 };
 
 export const getCronAlignedTtlSeconds = (
   nowMs: number = Date.now(),
   intervalMs: number = ssmrc.cache.statusTtlMs,
-  graceMs: number = CRON_GRACE_MS,
+  graceMs: number = CRON_GRACE_MS
 ): number => {
   const nextBoundary = Math.ceil(nowMs / intervalMs) * intervalMs;
   const expiresAt = nextBoundary + graceMs;
@@ -31,7 +31,7 @@ export const getCronAlignedTtlSeconds = (
 
 export async function upsertStatusCdnCache(
   baseUrl: string,
-  status: StatusResponseType,
+  status: StatusResponseType
 ): Promise<void> {
   const normalizedBaseUrl = baseUrl.replace(/\/$/, "");
   const url = `${normalizedBaseUrl}/status`;
@@ -45,7 +45,7 @@ export async function upsertStatusCdnCache(
       headers: {
         "Content-Type": "application/json; charset=utf-8",
       },
-    },
+    }
   );
 
   applyCacheHeaders(response);
@@ -58,7 +58,7 @@ export async function upsertHistoryCdnCache(
   baseUrl: string,
   histories: HistoryResponseType[],
   limit: number = 100,
-  offset: number = 0,
+  offset: number = 0
 ): Promise<void> {
   const normalizedBaseUrl = baseUrl.replace(/\/$/, "");
   const url = `${normalizedBaseUrl}/history?limit=${limit}&offset=${offset}`;
@@ -72,7 +72,7 @@ export async function upsertHistoryCdnCache(
       headers: {
         "Content-Type": "application/json; charset=utf-8",
       },
-    },
+    }
   );
 
   applyCacheHeaders(response);

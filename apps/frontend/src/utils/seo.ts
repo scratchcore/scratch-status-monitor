@@ -1,4 +1,4 @@
-import { AnyRouteMatch } from "@tanstack/react-router";
+import type { AnyRouteMatch } from "@tanstack/react-router";
 import { getIntlayer } from "intlayer";
 
 export const seo = (locale?: string) => {

@@ -30,7 +30,7 @@ function determineStatusFromCode(statusCode: number): StatusLevelType {
 export async function checkMonitorStatus(
   id: string,
   url: string,
-  options: CheckOptions = {},
+  options: CheckOptions = {}
 ): Promise<StatusCheckResult> {
   const timeout = options.timeout || BACKEND_DEFAULTS.TIMEOUT_MS;
   const startTime = Date.now();
@@ -86,7 +86,7 @@ export async function checkMonitorStatus(
  */
 export async function checkMultipleMonitors(
   monitors: Array<{ id: string; url: string }>,
-  options: CheckOptions = {},
+  options: CheckOptions = {}
 ): Promise<StatusCheckResult[]> {
   const promises = monitors.map((monitor) => checkMonitorStatus(monitor.id, monitor.url, options));
 

@@ -1,5 +1,5 @@
 import { MDXContent } from "@content-collections/mdx/react";
-import {markdownComponents} from "./components";
+import { markdownComponents } from "./components";
 
 export interface MarkdownProps {
   code?: string;

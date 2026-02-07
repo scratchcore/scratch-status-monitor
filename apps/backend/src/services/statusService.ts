@@ -1,5 +1,4 @@
-import { ssmrc, ssmrcType } from "@scratchcore/ssm-configs";
-import { BACKEND_DEFAULTS } from "../config/defaults";
+import { ssmrc, type ssmrcType } from "@scratchcore/ssm-configs";
 import type { StatusCheckResult as StatusCheckResultType } from "@scratchcore/ssm-types";
 import {
   CategoryStatus,
@@ -8,6 +7,7 @@ import {
   type StatusLevel as StatusLevelType,
   StatusResponse,
 } from "@scratchcore/ssm-types";
+import { BACKEND_DEFAULTS } from "../config/defaults";
 
 /**
  * 複数のステータスから全体の状態を判定
@@ -30,7 +30,7 @@ function aggregateStatus(statuses: StatusLevelType[]): StatusLevelType {
  */
 export function buildMonitorStatus(
   config: ssmrcType.monitor,
-  checkResult: StatusCheckResultType,
+  checkResult: StatusCheckResultType
 ): MonitorStatusType {
   return MonitorStatus.parse({
     id: config.id,
@@ -50,7 +50,7 @@ export function buildMonitorStatus(
  */
 export function calculateCategoryStatus(
   category: ssmrcType.category,
-  monitors: MonitorStatusType[],
+  monitors: MonitorStatusType[]
 ): CategoryStatus {
   const categoryMonitors = monitors.filter((m) => m.category === category.id);
 
@@ -77,7 +77,7 @@ export function calculateCategoryStatus(
  */
 export function buildStatusResponse(
   monitors: MonitorStatusType[],
-  cacheIntervalMs: number = BACKEND_DEFAULTS.CACHE_INTERVAL_MS,
+  cacheIntervalMs: number = BACKEND_DEFAULTS.CACHE_INTERVAL_MS
 ): StatusResponse {
   const categories = ssmrc.category.map((cat) => calculateCategoryStatus(cat, monitors));
 
