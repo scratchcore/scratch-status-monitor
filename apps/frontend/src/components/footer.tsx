@@ -19,15 +19,9 @@ type Items = {
 };
 const items: Items[] = [
   {
-    title: "製品",
-    links: [
-      { name: "モニター", to: "/" },
-      { name: "公開API", to: "/api", badge: "開発中" },
-    ],
-  },
-  {
     title: "リソース",
     links: [
+      { name: "モニター", to: "/" },
       { name: "概要", to: "/about" },
       { name: "使い方", to: "/usage" },
       { name: "仕組み", to: "/how-it-works" },
@@ -42,6 +36,17 @@ const items: Items[] = [
     links: [
       { name: "チーム", to: "/team" },
       { name: "GitHub", href: "/s/gh/org" },
+    ],
+  },
+  {
+    title: "ポリシー",
+    links: [
+      { name: "プライバシーポリシー", to: "/policies/privacy" },
+      { name: "クッキーポリシー", to: "/policies/cookie" },
+      { name: "データポリシー", to: "/policies/data" },
+      { name: "外部サービス利用ポリシー", to: "/policies/external-service" },
+      { name: "利用規約", to: "/policies/terms" },
+      { name: "免責事項", to: "/policies/disclaimer" },
     ],
   },
 ];

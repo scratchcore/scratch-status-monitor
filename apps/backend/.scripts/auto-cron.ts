@@ -10,7 +10,7 @@ import { ssmrc } from "@scratchcore/ssm-configs";
 /**
  * ログ出力（タイムスタンプ付き）
  */
-function log(message: string, data?: any): void {
+function log(message: string, data?: unknown): void {
   const timestamp = new Date().toISOString();
   const prefix = `[${timestamp}]`;
   if (data) {

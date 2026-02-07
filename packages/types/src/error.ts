@@ -52,14 +52,14 @@ export type APIResponse = z.infer<typeof APIResponse>;
 export function createErrorResponse(
   code: ErrorCode,
   message: string,
-  details?: any
+  details?: unknown
 ): ErrorResponse {
   return {
     success: false,
     error: {
       code,
       message,
-      details,
+      details: details as z.infer<typeof ErrorResponse>["error"]["details"],
     },
   };
 }
@@ -67,10 +67,10 @@ export function createErrorResponse(
 /**
  * 成功レスポンスの作成ヘルパー
  */
-export function createSuccessResponse(data: any): SuccessResponse {
+export function createSuccessResponse(data: unknown): SuccessResponse {
   return {
     success: true,
-    data,
+    data: data as z.infer<typeof SuccessResponse>["data"],
   };
 }
 

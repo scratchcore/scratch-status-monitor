@@ -1,5 +1,7 @@
 import { createErrorResponse, ERROR_MESSAGES, type ErrorCode } from "@scratchcore/ssm-types";
+import type { Context, MiddlewareHandler } from "hono";
 import { z } from "zod";
+import type { Env } from "../types/env";
 
 /**
  * Zod バリデーションエラーを整形
@@ -20,8 +22,8 @@ function formatZodError(error: z.ZodError) {
 /**
  * グローバルエラーハンドリングミドルウェア
  */
-export const errorHandler = () => {
-  return async (c: any, next: any) => {
+export const errorHandler = (): MiddlewareHandler<{ Bindings: Env }> => {
+  return async (c: Context<{ Bindings: Env }>, next) => {
     try {
       await next();
     } catch (error) {

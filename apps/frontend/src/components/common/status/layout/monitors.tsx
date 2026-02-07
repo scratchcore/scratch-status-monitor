@@ -19,19 +19,20 @@ const MonitorCard = memo(function MonitorCard({
   monitor: (typeof ssmrc.monitors)[0];
   history?: HistoryResponse;
 }) {
-  const monitorRecords = history?.records as any[] | undefined;
+  const monitorRecords = history?.records;
+  const recordList = monitorRecords ?? [];
 
   // データフォーマッターを一度だけ実行
   const trackData = useMemo(() => {
-    if (!monitorRecords) return null;
+    if (recordList.length === 0) return null;
     return {
-      desktop: buildMemoryTrackData(monitorRecords, 90),
-      tablet: buildMemoryTrackData(monitorRecords, 60),
-      mobile: buildMemoryTrackData(monitorRecords, 30),
+      desktop: buildMemoryTrackData(recordList, 90),
+      tablet: buildMemoryTrackData(recordList, 60),
+      mobile: buildMemoryTrackData(recordList, 30),
     };
-  }, [monitorRecords]);
+  }, [recordList]);
 
-  const latestRecord = monitorRecords?.[monitorRecords.length - 1];
+  const latestRecord = recordList[recordList.length - 1];
   const monitorTooltip = latestRecord
     ? statusToTooltip[latestRecord.status as keyof typeof statusToTooltip]
     : undefined;
@@ -48,7 +49,7 @@ const MonitorCard = memo(function MonitorCard({
         uptimePercent: history?.stats.uptime,
         data: trackData
           ? {
-              row: monitorRecords!,
+              row: recordList,
               desktop: trackData.desktop,
               tablet: trackData.tablet,
               mobile: trackData.mobile,

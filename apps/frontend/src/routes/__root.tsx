@@ -66,7 +66,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <head>
         <HeadContent />
       </head>
-      <body cz-shortcut-listen="true">
+      <body cz-shortcut-listen="true" className="scrollbar-simple">
         <ProgressProvider color="var(--primary)" options={{ showSpinner: true }}>
           <IntlayerProvider locale={locale}>
             <NuqsAdapter>

@@ -62,6 +62,7 @@
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-intlayer": "^8.0.4",
+    "react-markdown": "^10.1.0",
     "recharts": "2.15.4",
     "remark-gfm": "^4.0.1",
     "tailwind-merge": "^3.4.0",
@@ -72,6 +73,7 @@
   "devDependencies": {
     "@biomejs/biome": "2.3.14",
     "@content-collections/core": "^0.13.1",
+    "@content-collections/markdown": "^0.1.4",
     "@content-collections/mdx": "^0.2.2",
     "@content-collections/vite": "^0.2.8",
     "@tanstack/devtools-event-client": "^0.4.0",

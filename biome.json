@@ -25,7 +25,8 @@
       },
       "suspicious": {
         "noImplicitAnyLet": "error",
-        "noExplicitAny": "warn"
+        "noExplicitAny": "warn",
+        "noArrayIndexKey": "off"
       },
       "correctness": {
         "noUnusedVariables": "error",

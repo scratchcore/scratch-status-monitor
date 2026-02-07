@@ -19,15 +19,21 @@ function serializeStatusResponse(data: StatusResponseType): Record<string, unkno
   };
 }
 
-function deserializeStatusResponse(data: any): StatusResponseType {
+function deserializeStatusResponse(data: unknown): StatusResponseType {
+  const record = data as Record<string, unknown>;
+  const monitors = Array.isArray(record.monitors) ? record.monitors : [];
+
   return StatusResponse.parse({
-    ...data,
-    timestamp: new Date(data.timestamp),
-    expiresAt: new Date(data.expiresAt),
-    monitors: (data.monitors ?? []).map((monitor: any) => ({
-      ...monitor,
-      lastCheckedAt: new Date(monitor.lastCheckedAt),
-    })),
+    ...record,
+    timestamp: new Date(String(record.timestamp)),
+    expiresAt: new Date(String(record.expiresAt)),
+    monitors: monitors.map((monitor) => {
+      const monitorRecord = monitor as Record<string, unknown>;
+      return {
+        ...monitorRecord,
+        lastCheckedAt: new Date(String(monitorRecord.lastCheckedAt)),
+      };
+    }),
   });
 }
 

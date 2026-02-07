@@ -1,15 +1,12 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { getIntlayer } from "intlayer";
 import { IsDefaultNotice } from "@/components/markdown/is-default";
 import { MarkdownRender } from "@/components/markdown/render";
-import { getContent } from "@/lib/cc-loader.functions";
+import { getPolicy } from "@/lib/cc-loader.functions";
 
-const PAGE_KEY = "team";
-
-export const Route = createFileRoute("/$locale/team")({
+export const Route = createFileRoute("/$locale/policies/$policyId")({
   loader: ({ params }) => {
-    const { locale } = params;
-    const content = getContent(locale, PAGE_KEY);
+    const { locale, policyId } = params;
+    const content = getPolicy(locale, policyId);
 
     if (!content) {
       throw redirect({
@@ -21,17 +18,6 @@ export const Route = createFileRoute("/$locale/team")({
     return {
       locale,
       content,
-    };
-  },
-  head: ({ params }) => {
-    const { locale } = params;
-    const metaContent = getIntlayer("page-metadata", locale);
-    return {
-      meta: [
-        {
-          title: metaContent.team.title,
-        },
-      ],
     };
   },
   component: RouteComponent,
@@ -47,7 +33,7 @@ function RouteComponent() {
     <div className="mx-auto max-w-3xl p-4 lg:py-8">
       {loaderData.content.isDefault && <IsDefaultNotice />}
       <article className="typography w-full max-w-full!">
-        <MarkdownRender code={loaderData.content.res.mdx} mode="mdx" />
+        <MarkdownRender code={loaderData.content.res.content} mode="md" />
       </article>
     </div>
   );

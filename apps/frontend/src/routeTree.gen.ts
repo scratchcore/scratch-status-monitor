@@ -17,6 +17,7 @@ import { Route as LocaleTeamRouteImport } from './routes/$locale/team'
 import { Route as LocaleAboutRouteImport } from './routes/$locale/about'
 import { Route as Locale404RouteImport } from './routes/$locale/404'
 import { Route as LocaleSplatRouteImport } from './routes/$locale/$'
+import { Route as LocalePoliciesPolicyIdRouteImport } from './routes/$locale/policies/$policyId'
 
 const LocaleRouteRoute = LocaleRouteRouteImport.update({
   id: '/$locale',
@@ -58,6 +59,11 @@ const LocaleSplatRoute = LocaleSplatRouteImport.update({
   path: '/$',
   getParentRoute: () => LocaleRouteRoute,
 } as any)
+const LocalePoliciesPolicyIdRoute = LocalePoliciesPolicyIdRouteImport.update({
+  id: '/policies/$policyId',
+  path: '/policies/$policyId',
+  getParentRoute: () => LocaleRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -68,6 +74,7 @@ export interface FileRoutesByFullPath {
   '/$locale/team': typeof LocaleTeamRoute
   '/s/$': typeof SSplatRoute
   '/$locale/': typeof LocaleIndexRoute
+  '/$locale/policies/$policyId': typeof LocalePoliciesPolicyIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -77,6 +84,7 @@ export interface FileRoutesByTo {
   '/$locale/team': typeof LocaleTeamRoute
   '/s/$': typeof SSplatRoute
   '/$locale': typeof LocaleIndexRoute
+  '/$locale/policies/$policyId': typeof LocalePoliciesPolicyIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -88,6 +96,7 @@ export interface FileRoutesById {
   '/$locale/team': typeof LocaleTeamRoute
   '/s/$': typeof SSplatRoute
   '/$locale/': typeof LocaleIndexRoute
+  '/$locale/policies/$policyId': typeof LocalePoliciesPolicyIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -100,6 +109,7 @@ export interface FileRouteTypes {
     | '/$locale/team'
     | '/s/$'
     | '/$locale/'
+    | '/$locale/policies/$policyId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -109,6 +119,7 @@ export interface FileRouteTypes {
     | '/$locale/team'
     | '/s/$'
     | '/$locale'
+    | '/$locale/policies/$policyId'
   id:
     | '__root__'
     | '/'
@@ -119,6 +130,7 @@ export interface FileRouteTypes {
     | '/$locale/team'
     | '/s/$'
     | '/$locale/'
+    | '/$locale/policies/$policyId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -185,6 +197,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LocaleSplatRouteImport
       parentRoute: typeof LocaleRouteRoute
     }
+    '/$locale/policies/$policyId': {
+      id: '/$locale/policies/$policyId'
+      path: '/policies/$policyId'
+      fullPath: '/$locale/policies/$policyId'
+      preLoaderRoute: typeof LocalePoliciesPolicyIdRouteImport
+      parentRoute: typeof LocaleRouteRoute
+    }
   }
 }
 
@@ -194,6 +213,7 @@ interface LocaleRouteRouteChildren {
   LocaleAboutRoute: typeof LocaleAboutRoute
   LocaleTeamRoute: typeof LocaleTeamRoute
   LocaleIndexRoute: typeof LocaleIndexRoute
+  LocalePoliciesPolicyIdRoute: typeof LocalePoliciesPolicyIdRoute
 }
 
 const LocaleRouteRouteChildren: LocaleRouteRouteChildren = {
@@ -202,6 +222,7 @@ const LocaleRouteRouteChildren: LocaleRouteRouteChildren = {
   LocaleAboutRoute: LocaleAboutRoute,
   LocaleTeamRoute: LocaleTeamRoute,
   LocaleIndexRoute: LocaleIndexRoute,
+  LocalePoliciesPolicyIdRoute: LocalePoliciesPolicyIdRoute,
 }
 
 const LocaleRouteRouteWithChildren = LocaleRouteRoute._addFileChildren(

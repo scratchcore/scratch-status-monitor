@@ -19,6 +19,13 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
+type ChartPoint = {
+  timestamp: number;
+  fullDateTime: string;
+  responseTime: number;
+  xAxisLabel: string;
+};
+
 /**
  * 時刻を指定の間隔でフロア処理
  */
@@ -61,7 +68,7 @@ const ChartContent = memo(function ChartContent({
   dateChangeTimestamps,
   locale,
 }: {
-  chartData: any[];
+  chartData: ChartPoint[];
   dateChangeTimestamps: number[];
   locale: "ja" | "en";
 }) {
@@ -179,11 +186,10 @@ const ChartContent = memo(function ChartContent({
 export function StatusCardChart() {
   const s = useContext(StatusCardContext);
   const { locale } = useLocale();
-  if (!s || !s.data) return null;
 
   // チャートデータをメモ化（s.data.row と locale が変わる時だけ再計算）
   const { chartData, dateChangeTimestamps } = useMemo(() => {
-    if (!s.data || !s.data.row || s.data.row.length === 0) {
+    if (!s?.data?.row || s.data.row.length === 0) {
       return { chartData: [], dateChangeTimestamps: [] };
     }
 
@@ -258,7 +264,7 @@ export function StatusCardChart() {
       chartData: data,
       dateChangeTimestamps: dateChanges,
     };
-  }, [s.data, locale]);
+  }, [s?.data, locale]);
 
   // チャート描画部をメモ化されたコンポーネントに分離
   return chartData.length === 0 ? (

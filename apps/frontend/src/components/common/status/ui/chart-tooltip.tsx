@@ -3,6 +3,17 @@ import type * as RechartsPrimitive from "recharts";
 import { formatNumber } from "@/lib/i18n/formatters";
 import { cn } from "@/lib/utils";
 
+type TooltipPayloadItem = {
+  type?: string;
+  name?: string | number;
+  dataKey?: string | number;
+  value?: number | string;
+  color?: string;
+  payload: Record<string, unknown> & { fill?: string };
+};
+
+type TooltipPayload = TooltipPayloadItem[];
+
 /**
  * カスタムチャートツールチップコンテンツ
  * より細かいカスタマイズが可能なバージョン
@@ -24,7 +35,11 @@ interface CustomChartTooltipContentProps
    * @param payload - ペイロード全体
    * @returns フォーマット済み値
    */
-  valueFormatter?: (value: number | string, dataKey: string, payload: any) => React.ReactNode;
+  valueFormatter?: (
+    value: number | string,
+    dataKey: string,
+    payload: TooltipPayloadItem
+  ) => React.ReactNode;
   /**
    * 名前のカスタムフォーマッター
    * @param name - 元の名前
@@ -38,7 +53,7 @@ interface CustomChartTooltipContentProps
    * @param payload - ペイロード配列
    * @returns フォーマット済みラベル
    */
-  customLabelFormatter?: (label: any, payload: any[]) => React.ReactNode;
+  customLabelFormatter?: (label: unknown, payload: TooltipPayload) => React.ReactNode;
 }
 
 export function StatusCardChartTooltip({
@@ -101,24 +116,20 @@ export function StatusCardChartTooltip({
       <div className="grid gap-1.5">
         {payload
           .filter((item) => item.type !== "none")
-          .map((item, index) => {
+          .map((item) => {
             const dataKey = nameKey || item.name || item.dataKey || "value";
             const indicatorColor = item.payload.fill || item.color;
 
             // 値のフォーマット
             let formattedValue: React.ReactNode = item.value;
             if (valueFormatter && item.value !== undefined) {
-              formattedValue = valueFormatter(
-                item.value as number | string,
-                dataKey as string,
-                item.payload
-              );
+              formattedValue = valueFormatter(item.value as number | string, String(dataKey), item);
             } else if (formatter && item?.value !== undefined && item.name) {
               formattedValue = formatter(
-                item.value as any,
-                item.name as any,
+                item.value as number | string,
+                String(item.name),
                 item,
-                index,
+                0,
                 item.payload
               ) as React.ReactNode;
             } else if (typeof item.value === "number") {
@@ -128,12 +139,12 @@ export function StatusCardChartTooltip({
             // 名前のフォーマット
             let formattedName: React.ReactNode = item.name || dataKey;
             if (nameFormatter) {
-              formattedName = nameFormatter(formattedName as string, dataKey as string);
+              formattedName = nameFormatter(String(formattedName), String(dataKey));
             }
 
             return (
               <div
-                key={item.dataKey}
+                key={String(item.dataKey)}
                 className={cn(
                   "[&>svg]:text-muted-foreground flex w-full flex-wrap items-stretch gap-2 [&>svg]:h-2.5 [&>svg]:w-2.5",
                   indicator === "dot" && "items-center"

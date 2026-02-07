@@ -118,7 +118,7 @@ function ParticlesEffect({
 
           return (
             <motion.div
-              key={i}
+              key={`particle-${i}`}
               style={{ ...containerStyle, ...style }}
               initial={{ scale: 0, opacity: 0 }}
               animate={{

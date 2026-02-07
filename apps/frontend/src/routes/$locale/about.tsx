@@ -1,6 +1,6 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { IsDefaultNotice } from "@/components/markdown/is-default";
-import { Markdown } from "@/components/markdown/render";
+import { MarkdownRender } from "@/components/markdown/render";
 import { getContent } from "@/lib/cc-loader.functions";
 
 const PAGE_KEY = "about";
@@ -35,7 +35,7 @@ function RouteComponent() {
     <div className="mx-auto max-w-3xl p-4 lg:py-8">
       {loaderData.content.isDefault && <IsDefaultNotice />}
       <article className="typography w-full max-w-full!">
-        <Markdown code={loaderData.content.res.mdx} />
+        <MarkdownRender code={loaderData.content.res.mdx} mode="mdx" />
       </article>
     </div>
   );

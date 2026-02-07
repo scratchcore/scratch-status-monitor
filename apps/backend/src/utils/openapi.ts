@@ -2,11 +2,26 @@ import type { ZodSchema } from "zod";
 import { z } from "zod";
 import { API_ENDPOINTS, convertPathToOpenAPI } from "../types/api-metadata";
 
+type OpenAPISchema = Record<string, unknown>;
+type ZodStringDef = { checks?: Array<{ kind: string }> };
+type ZodNumberDef = { checks?: Array<{ kind: string }> };
+type ZodObjectDef = { shape: Record<string, ZodSchema> };
+
+function getDef(schema: ZodSchema): { description?: string } {
+  const def = schema.def;
+  return {
+    description:
+      def && typeof def === "object" && "description" in def
+        ? (def.description as string | undefined)
+        : undefined,
+  };
+}
+
 /**
  * Zod String スキーマを処理
  */
-function handleZodString(def: any): Record<string, any> {
-  const result: Record<string, any> = { type: "string" };
+function handleZodString(def: ZodStringDef): OpenAPISchema {
+  const result: OpenAPISchema = { type: "string" };
   if (def.checks) {
     for (const check of def.checks) {
       if (check.kind === "email") result.format = "email";
@@ -20,8 +35,8 @@ function handleZodString(def: any): Record<string, any> {
 /**
  * Zod Object スキーマを処理
  */
-function handleZodObject(def: any): Record<string, any> {
-  const properties: Record<string, any> = {};
+function handleZodObject(def: ZodObjectDef): OpenAPISchema {
+  const properties: Record<string, OpenAPISchema> = {};
   const required: string[] = [];
 
   for (const [key, value] of Object.entries(def.shape)) {
@@ -42,22 +57,22 @@ function handleZodObject(def: any): Record<string, any> {
 /**
  * Zod スキーマを OpenAPI スキーマに変換
  */
-export function zodToOpenAPISchema(schema: ZodSchema | undefined | any): Record<string, any> {
-  if (!schema || !schema._def) {
+export function zodToOpenAPISchema(schema: ZodSchema | undefined): OpenAPISchema {
+  if (!schema || !schema.def) {
     return { type: "string" };
   }
 
-  const description = (schema as any)._def?.description;
-  const baseSchema = { description } as any;
+  const description = getDef(schema).description;
+  const baseSchema: OpenAPISchema = description ? { description } : {};
 
   if (schema instanceof z.ZodString) {
-    return { ...handleZodString(schema._def), ...baseSchema };
+    return { ...handleZodString(schema.def as ZodStringDef), ...baseSchema };
   }
 
   if (schema instanceof z.ZodNumber) {
-    const def = (schema as any)._def;
+    const def = schema.def as ZodNumberDef;
     return {
-      type: def.checks?.some((c: any) => c.kind === "int") ? "integer" : "number",
+      type: def.checks?.some((check) => check.kind === "int") ? "integer" : "number",
       ...baseSchema,
     };
   }
@@ -71,30 +86,28 @@ export function zodToOpenAPISchema(schema: ZodSchema | undefined | any): Record<
   }
 
   if (schema instanceof z.ZodEnum) {
-    const def = (schema as any)._def;
+    const def = schema._def as unknown as { values: string[] };
     return { type: "string", enum: def.values, ...baseSchema };
   }
 
   if (schema instanceof z.ZodObject) {
-    return { ...handleZodObject(schema._def), ...baseSchema };
+    return { ...handleZodObject(schema.def as ZodObjectDef), ...baseSchema };
   }
 
   if (schema instanceof z.ZodArray) {
-    const def = (schema as any)._def;
     return {
       type: "array",
-      items: zodToOpenAPISchema(def.type),
+      items: zodToOpenAPISchema(schema._def.type as unknown as ZodSchema),
       ...baseSchema,
     };
   }
 
   if (schema instanceof z.ZodOptional) {
-    const def = (schema as any)._def;
-    return zodToOpenAPISchema(def.schema);
+    return zodToOpenAPISchema(schema._def.innerType as unknown as ZodSchema);
   }
 
   if (schema instanceof z.ZodUnion) {
-    const def = (schema as any)._def;
+    const def = schema._def as unknown as { options: readonly ZodSchema[] };
     return {
       oneOf: def.options.map((opt: ZodSchema) => zodToOpenAPISchema(opt)),
       ...baseSchema,
@@ -118,7 +131,9 @@ export function generateOpenAPISchema() {
   };
 
   API_ENDPOINTS.forEach((endpoint) => {
-    endpoint.tags.forEach((tag) => tagsSet.add(tag));
+    endpoint.tags.forEach((tag) => {
+      tagsSet.add(tag);
+    });
   });
 
   const tags = Array.from(tagsSet).map((name) => ({
@@ -127,7 +142,7 @@ export function generateOpenAPISchema() {
   }));
 
   // パスの構築
-  const paths: Record<string, any> = {};
+  const paths: Record<string, Record<string, unknown>> = {};
 
   API_ENDPOINTS.forEach((endpoint) => {
     const openAPIPath = convertPathToOpenAPI(endpoint.path);
@@ -137,7 +152,7 @@ export function generateOpenAPISchema() {
     }
 
     // パラメータの構築
-    const parameters: any[] = [];
+    const parameters: Array<Record<string, unknown>> = [];
 
     // Path パラメータ
     if (endpoint.parameters?.path) {
@@ -164,10 +179,19 @@ export function generateOpenAPISchema() {
     }
 
     // 操作定義
-    const operation: Record<string, any> = {
+    const operation: {
+      tags: string[];
+      summary: string;
+      operationId: string;
+      description?: string;
+      parameters?: Array<Record<string, unknown>>;
+      requestBody?: Record<string, unknown>;
+      responses: Record<string, unknown>;
+    } = {
       tags: endpoint.tags,
       summary: endpoint.summary,
       operationId: endpoint.operationId,
+      responses: {},
     };
 
     if (endpoint.description) {
@@ -194,9 +218,8 @@ export function generateOpenAPISchema() {
     }
 
     // レスポンス
-    operation.responses = {};
     Object.entries(endpoint.responses).forEach(([statusCode, response]) => {
-      const responseObj: Record<string, any> = {
+      const responseObj: Record<string, unknown> = {
         description: response.description || `Response ${statusCode}`,
       };
 

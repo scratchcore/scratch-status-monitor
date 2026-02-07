@@ -16,8 +16,7 @@ type WithAsChild<Base extends object> =
   | (Base & { asChild?: false | undefined });
 
 type SlotProps<T extends HTMLElement = HTMLElement> = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  children?: any;
+  children?: React.ReactElement;
 } & DOMMotionProps<T>;
 
 function mergeRefs<T>(...refs: (React.Ref<T> | undefined)[]): React.RefCallback<T> {
@@ -54,18 +53,22 @@ function mergeProps<T extends HTMLElement>(
 }
 
 function Slot<T extends HTMLElement = HTMLElement>({ children, ref, ...props }: SlotProps<T>) {
+  const isValidChild = React.isValidElement(children);
   const isAlreadyMotion =
-    typeof children.type === "object" && children.type !== null && isMotionComponent(children.type);
+    isValidChild &&
+    typeof children.type === "object" &&
+    children.type !== null &&
+    isMotionComponent(children.type);
 
   const Base = React.useMemo(
     () =>
       isAlreadyMotion
         ? (children.type as React.ElementType)
-        : motion.create(children.type as React.ElementType),
-    [isAlreadyMotion, children.type]
+        : motion.create(children?.type as React.ElementType),
+    [isAlreadyMotion, children?.type]
   );
 
-  if (!React.isValidElement(children)) return null;
+  if (!isValidChild) return null;
 
   const { ref: childRef, ...childProps } = children.props as AnyProps;
 

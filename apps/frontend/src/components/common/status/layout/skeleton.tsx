@@ -46,8 +46,8 @@ export function MonitorCardSkeleton() {
       <div className="hidden space-y-1 lg:block">
         <Skeleton className="h-3 w-full" />
         <div className="flex gap-1">
-          {Array.from({ length: 30 }).map((_, i) => (
-            <Skeleton key={i} className="h-1 flex-1" />
+          {[...Array(30)].map((_, i) => (
+            <Skeleton key={`desktop-${i}`} className="h-1 flex-1" />
           ))}
         </div>
       </div>
@@ -56,8 +56,8 @@ export function MonitorCardSkeleton() {
       <div className="hidden space-y-1 sm:block lg:hidden">
         <Skeleton className="h-3 w-full" />
         <div className="flex gap-1">
-          {Array.from({ length: 20 }).map((_, i) => (
-            <Skeleton key={i} className="h-1 flex-1" />
+          {[...Array(20)].map((_, i) => (
+            <Skeleton key={`tablet-${i}`} className="h-1 flex-1" />
           ))}
         </div>
       </div>
@@ -66,8 +66,8 @@ export function MonitorCardSkeleton() {
       <div className="block space-y-1 sm:hidden">
         <Skeleton className="h-3 w-full" />
         <div className="flex gap-1">
-          {Array.from({ length: 10 }).map((_, i) => (
-            <Skeleton key={i} className="h-1 flex-1" />
+          {[...Array(10)].map((_, i) => (
+            <Skeleton key={`mobile-${i}`} className="h-1 flex-1" />
           ))}
         </div>
       </div>
@@ -90,8 +90,8 @@ export function MonitorCardSkeleton() {
 export function MonitorsContainerSkeleton({ monitorCount = 8 }: { monitorCount?: number }) {
   return (
     <div className="relative mt-10 w-full space-y-6 rounded-lg border border-gray-200 bg-white p-6 text-left shadow-sm dark:border-gray-900 dark:bg-[#090E1A]">
-      {Array.from({ length: monitorCount }).map((_, i) => (
-        <MonitorCardSkeleton key={i} />
+      {[...Array(monitorCount)].map((_, i) => (
+        <MonitorCardSkeleton key={`monitor-${i}`} />
       ))}
     </div>
   );
