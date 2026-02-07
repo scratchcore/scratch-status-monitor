@@ -54,12 +54,12 @@ export const LocalizedLink: FC<LocalizedLinkProps> = (props) => {
     const { to, ...restProps } = props;
     return (
       <Link
-        {...restProps}
         params={{
           locale: localePrefix,
           ...(typeof restProps?.params === "object" ? restProps?.params : {}),
         }}
         to={`/${LOCALE_ROUTE}${to}` as LinkComponentProps["to"]}
+        {...restProps}
       />
     );
   }

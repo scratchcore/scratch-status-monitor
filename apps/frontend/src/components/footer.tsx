@@ -80,6 +80,7 @@ export function Footer() {
                             className="whitespace-nowrap text-sm font-medium"
                             to={link.to as To}
                             title={link.name}
+                            resetScroll={true}
                           >
                             {link.name}
                           </LocalizedLink>
@@ -88,6 +89,8 @@ export function Footer() {
                             className="whitespace-nowrap text-sm font-medium"
                             href={link.href}
                             title={link.name}
+                            target="_blank"
+                            rel="noopener noreferrer"
                           >
                             {link.name}
                           </LocalizedLink>

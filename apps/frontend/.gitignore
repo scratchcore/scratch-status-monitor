@@ -14,3 +14,5 @@ todos.json
 
 # Intlayerによって生成されたファイルを無視する
 .intlayer
+
+.content-collections

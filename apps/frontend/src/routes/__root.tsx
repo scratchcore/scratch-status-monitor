@@ -16,6 +16,7 @@ import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { defaultLocale, getHTMLTextDir } from "intlayer";
 
 // Providers
+import { ProgressProvider } from "@bprogress/react";
 import { IntlayerProvider } from "react-intlayer";
 import { NuqsAdapter } from "nuqs/adapters/tanstack-router";
 import { ThemeProvider } from "next-themes";
@@ -70,13 +71,19 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body cz-shortcut-listen="true">
-        <IntlayerProvider locale={locale}>
-          <NuqsAdapter>
-            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-              <TooltipProvider>{children}</TooltipProvider>
-            </ThemeProvider>
-          </NuqsAdapter>
-        </IntlayerProvider>
+        <ProgressProvider color="var(--primary)" options={{ showSpinner: true }}>
+          <IntlayerProvider locale={locale}>
+            <NuqsAdapter>
+              <ThemeProvider
+                attribute="class"
+                defaultTheme="system"
+                enableSystem
+              >
+                <TooltipProvider>{children}</TooltipProvider>
+              </ThemeProvider>
+            </NuqsAdapter>
+          </IntlayerProvider>
+        </ProgressProvider>
         <TanStackDevtools
           config={{
             position: "bottom-right",

@@ -1,5 +1,6 @@
 import { fonts } from "@/utils/fonts";
 import appCss from "@/styles.css?url";
+import typographyCss from "@/styles/typography.css?url";
 import fontCss from "@/styles/fonts.css?url";
 
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
@@ -23,6 +24,10 @@ export const Route = createFileRoute("/$locale")({
       {
         rel: "stylesheet",
         href: appCss,
+      },
+      {
+        rel: "stylesheet",
+        href: typographyCss,
       },
       ...fonts(),
       {
