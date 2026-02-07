@@ -6,6 +6,9 @@ import {
   type StatusCheckResult as StatusCheckResultType,
 } from "@scratchcore/ssm-types";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { createLogger } from "./logger";
+
+const logger = createLogger("HistoryService");
 
 /**
  * KV Store に保存する履歴データの構造
@@ -152,7 +155,9 @@ class SupabaseHistoryService implements HistoryService {
     }, { onConflict: "monitor_id,recorded_at" });
 
     if (error) {
-      console.error("[HistoryService] Failed to insert history record:", error);
+      logger.error("Failed to insert history record", {
+        error: error instanceof Error ? error.message : String(error),
+      });
     }
   }
 
@@ -169,7 +174,9 @@ class SupabaseHistoryService implements HistoryService {
       .range(offset, offset + limit - 1);
 
     if (error) {
-      console.error("[HistoryService] Failed to fetch records:", error);
+      logger.error("Failed to fetch records", {
+        error: error instanceof Error ? error.message : String(error),
+      });
       return [];
     }
 
@@ -191,7 +198,9 @@ class SupabaseHistoryService implements HistoryService {
   async deleteRecords(monitorId: string): Promise<void> {
     const { error } = await this.client.from(HISTORY_TABLE).delete().eq("monitor_id", monitorId);
     if (error) {
-      console.error("[HistoryService] Failed to delete records:", error);
+      logger.error("Failed to delete records", {
+        error: error instanceof Error ? error.message : String(error),
+      });
     }
   }
 
@@ -205,11 +214,13 @@ class SupabaseHistoryService implements HistoryService {
       .lt("recorded_at", cutoffDate.toISOString());
 
     if (error) {
-      console.error("[HistoryService] Cleanup failed:", error);
+      logger.error("Cleanup failed", {
+        error: error instanceof Error ? error.message : String(error),
+      });
       return;
     }
 
-    console.log(`[HistoryService] Cleanup completed: ${count ?? 0} records removed`);
+    logger.info("Cleanup completed", { recordsRemoved: count ?? 0 });
   }
 
   async restoreFromBackup(): Promise<void> {

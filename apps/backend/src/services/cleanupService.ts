@@ -1,68 +1,39 @@
 import { ssmrc } from "@scratchcore/ssm-configs";
 import { getHistoryService } from "./historyService";
+import { createLogger } from "./logger";
+
+const logger = createLogger("CleanupService");
 
 /**
- * v2.0: 定期クリーンアップサービス
- * 古いデータをメモリから削除して、メモリ使用量を最適化
+ * v2.0: クリーンアップサービス
+ * 古いデータをSupabaseから削除して、ストレージを最適化
+ * 
+ * 注意: Cloudflare WorkersではsetIntervalは使用せず、cronトリガーで定期実行します
  */
 
-let cleanupIntervalId: NodeJS.Timeout | null = null;
 let lastCleanupTime: number = 0;
 
 /**
  * クリーンアップを実行
+ * cronトリガーまたは必要に応じて手動で呼び出されます
  */
 export async function runCleanup(): Promise<void> {
   const now = Date.now();
   const retentionDays = ssmrc.cache.dataRetentionDays;
 
-  console.log(`[CleanupService] Starting cleanup (retention: ${retentionDays} days)...`);
+  logger.info("Starting cleanup", { retentionDays });
 
   try {
     const historyService = getHistoryService();
     await historyService.cleanup(retentionDays);
     
     lastCleanupTime = now;
-    console.log("[CleanupService] Cleanup completed successfully");
+    logger.info("Cleanup completed successfully");
   } catch (err) {
-    console.error("[CleanupService] Cleanup failed:", err);
-  }
-}
-
-/**
- * 定期クリーンアップを開始
- */
-export function startPeriodicCleanup(): void {
-  if (cleanupIntervalId) {
-    console.log("[CleanupService] Periodic cleanup already running");
-    return;
-  }
-
-  const intervalMs = ssmrc.cache.cleanupIntervalMs;
-  
-  console.log(`[CleanupService] Starting periodic cleanup (interval: ${intervalMs}ms = ${intervalMs / 60000} minutes)`);
-
-  // 即座に1回実行
-  runCleanup().catch(err => {
-    console.error("[CleanupService] Initial cleanup failed:", err);
-  });
-
-  // 定期実行
-  cleanupIntervalId = setInterval(() => {
-    runCleanup().catch(err => {
-      console.error("[CleanupService] Periodic cleanup failed:", err);
+    logger.error("Cleanup failed", {
+      error: err instanceof Error ? err.message : String(err),
     });
-  }, intervalMs);
-}
-
-/**
- * 定期クリーンアップを停止
- */
-export function stopPeriodicCleanup(): void {
-  if (cleanupIntervalId) {
-    clearInterval(cleanupIntervalId);
-    cleanupIntervalId = null;
-    console.log("[CleanupService] Periodic cleanup stopped");
+    throw err;
   }
 }
 
@@ -70,15 +41,11 @@ export function stopPeriodicCleanup(): void {
  * クリーンアップの状態を取得
  */
 export function getCleanupStatus(): {
-  isRunning: boolean;
   lastCleanupTime: number | null;
-  intervalMs: number;
   retentionDays: number;
 } {
   return {
-    isRunning: cleanupIntervalId !== null,
     lastCleanupTime: lastCleanupTime > 0 ? lastCleanupTime : null,
-    intervalMs: ssmrc.cache.cleanupIntervalMs,
     retentionDays: ssmrc.cache.dataRetentionDays,
   };
 }

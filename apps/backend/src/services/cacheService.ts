@@ -1,7 +1,9 @@
 import { ssmrc } from "@scratchcore/ssm-configs";
 import { StatusResponse, type StatusResponse as StatusResponseType } from "@scratchcore/ssm-types";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { createLogger } from "./logger";
 
+const logger = createLogger("CacheService");
 const CACHE_KEY = "monitor:status:latest";
 const CACHE_TABLE = "status_cache";
 
@@ -98,7 +100,9 @@ class SupabaseCacheService implements CacheService {
       .maybeSingle();
 
     if (error) {
-      console.error("[CacheService] Failed to fetch cache from Supabase:", error);
+      logger.error("Failed to fetch cache from Supabase", {
+        error: error instanceof Error ? error.message : String(error),
+      });
       return null;
     }
 
@@ -132,7 +136,9 @@ class SupabaseCacheService implements CacheService {
       .upsert(payload, { onConflict: "key" });
 
     if (error) {
-      console.error("[CacheService] Failed to upsert cache to Supabase:", error);
+      logger.error("Failed to upsert cache to Supabase", {
+        error: error instanceof Error ? error.message : String(error),
+      });
     }
   }
 
@@ -140,7 +146,9 @@ class SupabaseCacheService implements CacheService {
     this.memoryCache.delete(CACHE_KEY);
     const { error } = await this.client.from(CACHE_TABLE).delete().eq("key", CACHE_KEY);
     if (error) {
-      console.error("[CacheService] Failed to delete cache from Supabase:", error);
+      logger.error("Failed to delete cache from Supabase", {
+        error: error instanceof Error ? error.message : String(error),
+      });
     }
   }
 

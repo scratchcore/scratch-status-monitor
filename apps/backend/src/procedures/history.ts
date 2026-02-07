@@ -8,6 +8,9 @@ import { calculateHistoryStats, getHistoryService } from "../services/historySer
 import { getStatus } from "../services/monitorService";
 import { UUIDSchema } from "../utils/validators";
 import { BACKEND_DEFAULTS } from "../config/defaults";
+import { createLogger } from "../services/logger";
+
+const logger = createLogger("HistoryHandler");
 
 /**
  * 特定のモニターの履歴を取得
@@ -72,7 +75,10 @@ export async function getMonitorHistoryHandler(input: {
     if (error instanceof APIError) {
       throw error;
     }
-    console.error("Error getting monitor history:", error);
+    logger.error("Error getting monitor history", {
+      monitorId: validated.monitorId,
+      error: error instanceof Error ? error.message : String(error),
+    });
     throw new APIError("INTERNAL_ERROR", "履歴取得に失敗しました");
   }
 }
@@ -136,7 +142,9 @@ export async function getAllMonitorsHistoryHandler(input: {
     if (error instanceof APIError) {
       throw error;
     }
-    console.error("Error getting all histories:", error);
+    logger.error("Error getting all histories", {
+      error: error instanceof Error ? error.message : String(error),
+    });
     throw new APIError("INTERNAL_ERROR", "複数履歴取得に失敗しました");
   }
 }
@@ -167,7 +175,10 @@ export async function getMonitorStatsHandler(input: {
     if (error instanceof APIError) {
       throw error;
     }
-    console.error("Error getting monitor stats:", error);
+    logger.error("Error getting monitor stats", {
+      monitorId: validated.monitorId,
+      error: error instanceof Error ? error.message : String(error),
+    });
     throw new APIError("INTERNAL_ERROR", "統計情報取得に失敗しました");
   }
 }

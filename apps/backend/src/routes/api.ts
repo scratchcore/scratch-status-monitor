@@ -16,21 +16,15 @@ import {
   registerEndpoint,
 } from "../types/api-metadata";
 import { UUIDSchema } from "../utils/validators";
-import { ssmrc } from "@scratchcore/ssm-configs";
-import { BlankEnv, BlankInput } from "hono/types";
 import type { Env } from "../types/env";
+import {
+  CACHE_NAMESPACE,
+  applyCacheHeaders,
+  buildCacheKey,
+} from "../services/cdnCacheService";
+import { createLogger } from "../services/logger";
 
-const CACHE_TTL_SECONDS = Math.floor(ssmrc.cache.statusTtlMs / 1000);
-
-const applyCacheHeaders = (response: Response) => {
-  response.headers.set(
-    "Cache-Control",
-    `public, max-age=${CACHE_TTL_SECONDS}, s-maxage=${CACHE_TTL_SECONDS}, stale-while-revalidate=${CACHE_TTL_SECONDS}`,
-  );
-};
-
-const getCacheKey = (c: Context<{ Bindings: Env }>) =>
-  new Request(c.req.url, { method: "GET" });
+const logger = createLogger("API");
 
 const shouldBypassCache = (c: Context<{ Bindings: Env }>) =>
   c.req.header("x-cache-bust") === "1" || c.req.query("cache-bust") === "1";
@@ -47,23 +41,28 @@ export const createApiRouter = () => {
   ) => {
     return async (c: Context<{ Bindings: Env }>) => {
       const isBypass = shouldBypassCache(c);
-      const cache = await caches.open("ssm-api");
+      const cache = await caches.open(CACHE_NAMESPACE);
 
       if (!isBypass) {
-        const cacheKey = getCacheKey(c);
+        const cacheKey = buildCacheKey(c.req.url);
         const cached = await cache.match(cacheKey);
         if (cached) {
-          console.log("[API] CACHE HIT:", { url: c.req.url });
+          logger.info("CACHE HIT", { url: c.req.url });
           return cached;
         }
+        logger.info("CACHE MISS", { url: c.req.url });
       } else {
-        console.log("[API] CACHE BYPASS:", { url: c.req.url });
+        logger.info("CACHE BYPASS", { url: c.req.url });
       }
 
       const response = await handler(c);
       applyCacheHeaders(response);
-      
-      const cacheKey = getCacheKey(c);
+
+      const cacheKey = buildCacheKey(c.req.url);
+      logger.info("CACHE WRITE", {
+        url: c.req.url,
+        status: response.status,
+      });
       await cache.put(cacheKey, response.clone());
       return response;
     };

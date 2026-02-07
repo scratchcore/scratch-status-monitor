@@ -7,11 +7,19 @@ import { createOpenAPIRoutes } from "./openapi-routes";
 import { createApiRouter } from "./routes/api";
 import { initializeCacheService } from "./services/cacheService";
 import { initializeHistoryService } from "./services/historyService";
-import { startPeriodicCleanup } from "./services/cleanupService";
+import { runCleanup } from "./services/cleanupService";
 import { checkAllMonitors } from "./services/monitorService";
 import type { Env } from "./types/env";
 import { generateOpenAPISchema } from "./utils/openapi";
 import { initializeSupabaseClient } from "./services/supabaseClient";
+import {
+  upsertHistoryCdnCache,
+  upsertStatusCdnCache,
+} from "./services/cdnCacheService";
+import { getAllMonitorsHistoryHandler } from "./procedures/history";
+import { createLogger } from "./services/logger";
+
+const logger = createLogger("Cron");
 
 /**
  * Cloudflare Workers ScheduledEvent 型
@@ -23,12 +31,23 @@ interface ScheduledEvent {
 
 const app = new Hono<{ Bindings: Env }>();
 
-// Supabase クライアントを初期化
-app.use("*", async (c, next) => {
-  const supabase = initializeSupabaseClient(c.env);
+let servicesInitialized = false;
+
+function ensureServices(env: Env): void {
+  if (servicesInitialized) {
+    return;
+  }
+
+  const supabase = initializeSupabaseClient(env);
   initializeCacheService(supabase);
   initializeHistoryService(supabase);
-  startPeriodicCleanup();
+  servicesInitialized = true;
+}
+
+// Supabase クライアントと各サービスを初期化
+// 注意: isolateスコープで1回だけ実行されます（リクエストごとではない）
+app.use("*", async (c, next) => {
+  ensureServices(c.env);
   await next();
 });
 
@@ -78,92 +97,58 @@ async function handleCron(
   ctx: ExecutionContext,
 ): Promise<void> {
   try {
-    const supabase = initializeSupabaseClient(env);
-    initializeCacheService(supabase);
-    initializeHistoryService(supabase);
-    startPeriodicCleanup();
-    console.log("Starting scheduled monitor check...");
-    const result = await checkAllMonitors();
-    console.log(
-      `Monitor check completed. Overall status: ${result.overallStatus}`,
-    );
+    const startTime = Date.now();
+    logger.info("Scheduled task started");
 
-    if (!env.API_BASE_URL || !env.API_TOKEN) {
-      console.warn(
-        "[Cron] API_BASE_URL または API_TOKEN が未設定のためキャッシュウォームをスキップします。",
-      );
+    ensureServices(env);
+
+    // 1. 全モニターをチェック
+    const result = await checkAllMonitors();
+    logger.info("Monitor check completed", {
+      overallStatus: result.overallStatus,
+    });
+
+    // 2. クリーンアップを実行（古いデータを削除）
+    await runCleanup();
+
+    if (!env.API_BASE_URL) {
+      logger.warn("API_BASE_URL not set, skipping CDN cache update");
       return;
     }
 
-    const baseUrl = env.API_BASE_URL.replace(/\/$/, "");
-    const headers = {
-      authorization: `Bearer ${env.API_TOKEN}`,
-      "x-cache-bust": "1",
-    };
+    await upsertStatusCdnCache(env.API_BASE_URL, result);
+    logger.info("CDN cache updated", { endpoint: "/status" });
 
-    console.log("[Cron] キャッシュウォーム開始");
-
-    // ステータスエンドポイントをウォーム
-    try {
-      const statusUrl = `${baseUrl}/status`;
-      const statusResponse = await app.fetch(
-        new Request(statusUrl, {
-          method: "GET",
-          headers,
-        }),
-        env,
-        ctx,
-      );
-      console.log("[Cron] /status ウォーム結果:", {
-        url: statusUrl,
-        status: statusResponse.status,
-      });
-    } catch (error) {
-      console.error("[Cron] /status ウォーム失敗:", {
-        error: error instanceof Error ? error.message : String(error),
-      });
-    }
-
-    // 履歴エンドポイントを全ページウォーム（hasMore=falseまで）
-    let offset = 0;
     const limit = 100;
-    let hasMore = true;
+    let offset = 0;
 
-    while (hasMore) {
-      try {
-        const historyUrl = `${baseUrl}/history?limit=${limit}&offset=${offset}`;
-        const historyResponse = await app.fetch(
-          new Request(historyUrl, {
-            method: "GET",
-            headers,
-          }),
-          env,
-          ctx,
-        );
+    while (true) {
+      const histories = await getAllMonitorsHistoryHandler({
+        limit,
+        offset,
+      });
+      await upsertHistoryCdnCache(env.API_BASE_URL, histories, limit, offset);
 
-        console.log("[Cron] /history ウォーム結果:", {
-          url: historyUrl,
-          status: historyResponse.status,
-          offset,
-        });
+      const hasMore = histories.some((history) => history.hasMore);
+      logger.info("CDN cache updated", {
+        endpoint: "/history",
+        offset,
+        hasMore,
+      });
 
-        if (historyResponse.ok) {
-          const data: any = await historyResponse.json();
-          hasMore = data?.hasMore ?? false;
-          offset += limit;
-        } else {
-          hasMore = false;
-        }
-      } catch (error) {
-        console.error("[Cron] /history ウォーム失敗:", {
-          offset,
-          error: error instanceof Error ? error.message : String(error),
-        });
-        hasMore = false;
+      if (!hasMore) {
+        break;
       }
+
+      offset += limit;
     }
+
+    const endTime = Date.now();
+    logger.info(`Scheduled task completed. ${endTime - startTime}ms`);
   } catch (error) {
-    console.error("Error during scheduled monitor check:", error);
+    logger.error("Error during scheduled tasks", {
+      error: error instanceof Error ? error.message : String(error),
+    });
     throw error;
   }
 }
