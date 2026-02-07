@@ -1,14 +1,17 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { useIntlayer } from 'react-intlayer';
+import { createFileRoute } from "@tanstack/react-router";
+import { useIntlayer } from "react-intlayer";
 
-import { LocalizedLink } from '@/components/LocalizedLink';
+import { LocalizedLink } from "@/components/LocalizedLink";
 
-export const Route = createFileRoute('/$locale/404')({
+export const Route = createFileRoute("/$locale/404")({
   component: NotFoundComponent,
+  onEnter: () => {
+    window.scrollTo(0, 0);
+  },
 });
 
 export function NotFoundComponent() {
-  const { backHome, lostMessage, subtitle, title } = useIntlayer('not-found');
+  const { backHome, lostMessage, subtitle, title } = useIntlayer("not-found");
 
   return (
     <div className="max-w-3xl mx-auto flex flex-col items-center justify-center px-4 text-center pt-20">
@@ -29,7 +32,9 @@ export function NotFoundComponent() {
           </div>
         </div>
 
-        <h2 className="font-bold text-2xl text-muted-foreground md:text-4xl">{title}</h2>
+        <h2 className="font-bold text-2xl text-muted-foreground md:text-4xl">
+          {title}
+        </h2>
 
         <p className="font-medium text-destructive text-lg italic">
           {lostMessage}

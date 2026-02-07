@@ -18,7 +18,6 @@ import { ssmrc } from "@scratchcore/ssm-configs";
 import { seo } from "@/utils/seo";
 import { InfoHeader } from "@/components/common/status/layout/info-header";
 import { Monitors } from "@/components/common/status/layout/monitors";
-import { Footer } from "@/components/footer";
 
 const DEFAULT_LOADER_DATA: StatusPageLoaderData = {
   histories: [],
@@ -40,13 +39,16 @@ export const Route = createFileRoute("/$locale/")({
       console.error(
         "[Status Page Loader] 履歴の取得に失敗しました:",
         error instanceof Error ? error.message : String(error),
-        error
+        error,
       );
       // デフォルトデータを返してアプリを続行
       return DEFAULT_LOADER_DATA;
     }
   },
   component: App,
+  onEnter: () => {
+    window.scrollTo(0, 0);
+  },
 });
 
 function App() {

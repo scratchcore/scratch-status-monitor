@@ -1,7 +1,6 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { getContent } from "@/lib/cc-loader.functions";
 import { Markdown } from "@/components/markdown/render";
-import { NotFoundComponent } from "./404";
 import { IsDefaultNotice } from "@/components/markdown/is-default";
 
 const PAGE_KEY = "about";
@@ -24,7 +23,9 @@ export const Route = createFileRoute("/$locale/about")({
     };
   },
   component: RouteComponent,
-  notFoundComponent: NotFoundComponent,
+  onEnter: () => {
+    window.scrollTo(0, 0);
+  },
 });
 
 function RouteComponent() {
