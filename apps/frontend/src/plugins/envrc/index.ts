@@ -25,6 +25,12 @@ export type Env = InferEnvType<typeof envrc>;
 export type ClientEnv = InferClientEnvType<typeof envrc>;
 
 /**
+ * サーバー起動後の検証済み環境変数
+ * checkEnvOnStartup() で初期化される
+ */
+let verifiedEnv: Env | null = null;
+
+/**
  * 環境変数を検証する
  */
 function validateEnv<T extends z.ZodTypeAny>(
@@ -49,11 +55,9 @@ function validateEnv<T extends z.ZodTypeAny>(
 /**
  * サーバー側の環境変数を取得・検証
  */
-export function getServerEnv(options: { throwOnError: true }): Env;
-export function getServerEnv(options?: { throwOnError?: false }): Env | null;
-export function getServerEnv(options?: { throwOnError?: boolean }): Env | null {
+function validateAndGetServerEnv(): Env | null {
   if (typeof process === "undefined") {
-    throw new Error("getServerEnv can only be called on the server side");
+    throw new Error("validateAndGetServerEnv can only be called on the server side");
   }
 
   // envrc.tsの定義から動的に環境変数を取得
@@ -66,11 +70,6 @@ export function getServerEnv(options?: { throwOnError?: boolean }): Env | null {
 
   if (!result.success) {
     const errorMessage = formatEnvError(result.errors);
-
-    if (options?.throwOnError) {
-      throw new Error(`Environment validation failed:\n${errorMessage}`);
-    }
-
     console.error("❌ Environment validation failed:");
     console.error(errorMessage);
     return null;
@@ -82,9 +81,7 @@ export function getServerEnv(options?: { throwOnError?: boolean }): Env | null {
 /**
  * クライアント側の環境変数を取得・検証
  */
-export function getClientEnv(options: { throwOnError: true }): ClientEnv;
-export function getClientEnv(options?: { throwOnError?: false }): ClientEnv | null;
-export function getClientEnv(options?: { throwOnError?: boolean }): ClientEnv | null {
+function validateAndGetClientEnv(): ClientEnv | null {
   // envrc.tsの定義から動的に環境変数を取得（VITE_プレフィックスのみ）
   const env: Record<string, string | undefined> = {};
   for (const key of Object.keys(envrc.env)) {
@@ -97,11 +94,6 @@ export function getClientEnv(options?: { throwOnError?: boolean }): ClientEnv | 
 
   if (!result.success) {
     const errorMessage = formatEnvError(result.errors);
-
-    if (options?.throwOnError) {
-      throw new Error(`Environment validation failed:\n${errorMessage}`);
-    }
-
     console.error("❌ Environment validation failed:");
     console.error(errorMessage);
     return null;
@@ -112,20 +104,31 @@ export function getClientEnv(options?: { throwOnError?: boolean }): ClientEnv | 
 
 /**
  * サーバーまたはクライアントの環境変数を自動判定して取得
+ *
+ * checkEnvOnStartup() で検証後は、必ず有効な環境変数オブジェクトを返す
  */
-export function getEnv(options: { throwOnError: true }): Env;
-export function getEnv(options?: { throwOnError?: false }): Env | null;
-export function getEnv(options?: { throwOnError?: boolean }): Env | null {
-  if (typeof process !== "undefined" && process.env) {
-    if (options?.throwOnError === true) {
-      return getServerEnv({ throwOnError: true });
+export function getEnv(): Env {
+  // import.meta.env.SSR は Vite SSR モードでサーバー側は true、クライアント側は false
+  if (import.meta.env.SSR) {
+    // サーバーサイドの場合、キャッシュされた検証済み環境変数を返す
+    if (verifiedEnv !== null) {
+      return verifiedEnv;
     }
-    return getServerEnv({ throwOnError: false });
+
+    const env = validateAndGetServerEnv();
+    if (env === null) {
+      throw new Error("Failed to validate server environment variables");
+    }
+    verifiedEnv = env;
+    return env;
   }
-  if (options?.throwOnError === true) {
-    return getClientEnv({ throwOnError: true }) as Env;
+
+  // クライアントサイドの場合は動的に検証
+  const clientEnv = validateAndGetClientEnv();
+  if (clientEnv === null) {
+    throw new Error("Failed to validate client environment variables");
   }
-  return getClientEnv({ throwOnError: false }) as Env | null;
+  return clientEnv as unknown as Env;
 }
 
 /**
@@ -148,17 +151,23 @@ function formatEnvError(error: z.ZodError): string {
 /**
  * サーバー起動時の環境変数チェック
  * app.config.ts や entry-server.tsx で呼び出す
+ *
+ * 検証に失敗した場合、プロセスを終了する
  */
 export function checkEnvOnStartup(): void {
   console.log("🔍 Checking environment variables...");
 
-  const env = getServerEnv({ throwOnError: false });
+  const env = validateAndGetServerEnv();
 
   if (!env) {
     console.error("\n❌ Server startup aborted due to invalid environment.");
     console.error("Please fix the environment variables and try again.\n");
     process.exit(1);
   }
+
+  // 検証済みの環境変数をキャッシュ
+  verifiedEnv = env;
+
   console.log("✅ Environment variables validated successfully");
   // envrc.tsの定義から動的にログ出力
   for (const [key, varConfig] of Object.entries(envrc.env)) {

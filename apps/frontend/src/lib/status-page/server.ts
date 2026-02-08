@@ -11,7 +11,7 @@ const FETCH_TIMEOUT_MS = 30000; // 30秒
 const fetchHistoriesServerFn = createServerFn({ method: "GET" })
   .inputValidator((data?: { limit?: number; offset?: number }) => data ?? {})
   .handler(async ({ data }): Promise<StatusPageLoaderData> => {
-    const env = getEnv({ throwOnError: true });
+    const env = getEnv();
     const { VITE_BACKEND_URL: baseUrl, API_TOKEN } = env;
 
     const limit = data?.limit ?? 100;

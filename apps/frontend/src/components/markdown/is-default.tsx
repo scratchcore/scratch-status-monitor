@@ -7,7 +7,7 @@ import { Alert, AlertDescription } from "../ui/alert";
 
 export function IsDefaultNotice() {
   return (
-    <Alert className="mb-8">
+    <Alert>
       <RiInformationLine />
       <AlertDescription>
         You are viewing the default language content because your preferred language is not

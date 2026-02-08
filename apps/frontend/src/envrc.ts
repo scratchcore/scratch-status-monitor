@@ -8,9 +8,16 @@ const envrc = defineConfig({
       description: "Node環境（development, production, test）",
       default: "development",
     },
+    VITE_SITE_BASE_URL: {
+      type: "url",
+      required: true,
+      default: "http://localhost:3000",
+      description: "サイトのベースURL",
+    },
     VITE_BACKEND_URL: {
       type: "url",
       required: true,
+      default: "http://localhost:8787",
       description: "バックエンドAPIのベースURL",
     },
     API_TOKEN: {

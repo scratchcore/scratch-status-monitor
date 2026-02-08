@@ -15,16 +15,11 @@ export function InfoHeader() {
 
   return (
     <div className="flex flex-col items-center">
-      <span
-        className={cx(
-          "mx-auto inline-flex items-center justify-center rounded-full",
-          `bg-${s.colorSlug}-100 dark:bg-${s.colorSlug}-400/20 dark:to-${s.colorSlug}-500/10`
-        )}
-      >
+      <span className={cx("mx-auto inline-flex items-center justify-center rounded-full")}>
         <span
           className={`absolute inline-flex h-10 w-10 scale-65 rounded-full bg-${s.colorSlug}-500 animate-ping`}
         />
-        <span className="absolute inline-flex w-8 h-8 bg-background rounded-full" />
+        <span className="absolute inline-flex w-5 h-5 bg-background rounded-full" />
         <StatusIcon
           tooltip={s.overallTooltip}
           className={`relative h-10 w-10 text-${s.colorSlug}-500`}

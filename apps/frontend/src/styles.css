@@ -361,7 +361,7 @@ code {
   body {
     @apply bg-background text-foreground;
     letter-spacing: var(--tracking-normal);
-    scrollbar-gutter: stable;
+    /* scrollbar-gutter: stable; */
   }
 }
 
@@ -372,19 +372,21 @@ code {
 }
 
 @utility scrollbar-simple {
+  @apply [--val-bg:color-mix(in_oklab,var(--color-neutral-500)_50%,transparent)] dark:[--val-bg:color-mix(in_oklab,var(--color-neutral-100)_50%,transparent)];
   &::-webkit-scrollbar {
     width: 8px;
+    max-height: 8px;
     /* background: transparent; */
   }
-  &::-webkit-scrollbar-track {
+  &::-webkit-scrollbar-track:hover {
     /* background: transparent;
     border: none; */
+    background: color-mix(in oklab, var(--val-bg) 50%, transparent);
   }
   &::-webkit-scrollbar-thumb {
     background-clip: padding-box;
     border: 2px solid transparent;
     border-radius: 999px;
-    @apply [--val-bg:color-mix(in_oklab,var(--color-neutral-500)_30%,transparent)] dark:[--val-bg:color-mix(in_oklab,var(--color-neutral-100)_30%,transparent)] shadow-2xl backdrop-saturate-200 backdrop-blur-2xl;
     background: var(--val-bg);
   }
 }

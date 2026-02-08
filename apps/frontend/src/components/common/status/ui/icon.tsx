@@ -1,7 +1,7 @@
 import {
   RiCheckboxCircleFill,
   RiErrorWarningFill,
-  RiIndeterminateCircleLine,
+  RiIndeterminateCircleFill,
   RiSettings5Fill,
 } from "@remixicon/react";
 import type { colorMapping } from "@/lib/status-page/rc";
@@ -38,7 +38,7 @@ export const StatusIcon = ({
     );
   }
   return (
-    <RiIndeterminateCircleLine
+    <RiIndeterminateCircleFill
       className={className ?? "size-5 shrink-0 text-gray-500"}
       aria-hidden={true}
     />

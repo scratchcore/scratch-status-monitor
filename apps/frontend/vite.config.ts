@@ -10,6 +10,7 @@ import { intlayer } from "vite-intlayer";
 // plugins
 import tsConfigPaths from "vite-tsconfig-paths";
 import { envCheckPlugin } from "./src/plugins/envrc/vite-plugin";
+import { sitemapPlugin } from "./src/plugins/sitemap/vite-plugin";
 
 const config = defineConfig({
   resolve: {
@@ -32,6 +33,7 @@ const config = defineConfig({
         routeFileIgnorePattern: ".content.(ts|tsx|js|mjs|cjs|jsx|json|jsonc|json5)$",
       },
     }),
+    sitemapPlugin(),
     viteReact(),
   ],
 });

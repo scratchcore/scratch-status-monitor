@@ -1,8 +1,7 @@
 import { ssmrc } from "@scratchcore/ssm-configs";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { AlertCircle } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useIntlayer } from "react-intlayer";
 import { StatusPageProvider } from "@/components/common/status/layout/context";
 import { InfoHeader } from "@/components/common/status/layout/info-header";
@@ -17,7 +16,9 @@ import {
   refetchAndBroadcast,
 } from "@/lib/status-page/sync";
 import type { StatusPageLoaderData } from "@/lib/status-page/types";
-import { seo } from "@/utils/seo";
+import { buildHreflangLinks } from "@/seo/hreflang";
+import { seo } from "@/seo/seo";
+import { Callout } from "@/components/markdown/components/callout";
 
 const DEFAULT_LOADER_DATA: StatusPageLoaderData = {
   histories: [],
@@ -29,7 +30,8 @@ export const Route = createFileRoute("/$locale/")({
   head: ({ params }) => {
     const { locale } = params;
     return {
-      meta: { ...seo(locale) },
+      meta: seo(locale),
+      links: buildHreflangLinks({ locale, path: "/" }),
     };
   },
   loader: async () => {
@@ -79,8 +81,6 @@ function App() {
     initialData: loaderData,
   });
 
-  const [dismissedError, setDismissedError] = useState(false);
-
   if (isPending) {
     return <StatusPageSkeleton />;
   }
@@ -93,27 +93,12 @@ function App() {
       nextRefreshAt={nextRefreshAt}
       refreshIntervalMs={refreshIntervalMs}
     >
-      <div className="max-w-3xl pt-20 mx-auto">
+      <div className="max-w-3xl mx-auto p-4 lg:py-8">
         {/* エラーアラート */}
-        {error && !dismissedError && (
-          <div className="mb-4 flex gap-3 rounded-md border border-yellow-200 bg-yellow-50 p-4">
-            <div className="shrink-0">
-              <AlertCircle className="h-5 w-5 text-yellow-600" />
-            </div>
-            <div className="flex-1">
-              <h3 className="text-sm font-medium text-yellow-800">データ取得エラー</h3>
-              <p className="mt-1 text-sm text-yellow-700">
-                {error instanceof Error ? error.message : "履歴データの取得に失敗しました"}
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setDismissedError(true)}
-              className="shrink-0 text-yellow-400 hover:text-yellow-500"
-            >
-              ✕
-            </button>
-          </div>
+        {error && (
+          <Callout variant="error" title="重要なお知らせ" className="my-5">
+            {error instanceof Error ? error.message : "履歴データの取得に失敗しました"}
+          </Callout>
         )}
 
         <InfoHeader />

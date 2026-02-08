@@ -11,7 +11,7 @@ const content = defineCollection({
   schema: z.object({
     title: z.string(),
     summary: z.string(),
-    updated: z.string().optional(),
+    updated_at: z.string().optional(),
     content: z.string(),
   }),
   transform: async (document, context) => {
@@ -32,7 +32,7 @@ const policies = defineCollection({
   include: ["**/*.md"],
   schema: z.object({
     title: z.string(),
-    updated: z.string().optional(),
+    updated_at: z.string(),
     content: z.string(),
   }),
   transform: async (document, context) => {

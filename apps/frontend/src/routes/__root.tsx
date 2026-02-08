@@ -1,6 +1,4 @@
-// Providers
 import { ProgressProvider } from "@bprogress/react";
-// devtools
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import type { QueryClient } from "@tanstack/react-query";
 import {
@@ -11,13 +9,14 @@ import {
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 
-// i18n
 import { defaultLocale, getHTMLTextDir } from "intlayer";
 import { ThemeProvider } from "next-themes";
 import { NuqsAdapter } from "nuqs/adapters/tanstack-router";
 import { IntlayerProvider } from "react-intlayer";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
+import { Toaster } from "@/components/ui/sonner";
+import { CookieNotice } from "@/components/cookie-notice";
 
 interface MyRouterContext {
   queryClient: QueryClient;
@@ -71,7 +70,11 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           <IntlayerProvider locale={locale}>
             <NuqsAdapter>
               <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-                <TooltipProvider>{children}</TooltipProvider>
+                <TooltipProvider>
+                  <Toaster />
+                  {children}
+                  <CookieNotice />
+                </TooltipProvider>
               </ThemeProvider>
             </NuqsAdapter>
           </IntlayerProvider>

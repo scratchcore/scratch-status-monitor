@@ -3,9 +3,17 @@ import type { AnchorHTMLAttributes } from "react";
 import { LocalizedLink, type To } from "@/components/LocalizedLink";
 import { cn } from "@/lib/utils";
 
-export interface MarkdownAProps extends AnchorHTMLAttributes<HTMLAnchorElement> {}
+export interface MarkdownAProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
+  isExternal?: boolean;
+}
 export const markdown_a = (props: MarkdownAProps) => {
-  const { children, className, href, ...rest } = props;
+  const {
+    children,
+    className,
+    href,
+    isExternal: _isExternal = false,
+    ...rest
+  } = props;
 
   const linkClassName = cn(
     "inline-flex items-center whitespace-nowrap hover:opacity-90 transition-opacity duration-100 ease-linear",
@@ -21,7 +29,7 @@ export const markdown_a = (props: MarkdownAProps) => {
     );
   }
 
-  const isExternal = href.startsWith("http") || href.startsWith("/s/");
+  const isExternal = _isExternal || href.startsWith("http") || href.startsWith("/s/");
 
   // 外部リンクの場合
   if (isExternal) {
@@ -43,6 +51,7 @@ export const markdown_a = (props: MarkdownAProps) => {
   return (
     <LocalizedLink to={href as To} className={linkClassName} {...rest}>
       {children}
+      <RiExternalLinkLine size={14} className="ml-1" />
     </LocalizedLink>
   );
 };

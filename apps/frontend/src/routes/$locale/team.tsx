@@ -1,8 +1,8 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { getIntlayer } from "intlayer";
-import { IsDefaultNotice } from "@/components/markdown/is-default";
-import { MarkdownRender } from "@/components/markdown/render";
+import { ArticleLayout } from "@/components/markdown/layout";
 import { getContent } from "@/lib/cc-loader.functions";
+import { buildHreflangLinks } from "@/seo/hreflang";
 
 const PAGE_KEY = "team";
 
@@ -32,6 +32,7 @@ export const Route = createFileRoute("/$locale/team")({
           title: metaContent.team.title,
         },
       ],
+      links: buildHreflangLinks({ locale, path: "/team" }),
     };
   },
   component: RouteComponent,
@@ -44,11 +45,12 @@ function RouteComponent() {
   const loaderData = Route.useLoaderData();
 
   return (
-    <div className="mx-auto max-w-3xl p-4 lg:py-8">
-      {loaderData.content.isDefault && <IsDefaultNotice />}
-      <article className="typography w-full max-w-full!">
-        <MarkdownRender code={loaderData.content.res.mdx} mode="mdx" />
-      </article>
-    </div>
+    <ArticleLayout
+      isDefault={loaderData.content.isDefault}
+      updated_at={loaderData.content.res.updated_at}
+      locale={loaderData.locale}
+      code={loaderData.content.res.mdx}
+      mode="mdx"
+    />
   );
 }
