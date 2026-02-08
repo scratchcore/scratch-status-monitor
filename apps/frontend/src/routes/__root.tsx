@@ -13,10 +13,10 @@ import { defaultLocale, getHTMLTextDir } from "intlayer";
 import { ThemeProvider } from "next-themes";
 import { NuqsAdapter } from "nuqs/adapters/tanstack-router";
 import { IntlayerProvider } from "react-intlayer";
+import { CookieNotice } from "@/components/cookie-notice";
+import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
-import { Toaster } from "@/components/ui/sonner";
-import { CookieNotice } from "@/components/cookie-notice";
 
 interface MyRouterContext {
   queryClient: QueryClient;

@@ -7,6 +7,7 @@ import { StatusPageProvider } from "@/components/common/status/layout/context";
 import { InfoHeader } from "@/components/common/status/layout/info-header";
 import { Monitors } from "@/components/common/status/layout/monitors";
 import { StatusPageSkeleton } from "@/components/common/status/layout/skeleton";
+import { Callout } from "@/components/markdown/components/callout";
 import { STATUS_PAGE_QUERY_KEY } from "@/lib/status-page/config";
 // Local imports
 import { getCachedHistories } from "@/lib/status-page/server";
@@ -18,7 +19,6 @@ import {
 import type { StatusPageLoaderData } from "@/lib/status-page/types";
 import { buildHreflangLinks } from "@/seo/hreflang";
 import { seo } from "@/seo/seo";
-import { Callout } from "@/components/markdown/components/callout";
 
 const DEFAULT_LOADER_DATA: StatusPageLoaderData = {
   histories: [],

@@ -1,6 +1,6 @@
 import { RiCalendarEventLine } from "@remixicon/react";
-import { Pill, PillStatus } from "../kibo-ui/pill";
 import { getIntlayer } from "react-intlayer";
+import { Pill, PillStatus } from "../kibo-ui/pill";
 
 export const UpdatedAtContent = ({
   updated_at,

@@ -1,9 +1,23 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { getIntlayer } from "intlayer";
 import { useIntlayer } from "react-intlayer";
-
 import { LocalizedLink } from "@/components/LocalizedLink";
 
 export const Route = createFileRoute("/$locale/404")({
+  head: ({ params }) => {
+    const t = getIntlayer("not-found", params.locale);
+    return {
+      meta: [
+        {
+          title: t.title,
+        },
+        {
+          name: "description",
+          content: t.subtitle,
+        },
+      ],
+    };
+  },
   component: NotFoundComponent,
 });
 

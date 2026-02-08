@@ -24,16 +24,15 @@ export function example1() {
 // ============================================
 // 例2: Server Function 内での使用
 // ============================================
-export const getConfigServerFn = createServerFn()
-  .handler(async () => {
-    const env = getEnv();
+export const getConfigServerFn = createServerFn().handler(async () => {
+  const env = getEnv();
 
-    // required: true の環境変数には直接アクセス可能
-    return {
-      backendUrl: env.VITE_BACKEND_URL,
-      apiToken: env.API_TOKEN,
-    };
-  });
+  // required: true の環境変数には直接アクセス可能
+  return {
+    backendUrl: env.VITE_BACKEND_URL,
+    apiToken: env.API_TOKEN,
+  };
+});
 
 // ============================================
 // 例3: React コンポーネントでの使用

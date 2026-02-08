@@ -1,4 +1,4 @@
-import { html, t, type Dictionary } from "intlayer";
+import { type Dictionary, html, t } from "intlayer";
 
 const cookieNoticeContent = {
   key: "cookie-notice",

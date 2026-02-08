@@ -7,13 +7,7 @@ export interface MarkdownAProps extends AnchorHTMLAttributes<HTMLAnchorElement> 
   isExternal?: boolean;
 }
 export const markdown_a = (props: MarkdownAProps) => {
-  const {
-    children,
-    className,
-    href,
-    isExternal: _isExternal = false,
-    ...rest
-  } = props;
+  const { children, className, href, isExternal: _isExternal = false, ...rest } = props;
 
   const linkClassName = cn(
     "inline-flex items-center whitespace-nowrap hover:opacity-90 transition-opacity duration-100 ease-linear",

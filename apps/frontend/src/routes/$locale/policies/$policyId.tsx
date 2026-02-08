@@ -2,6 +2,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { ArticleLayout } from "@/components/markdown/layout";
 import { getPolicy } from "@/lib/cc-loader.functions";
 import { buildHreflangLinks } from "@/seo/hreflang";
+import { mergeHead, whenHead } from "@/seo/merge";
 
 export const Route = createFileRoute("/$locale/policies/$policyId")({
   loader: ({ params }) => {
@@ -20,12 +21,22 @@ export const Route = createFileRoute("/$locale/policies/$policyId")({
       content,
     };
   },
-  head: ({ params }) => ({
-    links: buildHreflangLinks({
-      locale: params.locale,
-      path: `/policies/${params.policyId}`,
-    }),
-  }),
+  head: ({ params, loaderData }) =>
+    mergeHead(
+      {
+        links: buildHreflangLinks({
+          locale: params.locale,
+          path: `/policies/${params.policyId}`,
+        }),
+      },
+      whenHead(loaderData, (data) => ({
+        meta: [
+          {
+            title: data.content.res.title,
+          },
+        ],
+      }))
+    ),
   component: RouteComponent,
   onEnter: () => {
     window.scrollTo(0, 0);

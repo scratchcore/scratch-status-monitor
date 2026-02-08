@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
 import { RiCloseLine } from "@remixicon/react";
+import { AnimatePresence, motion } from "motion/react";
+import { useEffect, useState } from "react";
 import { useIntlayer } from "react-intlayer";
 import { MarkdownComponents } from "./markdown/components";
 

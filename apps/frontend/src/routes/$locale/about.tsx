@@ -2,6 +2,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { ArticleLayout } from "@/components/markdown/layout";
 import { getContent } from "@/lib/cc-loader.functions";
 import { buildHreflangLinks } from "@/seo/hreflang";
+import { mergeHead, whenHead } from "@/seo/merge";
 
 const PAGE_KEY = "about";
 
@@ -22,9 +23,19 @@ export const Route = createFileRoute("/$locale/about")({
       content,
     };
   },
-  head: ({ params }) => ({
-    links: buildHreflangLinks({ locale: params.locale, path: "/about" }),
-  }),
+  head: ({ params, loaderData }) =>
+    mergeHead(
+      {
+        links: buildHreflangLinks({ locale: params.locale, path: "/about" }),
+      },
+      whenHead(loaderData, (data) => ({
+        meta: [
+          {
+            title: data.content.res.title,
+          },
+        ],
+      }))
+    ),
   component: RouteComponent,
   onEnter: () => {
     window.scrollTo(0, 0);
