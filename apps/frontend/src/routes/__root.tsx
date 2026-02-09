@@ -50,6 +50,20 @@ function RootErrorComponent() {
 }
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
+  head: () => ({
+    scripts: [
+      // Google Tag Manager script
+      {
+        children: `
+          (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+          new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+          j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+          'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+          })(window,document,'script','dataLayer','GTM-PCFR4FBN');
+        `,
+      },
+    ],
+  }),
   shellComponent: RootDocument,
   errorComponent: RootErrorComponent,
 });
@@ -91,6 +105,15 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             TanStackQueryDevtools,
           ]}
         />
+        <noscript>
+          <iframe
+            title="gtm"
+            src="https://www.googletagmanager.com/ns.html?id=GTM-PCFR4FBN"
+            height="0"
+            width="0"
+            style={{ display: "none", visibility: "hidden" }}
+          />
+        </noscript>
         <Scripts />
       </body>
     </html>
