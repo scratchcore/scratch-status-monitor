@@ -2,6 +2,7 @@ import { ProgressProvider } from "@bprogress/react";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import type { QueryClient } from "@tanstack/react-query";
 import {
+  ClientOnly,
   createRootRouteWithContext,
   HeadContent,
   Scripts,
@@ -87,7 +88,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
                 <TooltipProvider>
                   <Toaster />
                   {children}
-                  <CookieNotice />
+                  <ClientOnly>
+                    <CookieNotice />
+                  </ClientOnly>
                 </TooltipProvider>
               </ThemeProvider>
             </NuqsAdapter>

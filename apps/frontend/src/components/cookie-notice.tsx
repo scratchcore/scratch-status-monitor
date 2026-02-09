@@ -1,20 +1,15 @@
 import { RiCloseLine } from "@remixicon/react";
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useState } from "react";
 import { useIntlayer } from "react-intlayer";
+import { useCookieNoticeVisible } from "../hooks/use-cookie-notice";
 import { MarkdownComponents } from "./markdown/components";
 
 export const CookieNotice = () => {
   const t = useIntlayer("cookie-notice");
-
-  const [isOpen, setIsOpen] = useState(false);
-
-  useEffect(() => {
-    setIsOpen(true);
-  }, []);
+  const { isOpen, close } = useCookieNoticeVisible(30); // 30日間表示しない
 
   const handleClose = () => {
-    setIsOpen(false);
+    close();
   };
 
   return (

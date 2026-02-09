@@ -39,6 +39,7 @@
     "@scratchcore/ssm-types": "workspace:*",
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/match-sorter-utils": "^8.19.4",
+    "@tanstack/react-db": "^0.1.69",
     "@tanstack/react-devtools": "^0.7.11",
     "@tanstack/react-form": "^1.28.0",
     "@tanstack/react-query": "^5.90.20",
