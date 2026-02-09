@@ -5,11 +5,11 @@ import {
   RiExternalLinkLine,
 } from "@remixicon/react";
 import { getIntlayer } from "intlayer";
+import { useLocale } from "react-intlayer";
 import { ThemeTogglerButton } from "./animate-ui/components/buttons/theme-toggler";
 import { LocaleSwitcher } from "./LanguageSwitcher";
 import { LocalizedLink, type To } from "./LocalizedLink";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
-import { useLocale } from "react-intlayer";
 
 type LinkItem =
   | { name: string; to: string; href?: never; badge?: string }

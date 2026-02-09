@@ -1,23 +1,39 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { defaultLocale, getBrowserLocale, locales } from "intlayer";
+import { defaultLocale, getBrowserLocale, getCookie, locales } from "intlayer";
+import { getLocaleServer } from "@/lib/i18n/server";
+
+const isSupportedLocale = (value: string): value is (typeof locales)[number] =>
+  locales.includes(value as (typeof locales)[number]);
 
 export const Route = createFileRoute("/")({
-  beforeLoad: () => {
-    // ユーザーの言語を検出（ブラウザ設定を優先）
+  beforeLoad: async () => {
+    // Prefer cookie -> browser locale (client) or server-side detection (SSR)
     let userLocale = defaultLocale;
 
-    try {
-      const browserLocale = getBrowserLocale();
-      // ブラウザの言語がサポート対象か確認
-      if (browserLocale && locales.includes(browserLocale)) {
-        userLocale = browserLocale;
+    if (typeof document !== "undefined") {
+      const cookieLocale = getCookie("INTLAYER_LOCALE", document.cookie ?? "");
+
+      if (cookieLocale && isSupportedLocale(cookieLocale)) {
+        userLocale = cookieLocale;
+      } else {
+        const browserLocale = getBrowserLocale();
+
+        if (browserLocale && isSupportedLocale(browserLocale)) {
+          userLocale = browserLocale;
+        }
       }
-    } catch {
-      // ブラウザ言語検出に失敗した場合はデフォルト言語を使用
-      userLocale = defaultLocale;
+    } else {
+      try {
+        const serverLocale = await getLocaleServer();
+
+        if (serverLocale && isSupportedLocale(serverLocale)) {
+          userLocale = serverLocale;
+        }
+      } catch {
+        userLocale = defaultLocale;
+      }
     }
 
-    // ユーザーの言語にリダイレクト
     throw redirect({
       to: "/$locale",
       params: { locale: userLocale },
