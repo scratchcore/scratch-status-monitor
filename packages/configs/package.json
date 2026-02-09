@@ -1,0 +1,37 @@
+{
+  "name": "@scratchcore/ssm-configs",
+  "version": "0.0.1",
+  "description": "バックエンド・フロントエンド間で共有する設定パッケージ",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "scripts": {
+    "build": "tsc --project tsconfig.json",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "biome lint src/",
+    "lint:fix": "biome check --fix src/",
+    "format": "biome format --write src/",
+    "check": "biome check src/"
+  },
+  "keywords": [
+    "configs",
+    "shared",
+    "scratch-status-monitor"
+  ],
+  "author": "scratchcore",
+  "license": "MIT",
+  "packageManager": "pnpm@10.28.2",
+  "devDependencies": {
+    "@biomejs/biome": "2.3.14",
+    "@types/node": "^22.19.9",
+    "typescript": "^5.9.3"
+  }
+}

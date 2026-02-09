@@ -1,0 +1,121 @@
+---
+title: Scratchステータスモニター（SSM）の概要
+summary: Scratchサービスの稼働状況をリアルタイムで監視し、ユーザーに分かりやすく伝えるステータスページシステム
+updated_at: 2026-02-07
+---
+
+import {
+  RiTargetLine,
+  RiWirelessChargingLine,
+  RiToolsLine,
+  RiBarChartLine,
+  RiSpaceShip2Line,
+  RiShakeHandsLine,
+  RiGithubFill,
+} from "@remixicon/react";
+
+# Scratchステータスモニター (SSM)
+
+Scratch Status Monitor（SSM）は、[Scratch](https://scratch.mit.edu)サービスの様々な機能の稼働状況を監視して、ユーザーに分かりやすく伝えることを目的としたステータスページシステムです。
+
+<Callout variant="warning" title="注意">
+  このプロジェクトは [scratchstats.com](https://scratchstats.com)
+  とは関係ありません。
+</Callout>
+
+## <RiTargetLine className="inline-block pb-1" size={30} /> 目的
+
+Scratchを普段から利用している人は、以下のような問題に度々遭遇します：
+
+- クラウド変数が使えない
+- 傾向（トレンド）が更新されない
+- プロジェクトが表示されない
+- コメントが投稿できない
+
+このような問題が発生したとき、**原因がどこにあるのかが分からない**ことが最大の課題です：
+
+- 自分の環境に問題があるのか？
+- Scratchのサーバーに問題があるのか？
+- 一時的な障害なのか、長期的な問題なのか？
+
+SSMは、これらの不便を改善するために、**Scratchサービスの稼働状況をリアルタイムで可視化**します。
+
+## <RiWirelessChargingLine className="inline-block pb-1" size={30} /> 主な機能
+
+### リアルタイム監視
+
+- Scratchの各種APIエンドポイントを定期的に監視
+- 5分ごとに自動更新
+- 応答時間やエラー率をトラッキング
+
+### 稼働履歴の記録
+
+- 過去の稼働状況を時系列で保存
+- 障害発生時の影響範囲を分析可能
+- トレンドグラフで長期的な傾向を把握
+
+### わかりやすいステータス表示
+
+- **正常**: すべて正常に動作中
+- **注意**: 一部で軽微な問題を検出
+- **障害**: サービスに重大な問題が発生
+
+## <RiToolsLine className="inline-block pb-1" size={30} /> 技術スタック
+
+### フロントエンド
+
+- **TanStack Router** - ファイルベースルーティング
+- **React** - UIコンポーネント
+- **TanStack Query** - サーバーステート管理
+- **shadcn/ui** - UIコンポーネントライブラリ
+- **Tailwind CSS** - スタイリング
+
+### バックエンド
+
+- **Hono** - 軽量Webフレームワーク
+- **oRPC** - 型安全なRPC通信
+- **Cloudflare Workers** - エッジコンピューティング
+- **Supabase** - データベース
+
+### インフラ
+
+- **Cloudflare CDN** - グローバル配信
+- **Cloudflare Cron Triggers** - 定期監視タスク
+- **GitHub Actions** - CI/CD
+
+## <RiBarChartLine className="inline-block pb-1" size={30} /> 監視対象
+
+現在、以下のScratchサービスを監視しています：
+
+- プロジェクトAPI
+- クラウド変数サーバー
+- トレンド/傾向API
+- ユーザープロフィールAPI
+- コメントシステム
+- その他の重要なエンドポイント
+
+## <RiSpaceShip2Line className="inline-block pb-1" size={30} /> 今後の予定
+
+- より詳細なエラー分類
+- 多言語対応の拡充
+- アラート通知機能（Discord、メールなど）
+- パフォーマンスメトリクスの追加
+- カスタムモニタリング設定
+
+## <RiShakeHandsLine className="inline-block pb-1" size={30} /> コントリビューション
+
+このプロジェクトはオープンソースです。バグ報告、機能提案、プルリクエストを歓迎します。
+
+<div className="my-4">
+
+<a
+  className="inline-flex items-center gap-2 rounded-md border border-input h-9 px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+  href="/s/gh/repo"
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  <RiGithubFill size={16} />
+  <span>GitHub リポジトリ</span>
+</a>
+
+</div>

@@ -1,0 +1,17 @@
+{
+  "servers": {
+    "io.github.ChromeDevTools/chrome-devtools-mcp": {
+      "type": "stdio",
+      "command": "nlx",
+      "args": ["chrome-devtools-mcp@0.16.0"],
+      "gallery": "https://api.mcp.github.com",
+      "version": "0.16.0"
+    },
+    "intlayer": {
+      "type": "stdio",
+      "command": "nlx",
+      "args": ["@intlayer/mcp"]
+    }
+  },
+  "inputs": []
+}

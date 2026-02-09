@@ -1,0 +1,36 @@
+/**
+ * Cloudflare Workers 環境変数の型定義
+ */
+export interface Env {
+  /**
+   * API Bearer 認証トークン
+   * 環境変数: API_TOKEN
+   */
+  API_TOKEN?: string;
+
+  /**
+   * Supabase URL
+   * 環境変数: SUPABASE_URL
+   */
+  SUPABASE_URL?: string;
+
+  /**
+   * Supabase Service Role Key
+   * 環境変数: SUPABASE_SERVICE_ROLE_KEY
+   */
+  SUPABASE_SERVICE_ROLE_KEY?: string;
+
+  /**
+   * 環境モード
+   * development: 開発環境（テストルート有効）
+   * production: 本番環境（テストルート無効）
+   */
+  ENVIRONMENT?: "development" | "production";
+
+  /**
+   * API のベース URL（cron のキャッシュウォーム用）
+   * 環境変数: API_BASE_URL
+   * 例: https://api.ssm.scra.cc
+   */
+  API_BASE_URL?: string;
+}

@@ -1,0 +1,18 @@
+node_modules
+.DS_Store
+dist
+dist-ssr
+*.local
+count.txt
+.env
+.nitro
+.tanstack
+.wrangler
+.output
+.vinxi
+todos.json
+
+# Intlayerによって生成されたファイルを無視する
+.intlayer
+
+.content-collections

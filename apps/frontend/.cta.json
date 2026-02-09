@@ -1,0 +1,22 @@
+{
+  "projectName": "frontend",
+  "mode": "file-router",
+  "typescript": true,
+  "packageManager": "pnpm",
+  "tailwind": true,
+  "addOnOptions": {},
+  "git": true,
+  "version": 1,
+  "framework": "react-cra",
+  "chosenAddOns": [
+    "biome",
+    "cloudflare",
+    "start",
+    "oRPC",
+    "shadcn",
+    "store",
+    "table",
+    "form",
+    "tanstack-query"
+  ]
+}

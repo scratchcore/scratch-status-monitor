@@ -1,8 +1,23 @@
-# リソース
+# GitHub Copilot 用指示書
 
-必要に応じて、以下のリソースを参照してください。
+リソース
 
-| 項目 | URL |
-|------|-----|
-| Hono | .github\instructions\hono.instructions.md |
-| Website | .github\instructions\website.instructions.md |
+| 名前   | 説明                     | リンク  |
+| ------ | ------------------------ | ------- |
+| プラン | プロジェクトの計画と仕様 | plan.md |
+
+フレームワーク・ライブラリ別
+
+| 名前 | リンク                       |
+| ---- | ---------------------------- |
+| Hono | .github/instructions/hono.md |
+| oRPC | https://orpc.dev             |
+
+ディレクトリ説明
+
+| ディレクトリ  | 説明             |
+| ------------- | ---------------- |
+| apps          | アプリケーション |
+| apps/backend  | バックエンド     |
+| apps/frontend | フロントエンド   |
+| archive       | 移行前のコード   |
