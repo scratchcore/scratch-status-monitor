@@ -23,7 +23,10 @@ const config = defineConfig({
       projects: ["./tsconfig.json"],
     }),
     envCheckPlugin(), // 環境変数チェックを最初に実行
-    cloudflare({ viteEnvironment: { name: "ssr" } }),
+    cloudflare({
+      viteEnvironment: { name: "ssr" },
+      configPath: "./wrangler.jsonc",
+    }),
     intlayer(),
     contentCollections(),
     tailwindcss(),

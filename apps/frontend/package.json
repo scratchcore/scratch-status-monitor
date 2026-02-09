@@ -10,7 +10,7 @@
     "format": "biome format",
     "lint": "biome lint",
     "check": "biome check",
-    "deploy": "pnpm run build && wrangler deploy --minify --env production",
+    "deploy": "pnpm run build && wrangler deploy --minify",
     "cf-typegen": "wrangler types",
     "machine-translate": "inlang machine translate --project project.inlang"
   },

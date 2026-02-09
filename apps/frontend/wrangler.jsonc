@@ -17,27 +17,9 @@
     "enabled": true,
     "head_sampling_rate": 1
   },
-  "env": {
-    "development": {
-      "routes": [
-        {
-          "pattern": "dev.ssm.scra.cc",
-          "zone_name": "scra.cc",
-          "custom_domain": true
-        }
-      ],
-      "vars": {
-        "ENVIRONMENT": "development",
-        "VITE_SITE_BASE_URL": "https://dev.ssm.scra.cc",
-        "VITE_BACKEND_URL": "https://api.ssm.scra.cc"
-      }
-    },
-    "production": {
-      "vars": {
-        "ENVIRONMENT": "production",
-        "VITE_SITE_BASE_URL": "https://ssm.scra.cc",
-        "VITE_BACKEND_URL": "https://api.ssm.scra.cc"
-      }
-    }
+  "vars": {
+    "ENVIRONMENT": "production",
+    "VITE_SITE_BASE_URL": "https://ssm.scra.cc",
+    "VITE_BACKEND_URL": "https://api.ssm.scra.cc"
   }
 }
