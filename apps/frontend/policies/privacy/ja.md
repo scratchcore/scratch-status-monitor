@@ -65,10 +65,10 @@ Cookieの使用を希望しない場合は、ブラウザ設定により無効�
 
 本サービスは以下の外部サービスを利用しています：
 
-- Cloudflare（CDN・セキュリティ・アクセスログ・タグ管理）
+- Cloudflare（CDN・セキュリティ・アクセスログ）
 - Supabase（データベース・認証基盤）
 - GitHub（ソースコード管理）
-- Google Analytics（アクセス解析）
+- Google Analytics（Google Tag Manager を介したアクセス解析）
 
 Google Analytics は、サイト利用状況を分析するために Cookie 等を使用し、匿名化された統計情報を Google に送信します。
 
