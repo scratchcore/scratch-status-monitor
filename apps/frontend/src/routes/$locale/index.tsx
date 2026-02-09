@@ -69,15 +69,18 @@ function App() {
 
   const { data, isPending, error } = useQuery({
     queryKey: STATUS_PAGE_QUERY_KEY,
-    queryFn: () => refetchAndBroadcast(queryClient),
+    queryFn: refetchAndBroadcast,
     staleTime: ssmrc.cache.statusTtlMs,
     refetchInterval: (query) => {
       const currentData = query.state.data;
       if (!currentData) return false;
+      if (typeof document !== "undefined" && document.visibilityState === "hidden") {
+        return false;
+      }
       return currentData.refreshIntervalMs;
     },
-    refetchOnWindowFocus: false,
-    refetchIntervalInBackground: true,
+    refetchOnWindowFocus: true,
+    refetchIntervalInBackground: false,
     initialData: loaderData,
   });
 

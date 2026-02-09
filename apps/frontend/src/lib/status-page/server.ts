@@ -225,3 +225,11 @@ export const getCachedHistories = async (): Promise<StatusPageLoaderData> => {
 
   return inFlightRequest;
 };
+
+const fetchCachedHistoriesServerFn = createServerFn({ method: "GET" }).handler(
+  async (): Promise<StatusPageLoaderData> => getCachedHistories()
+);
+
+export const fetchCachedHistories = async (): Promise<StatusPageLoaderData> => {
+  return fetchCachedHistoriesServerFn();
+};
