@@ -122,15 +122,11 @@ export const fetchAllHistories = async (): Promise<StatusPageLoaderData> => {
   const historiesMap = new Map<string, StatusPageLoaderData["histories"][number]>();
   let hasMore = true;
 
-  let a = 0;
-  let b = 0;
-
   while (hasMore) {
     const result = await fetchHistories({ limit: PAGE_SIZE, offset });
 
     // モニターIDごとにレコードをマージ
     for (const history of result.histories) {
-      a += history.records.length;
       const existing = historiesMap.get(history.monitorId);
       if (existing) {
         // 既存のレコードに新しいレコードを追加
@@ -170,15 +166,10 @@ export const fetchAllHistories = async (): Promise<StatusPageLoaderData> => {
 
     deduped.sort((a, b) => new Date(a.recordedAt).getTime() - new Date(b.recordedAt).getTime());
 
-    b += deduped.length;
-
     history.records = deduped;
     history.oldestRecord = deduped[0]?.recordedAt;
     history.newestRecord = deduped[deduped.length - 1]?.recordedAt;
   }
-
-  console.log("Total records fetched:", a);
-  console.log("Total records after deduplication:", b);
 
   const now = Date.now();
 

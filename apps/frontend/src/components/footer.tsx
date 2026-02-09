@@ -32,9 +32,18 @@ const items: Items[] = [
     ],
   },
   {
-    title: "運営",
+    title: "詳細",
     links: [
       { name: "チーム", to: "/team" },
+      {
+        name: "問題",
+        href: "/s/gh/issues",
+      },
+      {
+        name: "議論",
+        href: "/s/gh/discussions",
+      },
+      { name: "リポジトリ", href: "/s/gh/repo" },
       { name: "GitHub", href: "/s/gh/org" },
     ],
   },

@@ -74,6 +74,24 @@ const statusContent = {
         ja: "現在",
         en: "Current",
       }),
+      period: {
+        today: t({
+          ja: "今日",
+          en: "Today",
+        }),
+        yesterday: t({
+          ja: "昨日",
+          en: "Yesterday",
+        }),
+        lastTwoDays: t({
+          ja: "一昨日",
+          en: "Last 2 Days",
+        }),
+        all: t({
+          ja: "全期間",
+          en: "All Time",
+        }),
+      },
     },
   },
 } satisfies Dictionary;

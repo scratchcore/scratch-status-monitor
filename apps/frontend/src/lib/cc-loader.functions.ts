@@ -32,7 +32,6 @@ export function getPolicy(locale: string, dir: string) {
   const hasDefaultLocaleContent = allPolicies.find((item) => {
     return item._meta.fileName === `${defaultLocale}.md` && item._meta.directory === dir;
   });
-  console.log("hasDefaultLocaleContent:", hasDefaultLocaleContent);
 
   if (!hasDefaultLocaleContent) {
     return null;

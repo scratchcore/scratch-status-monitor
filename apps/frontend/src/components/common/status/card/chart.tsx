@@ -1,5 +1,5 @@
 import { ssmrc } from "@scratchcore/ssm-configs";
-import { memo, useContext, useMemo } from "react";
+import { memo, useDeferredValue, useMemo } from "react";
 import { useLocale } from "react-intlayer";
 import { Area, CartesianGrid, ComposedChart, ReferenceLine, XAxis, YAxis } from "recharts";
 import { type ChartConfig, ChartContainer, ChartTooltip } from "@/components/ui/chart";
@@ -10,7 +10,33 @@ import {
 } from "@/lib/i18n/formatters";
 import { StatusCardChartTooltip } from "../ui/chart-tooltip";
 import { ChartSkeleton } from "./chart-skeleton";
-import { StatusCardContext } from "./context";
+import { type TimePeriod, useStatusCardContext } from "./context";
+
+/**
+ * 指定した期間に基づいて、フィルタリングの開始時刻を取得
+ */
+function getStartTimeForPeriod(period: TimePeriod): Date {
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  switch (period) {
+    case "today":
+      return todayStart;
+    case "yesterday": {
+      const yesterdayStart = new Date(todayStart);
+      yesterdayStart.setDate(yesterdayStart.getDate() - 1);
+      return yesterdayStart;
+    }
+    case "lastTwoDays": {
+      const twoDaysAgo = new Date(todayStart);
+      twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+      return twoDaysAgo;
+    }
+    case "all":
+    default:
+      return new Date(0); // 最初から
+  }
+}
 
 const chartConfig = {
   responseTime: {
@@ -169,27 +195,38 @@ const ChartContent = memo(function ChartContent({
             return data?.fullDateTime || String(value);
           }}
         />
-        <Area
-          dataKey="responseTime"
-          type="monotone"
-          fillOpacity={0.2}
-          isAnimationActive={false}
-          dot={false}
-          // データがない場合に線を途切れさせる
-          connectNulls={false}
-        />
+        <Area dataKey="responseTime" type="monotone" fillOpacity={0.3} isAnimationActive={false} />
       </ComposedChart>
     </ChartContainer>
   );
 });
 
-export function StatusCardChart() {
-  const s = useContext(StatusCardContext);
+export function StatusCardChart({ timePeriod = "today" }: { timePeriod?: TimePeriod }) {
+  const contextValue = useStatusCardContext();
   const { locale } = useLocale();
+  const deferredPeriod = useDeferredValue(timePeriod);
+  const isSwitching = deferredPeriod !== timePeriod;
 
-  // チャートデータをメモ化（s.data.row と locale が変わる時だけ再計算）
+  // チャートデータをメモ化（s.data.row, locale, period が変わる時だけ再計算）
   const { chartData, dateChangeTimestamps } = useMemo(() => {
-    if (!s?.data?.row || s.data.row.length === 0) {
+    if (!contextValue) {
+      return { chartData: [], dateChangeTimestamps: [] };
+    }
+
+    const { data: s } = contextValue;
+    const period = deferredPeriod;
+    if (!s?.row || s.row.length === 0) {
+      return { chartData: [], dateChangeTimestamps: [] };
+    }
+
+    // 期間に基づいてフィルタリング
+    const startTime = getStartTimeForPeriod(period);
+    const filteredRecords = s.row.filter((record) => {
+      const recordedAtDate = new Date(record.recordedAt);
+      return recordedAtDate >= startTime;
+    });
+
+    if (filteredRecords.length === 0) {
       return { chartData: [], dateChangeTimestamps: [] };
     }
 
@@ -203,7 +240,7 @@ export function StatusCardChart() {
       }
     >();
 
-    for (const record of s.data.row) {
+    for (const record of filteredRecords) {
       const recordedAtDate = new Date(record.recordedAt);
       const bucketedAtDate = record.bucketedAt
         ? new Date(record.bucketedAt)
@@ -264,9 +301,13 @@ export function StatusCardChart() {
       chartData: data,
       dateChangeTimestamps: dateChanges,
     };
-  }, [s?.data, locale]);
+  }, [contextValue, deferredPeriod, locale]);
 
   // チャート描画部をメモ化されたコンポーネントに分離
+  if (isSwitching) {
+    return <ChartSkeleton />;
+  }
+
   return chartData.length === 0 ? (
     <ChartSkeleton />
   ) : (
