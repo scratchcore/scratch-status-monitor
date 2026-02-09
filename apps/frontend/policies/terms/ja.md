@@ -82,4 +82,4 @@ updated_at: 2026-02-07
 
 本規約に関するお問い合わせは、以下よりご連絡ください。
 
-https://ssm.scra.cc/contact
+https://ssm.scra.cc/s/contact

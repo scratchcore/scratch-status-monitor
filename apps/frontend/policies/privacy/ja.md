@@ -123,4 +123,4 @@ Google Analytics は、サイト利用状況を分析するために Cookie 等�
 
 本ポリシーに関するお問い合わせは、以下よりご連絡ください。
 
-https://ssm.scra.cc/contact
+https://ssm.scra.cc/s/contact

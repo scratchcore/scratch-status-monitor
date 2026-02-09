@@ -57,4 +57,4 @@ Scratch を含む外部サービスの仕様変更、停止、制限等により
 
 本免責事項に関するお問い合わせは、以下よりご連絡ください。
 
-https://ssm.scra.cc/contact
+https://ssm.scra.cc/s/contact

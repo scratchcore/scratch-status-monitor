@@ -94,7 +94,7 @@ Scratch の公開エンドポイントに対する定期的なリクエスト結
 
 希望される場合は以下よりご連絡ください：
 
-https://ssm.scra.cc/contact
+https://ssm.scra.cc/s/contact
 
 ## 8. プライバシーポリシーとの関係
 
