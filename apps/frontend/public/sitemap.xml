@@ -25,6 +25,18 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://ssm.scra.cc/ja/about" />
   </url>
   <url>
+    <loc>https://ssm.scra.cc/ja/funding</loc>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://ssm.scra.cc/ja/funding" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://ssm.scra.cc/en/funding" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ssm.scra.cc/ja/funding" />
+  </url>
+  <url>
+    <loc>https://ssm.scra.cc/en/funding</loc>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://ssm.scra.cc/ja/funding" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://ssm.scra.cc/en/funding" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ssm.scra.cc/ja/funding" />
+  </url>
+  <url>
     <loc>https://ssm.scra.cc/ja/policies/cookie</loc>
     <xhtml:link rel="alternate" hreflang="ja" href="https://ssm.scra.cc/ja/policies/cookie" />
     <xhtml:link rel="alternate" hreflang="en" href="https://ssm.scra.cc/en/policies/cookie" />

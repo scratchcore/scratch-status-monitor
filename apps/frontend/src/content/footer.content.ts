@@ -38,6 +38,10 @@ const footerContent = {
         ja: "チーム",
         en: "Team",
       }),
+      funding: t({
+        ja: "運営とご支援について",
+        en: "Funding",
+      }),
       issues: t({
         ja: "問題",
         en: "Issues",
