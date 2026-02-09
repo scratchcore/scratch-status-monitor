@@ -4,10 +4,12 @@ import {
   RiCreativeCommonsNcLine,
   RiExternalLinkLine,
 } from "@remixicon/react";
+import { getIntlayer } from "intlayer";
 import { ThemeTogglerButton } from "./animate-ui/components/buttons/theme-toggler";
 import { LocaleSwitcher } from "./LanguageSwitcher";
 import { LocalizedLink, type To } from "./LocalizedLink";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+import { useLocale } from "react-intlayer";
 
 type LinkItem =
   | { name: string; to: string; href?: never; badge?: string }
@@ -17,50 +19,52 @@ type Items = {
   title: string;
   links: LinkItem[];
 };
-const items: Items[] = [
-  {
-    title: "リソース",
-    links: [
-      { name: "モニター", to: "/" },
-      { name: "概要", to: "/about" },
-      { name: "使い方", to: "/usage" },
-      { name: "仕組み", to: "/how-it-works" },
-      {
-        name: "FAQ",
-        href: "/s/gh/faq",
-      },
-    ],
-  },
-  {
-    title: "詳細",
-    links: [
-      { name: "チーム", to: "/team" },
-      {
-        name: "問題",
-        href: "/s/gh/issues",
-      },
-      {
-        name: "議論",
-        href: "/s/gh/discussions",
-      },
-      { name: "リポジトリ", href: "/s/gh/repo" },
-      { name: "GitHub", href: "/s/gh/org" },
-    ],
-  },
-  {
-    title: "ポリシー",
-    links: [
-      { name: "プライバシーポリシー", to: "/policies/privacy" },
-      { name: "クッキーポリシー", to: "/policies/cookie" },
-      { name: "データポリシー", to: "/policies/data" },
-      { name: "外部サービス利用ポリシー", to: "/policies/external-service" },
-      { name: "利用規約", to: "/policies/terms" },
-      { name: "免責事項", to: "/policies/disclaimer" },
-    ],
-  },
-];
 
 export function Footer() {
+  const { locale } = useLocale();
+  const t = getIntlayer("footer", locale);
+  const items: Items[] = [
+    {
+      title: t.sections.resources,
+      links: [
+        { name: t.links.monitor, to: "/" },
+        { name: t.links.about, to: "/about" },
+        { name: t.links.usage, to: "/usage" },
+        { name: t.links.howItWorks, to: "/how-it-works" },
+        {
+          name: t.links.faq,
+          href: "/s/gh/faq",
+        },
+      ],
+    },
+    {
+      title: t.sections.details,
+      links: [
+        { name: t.links.team, to: "/team" },
+        {
+          name: t.links.issues,
+          href: "/s/gh/issues",
+        },
+        {
+          name: t.links.discussions,
+          href: "/s/gh/discussions",
+        },
+        { name: t.links.repository, href: "/s/gh/repo" },
+        { name: t.links.github, href: "/s/gh/org" },
+      ],
+    },
+    {
+      title: t.sections.policies,
+      links: [
+        { name: t.links.privacyPolicy, to: "/policies/privacy" },
+        { name: t.links.cookiePolicy, to: "/policies/cookie" },
+        { name: t.links.dataPolicy, to: "/policies/data" },
+        { name: t.links.externalServicePolicy, to: "/policies/external-service" },
+        { name: t.links.termsOfService, to: "/policies/terms" },
+        { name: t.links.disclaimer, to: "/policies/disclaimer" },
+      ],
+    },
+  ];
   return (
     <footer className="max-w-3xl mx-auto py-8 lg:py-24">
       <div className="max-w-7xl mx-auto border-t">
