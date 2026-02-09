@@ -4,8 +4,9 @@ import { Footer } from "@/components/footer";
 import fontCss from "@/styles/fonts.css?url";
 import typographyCss from "@/styles/typography.css?url";
 import appCss from "@/styles.css?url";
-import { fonts } from "@/utils/fonts";
 import { NotFoundComponent } from "./404";
+import { fonts } from "@/utils/fonts";
+import { icons } from "@/seo";
 
 export const Route = createFileRoute("/$locale")({
   head: () => ({
@@ -17,6 +18,7 @@ export const Route = createFileRoute("/$locale")({
         name: "viewport",
         content: "width=device-width, initial-scale=1",
       },
+      ...(icons({ themeColor: "#000000" }).meta ?? []),
     ],
     links: [
       {
@@ -32,6 +34,7 @@ export const Route = createFileRoute("/$locale")({
         rel: "stylesheet",
         href: fontCss,
       },
+      ...(icons({ themeColor: "#000000", pngSizes: [128, 192, 256, 512] }).links ?? []),
     ],
   }),
   beforeLoad: ({ params }) => {

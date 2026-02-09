@@ -71,8 +71,7 @@ export function Footer() {
         <div className="flex flex-col gap-y-12 px-4 xl:px-0 py-6 lg:py-12">
           <div className="grid gap-y-6 sm:grid-cols-2 sm:gap-x-8 md:px-4 lg:grid-cols-4 lg:gap-x-12 lg:gap-y-0 lg:px-8">
             <div className="w-30">
-              <img src="/wp-content/scrac/cat/black.png" alt="Logo" className="block dark:hidden" />
-              <img src="/wp-content/scrac/cat/white.png" alt="Logo" className="hidden dark:block" />
+              <img src="/wp-content/scrac/ssm.png" alt="Logo" />
             </div>
             {items.map((item) => (
               <div key={item.title} className="flex flex-col items-start gap-y-4">
