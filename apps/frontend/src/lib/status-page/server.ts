@@ -4,6 +4,19 @@ import { getEnv } from "@/plugins/envrc";
 import type { HistoryApiEnvelope, StatusPageLoaderData } from "./types";
 
 const FETCH_TIMEOUT_MS = 30000; // 30秒
+const CRON_GRACE_MS = 2 * 60 * 1000;
+
+const getAlignedRefreshTiming = (
+  nowMs: number = Date.now(),
+  intervalMs: number = ssmrc.cache.statusTtlMs,
+  graceMs: number = CRON_GRACE_MS
+): { nextRefreshAt: number; refreshIntervalMs: number } => {
+  const nextBoundary = Math.ceil(nowMs / intervalMs) * intervalMs;
+  const alignedBoundary = nextBoundary === nowMs ? nextBoundary + intervalMs : nextBoundary;
+  const nextRefreshAt = alignedBoundary + graceMs;
+  const refreshIntervalMs = Math.max(1000, nextRefreshAt - nowMs);
+  return { nextRefreshAt, refreshIntervalMs };
+};
 
 /**
  * Server Function: サーバーサイドでバックエンドAPIから履歴データ取得（段階的）
@@ -78,14 +91,12 @@ const fetchHistoriesServerFn = createServerFn({ method: "GET" })
         elapsed: `${elapsed.toFixed(2)}ms`,
       });
 
-      // 次回更新予定時刻を計算
-      const now = Date.now();
-      const nextRefreshAt = now + ssmrc.cache.statusTtlMs;
+      const { nextRefreshAt, refreshIntervalMs } = getAlignedRefreshTiming();
 
       return {
         histories: historyJson.data,
         nextRefreshAt,
-        refreshIntervalMs: ssmrc.cache.statusTtlMs,
+        refreshIntervalMs,
       };
     } catch (error) {
       clearTimeout(timeoutId);
@@ -171,12 +182,12 @@ export const fetchAllHistories = async (): Promise<StatusPageLoaderData> => {
     history.newestRecord = deduped[deduped.length - 1]?.recordedAt;
   }
 
-  const now = Date.now();
+  const { nextRefreshAt, refreshIntervalMs } = getAlignedRefreshTiming();
 
   return {
     histories: Array.from(historiesMap.values()),
-    nextRefreshAt: now + ssmrc.cache.statusTtlMs,
-    refreshIntervalMs: ssmrc.cache.statusTtlMs,
+    nextRefreshAt,
+    refreshIntervalMs,
   };
 };
 

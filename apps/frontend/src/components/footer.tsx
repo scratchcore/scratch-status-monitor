@@ -32,7 +32,7 @@ export function Footer() {
         { name: t.links.usage, to: "/usage" },
         { name: t.links.howItWorks, to: "/how-it-works" },
         {
-          name: t.links.faq,
+          name: "FAQ",
           href: "/s/gh/faq",
         },
       ],
@@ -50,7 +50,7 @@ export function Footer() {
           href: "/s/gh/discussions",
         },
         { name: t.links.repository, href: "/s/gh/repo" },
-        { name: t.links.github, href: "/s/gh/org" },
+        { name: "GitHub", href: "/s/gh/org" },
       ],
     },
     {

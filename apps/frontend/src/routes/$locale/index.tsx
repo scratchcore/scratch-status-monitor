@@ -1,7 +1,8 @@
 import { ssmrc } from "@scratchcore/ssm-configs";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { toast } from "sonner";
 import { useIntlayer } from "react-intlayer";
 import { StatusPageProvider } from "@/components/common/status/layout/context";
 import { InfoHeader } from "@/components/common/status/layout/info-header";
@@ -71,18 +72,71 @@ function App() {
     queryKey: STATUS_PAGE_QUERY_KEY,
     queryFn: refetchAndBroadcast,
     staleTime: ssmrc.cache.statusTtlMs,
-    refetchInterval: (query) => {
-      const currentData = query.state.data;
-      if (!currentData) return false;
-      if (typeof document !== "undefined" && document.visibilityState === "hidden") {
-        return false;
-      }
-      return currentData.refreshIntervalMs;
-    },
-    refetchOnWindowFocus: true,
+    refetchInterval: false,
+    refetchOnWindowFocus: false,
     refetchIntervalInBackground: false,
     initialData: loaderData,
   });
+
+  const nextRefreshTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const skippedRefreshRef = useRef(false);
+
+  useEffect(() => {
+    if (!data?.nextRefreshAt) {
+      return undefined;
+    }
+
+    const scheduleNext = (delayMs: number) => {
+      if (nextRefreshTimeoutRef.current) {
+        clearTimeout(nextRefreshTimeoutRef.current);
+      }
+
+      nextRefreshTimeoutRef.current = setTimeout(() => {
+        const isHidden = typeof document !== "undefined" && document.visibilityState === "hidden";
+        if (isHidden) {
+          skippedRefreshRef.current = true;
+          scheduleNext(ssmrc.cache.statusTtlMs);
+          return;
+        }
+
+        skippedRefreshRef.current = false;
+        queryClient.refetchQueries({ queryKey: STATUS_PAGE_QUERY_KEY, exact: true });
+        scheduleNext(ssmrc.cache.statusTtlMs);
+      }, delayMs);
+    };
+
+    const now = Date.now();
+    const initialDelay = Math.max(0, data.nextRefreshAt - now);
+    scheduleNext(initialDelay);
+
+    return () => {
+      if (nextRefreshTimeoutRef.current) {
+        clearTimeout(nextRefreshTimeoutRef.current);
+        nextRefreshTimeoutRef.current = null;
+      }
+    };
+  }, [data?.nextRefreshAt, queryClient]);
+
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (typeof document === "undefined") {
+        return;
+      }
+      if (document.visibilityState !== "visible") {
+        return;
+      }
+
+      if (skippedRefreshRef.current) {
+        toast("タブがフォーカスされていないため自動更新をスキップしました");
+        skippedRefreshRef.current = false;
+      }
+
+      queryClient.refetchQueries({ queryKey: STATUS_PAGE_QUERY_KEY, exact: true });
+    };
+
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
+  }, [queryClient]);
 
   if (isPending) {
     return <StatusPageSkeleton />;

@@ -34,10 +34,6 @@ const footerContent = {
         ja: "仕組み",
         en: "How It Works",
       }),
-      faq: t({
-        ja: "FAQ",
-        en: "FAQ",
-      }),
       team: t({
         ja: "チーム",
         en: "Team",
@@ -53,10 +49,6 @@ const footerContent = {
       repository: t({
         ja: "リポジトリ",
         en: "Repository",
-      }),
-      github: t({
-        ja: "GitHub",
-        en: "GitHub",
       }),
       privacyPolicy: t({
         ja: "プライバシーポリシー",
