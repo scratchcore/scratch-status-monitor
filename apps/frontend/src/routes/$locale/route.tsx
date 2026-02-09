@@ -1,12 +1,12 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { defaultLocale, validatePrefix } from "intlayer";
 import { Footer } from "@/components/footer";
+import { icons } from "@/seo";
 import fontCss from "@/styles/fonts.css?url";
 import typographyCss from "@/styles/typography.css?url";
 import appCss from "@/styles.css?url";
-import { NotFoundComponent } from "./404";
 import { fonts } from "@/utils/fonts";
-import { icons } from "@/seo";
+import { NotFoundComponent } from "./404";
 
 export const Route = createFileRoute("/$locale")({
   head: () => ({
