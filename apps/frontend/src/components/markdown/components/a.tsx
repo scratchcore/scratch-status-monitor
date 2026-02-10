@@ -5,12 +5,27 @@ import { cn } from "@/lib/utils";
 
 export interface MarkdownAProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
   isExternal?: boolean;
+  "data-isexternal"?: boolean;
+  notExternalIcon?: boolean;
+  "data-not-external-icon"?: boolean;
 }
 export const markdown_a = (props: MarkdownAProps) => {
-  const { children, className, href, isExternal: _isExternal = false, ...rest } = props;
+  const {
+    children,
+    className,
+    href,
+    isExternal: __isExternal1 = false,
+    "data-isexternal": __isExternal2 = false,
+    notExternalIcon: __notExternalIcon1 = false,
+    "data-not-external-icon": __notExternalIcon2 = false,
+    ...rest
+  } = props;
+
+  const _isExternal = __isExternal1 || __isExternal2;
+  const _notExternalIcon = __notExternalIcon1 || __notExternalIcon2;
 
   const linkClassName = cn(
-    "inline-flex items-center whitespace-nowrap hover:opacity-90 transition-opacity duration-100 ease-linear",
+    "inline-flex items-center w-fit whitespace-nowrap hover:opacity-90 transition-opacity duration-100 ease-linear",
     className
   );
 
@@ -36,7 +51,7 @@ export const markdown_a = (props: MarkdownAProps) => {
         {...rest}
       >
         {children}
-        <RiExternalLinkLine size={14} className="ml-1" />
+        {!_notExternalIcon && <RiExternalLinkLine size={14} className="ml-1" />}
       </LocalizedLink>
     );
   }
