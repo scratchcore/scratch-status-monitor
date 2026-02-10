@@ -41,6 +41,7 @@ export function Footer() {
       title: t.sections.details,
       links: [
         { name: t.links.team, to: "/team" },
+        { name: t.links.funding, to: "/funding" },
         {
           name: t.links.issues,
           href: "/s/gh/issues",

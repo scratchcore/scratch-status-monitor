@@ -17,6 +17,7 @@ import { IntlayerProvider } from "react-intlayer";
 import { CookieNotice } from "@/components/cookie-notice";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import BMCWidget from "@/lib/bmc-widget";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 
 interface MyRouterContext {
@@ -90,6 +91,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
                   {children}
                   <ClientOnly>
                     <CookieNotice />
+                    <BMCWidget />
                   </ClientOnly>
                 </TooltipProvider>
               </ThemeProvider>

@@ -1,6 +1,6 @@
 ---
 title: プライバシーポリシー
-updated_at: 2026-02-07
+updated_at: 2026-02-10
 ---
 
 # プライバシーポリシー
@@ -66,9 +66,12 @@ Cookieの使用を希望しない場合は、ブラウザ設定により無効�
 本サービスは以下の外部サービスを利用しています：
 
 - Cloudflare（CDN・セキュリティ・アクセスログ）
+- Vercel（フロントエンドのホスティング・配信）
 - Supabase（データベース・認証基盤）
 - GitHub（ソースコード管理）
 - Google Analytics（Google Tag Manager を介したアクセス解析）
+
+Vercel は、フロントエンド配信および運用上必要なアクセスログを処理する場合があります。
 
 Google Analytics は、サイト利用状況を分析するために Cookie 等を使用し、匿名化された統計情報を Google に送信します。
 
