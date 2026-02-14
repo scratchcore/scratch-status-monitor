@@ -11,10 +11,10 @@
     "format": "biome format",
     "lint": "biome lint",
     "check": "biome check",
-    "vercel:dev": "nlx vercel dev",
-    "vercel:build": "nlx vercel build",
-    "vercel:preview": "pnpm run build && nlx vercel deploy --prebuilt",
-    "vercel:deploy": "pnpm run build && nlx vercel deploy --prebuilt --prod",
+    "v:dev": "nlx vercel dev",
+    "v:build": "nlx vercel build",
+    "v:dep:prev": "pnpm run build && nlx vercel deploy --prebuilt",
+    "v:dep:prod": "pnpm run build && nlx vercel deploy --prebuilt --prod",
     "machine-translate": "inlang machine translate --project project.inlang"
   },
   "dependencies": {
