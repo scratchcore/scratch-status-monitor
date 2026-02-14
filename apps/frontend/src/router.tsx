@@ -1,9 +1,12 @@
 import { BProgress } from "@bprogress/core";
+import { initHeadControllerConfigs } from "@scratchcore/tanstack-plugin-headcontroller";
 import { createRouter } from "@tanstack/react-router";
 import { setupRouterSsrQueryIntegration } from "@tanstack/react-router-ssr-query";
 import * as TanstackQuery from "./integrations/tanstack-query/root-provider";
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";
+
+const headControllerConfig = initHeadControllerConfigs();
 
 // Create a new router instance
 export const getRouter = () => {
@@ -13,6 +16,7 @@ export const getRouter = () => {
     routeTree,
     context: {
       ...rqContext,
+      ...headControllerConfig,
     },
     scrollRestorationBehavior: "smooth",
     defaultPreload: "intent",

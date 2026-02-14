@@ -20,6 +20,7 @@ import {
 import type { StatusPageLoaderData } from "@/lib/status-page/types";
 import { buildHreflangLinks } from "@/seo/hreflang";
 import { seo } from "@/seo/seo";
+import { scrollToTop } from "@/utils/onenter.scrollTo";
 
 const DEFAULT_LOADER_DATA: StatusPageLoaderData = {
   histories: [],
@@ -49,9 +50,7 @@ export const Route = createFileRoute("/$locale/")({
     }
   },
   component: App,
-  onEnter: () => {
-    window.scrollTo(0, 0);
-  },
+  onEnter: scrollToTop,
 });
 
 function App() {

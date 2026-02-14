@@ -1,3 +1,4 @@
+import { headControllerContextEdit } from "@scratchcore/tanstack-plugin-headcontroller";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { defaultLocale, getIntlayer, validatePrefix } from "intlayer";
 import { Footer } from "@/components/footer";
@@ -29,18 +30,23 @@ export const Route = createFileRoute("/$locale")({
       to: "/$locale/404",
     });
   },
+  context(ctx) {
+    const locale = ctx.params.locale;
+    const t = getIntlayer("seo", locale);
+    return headControllerContextEdit(ctx.context, {
+      configs: {
+        titleTemplate: {
+          default: t.title,
+          template: `%s | ${t.title_short}`,
+        },
+      },
+    });
+  },
   head: ({ params }) => {
     const locale = params.locale;
     const t = getIntlayer("seo", locale);
     return {
       meta: [
-        {
-          charSet: "utf-8",
-        },
-        {
-          name: "viewport",
-          content: "width=device-width, initial-scale=1",
-        },
         ...(icons({ themeColor: "#000000" }).meta ?? []),
         ...ogp({
           title: t.title,

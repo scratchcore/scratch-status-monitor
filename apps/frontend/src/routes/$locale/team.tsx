@@ -3,6 +3,7 @@ import { ArticleLayout } from "@/components/markdown/layout";
 import { getContent } from "@/lib/cc-loader.functions";
 import { buildHreflangLinks } from "@/seo/hreflang";
 import { mergeHead, whenHead } from "@/seo/merge";
+import { scrollToTop } from "@/utils/onenter.scrollTo";
 
 const PAGE_KEY = "team";
 
@@ -37,9 +38,7 @@ export const Route = createFileRoute("/$locale/team")({
       }))
     ),
   component: RouteComponent,
-  onEnter: () => {
-    window.scrollTo(0, 0);
-  },
+  onEnter: scrollToTop,
 });
 
 function RouteComponent() {

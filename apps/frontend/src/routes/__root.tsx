@@ -1,15 +1,17 @@
 import { ProgressProvider } from "@bprogress/react";
+import {
+  HeadController,
+  type HeadControllerContext,
+} from "@scratchcore/tanstack-plugin-headcontroller";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import type { QueryClient } from "@tanstack/react-query";
 import {
   ClientOnly,
   createRootRouteWithContext,
-  HeadContent,
   Scripts,
   useMatches,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
-
 import { defaultLocale, getHTMLTextDir } from "intlayer";
 import { ThemeProvider } from "next-themes";
 import { NuqsAdapter } from "nuqs/adapters/tanstack-router";
@@ -20,9 +22,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import BMCWidget from "@/lib/bmc-widget";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 
-interface MyRouterContext {
+type RouterContext = HeadControllerContext<{
   queryClient: QueryClient;
-}
+}>;
 
 function RootErrorComponent() {
   return (
@@ -51,8 +53,17 @@ function RootErrorComponent() {
   );
 }
 
-export const Route = createRootRouteWithContext<MyRouterContext>()({
+export const Route = createRootRouteWithContext<RouterContext>()({
   head: () => ({
+    meta: [
+      {
+        charSet: "utf-8",
+      },
+      {
+        name: "viewport",
+        content: "width=device-width, initial-scale=1",
+      },
+    ],
     scripts: [
       // Google Tag Manager script
       {
@@ -79,7 +90,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   return (
     <html lang={locale} dir={getHTMLTextDir(locale)} suppressHydrationWarning>
       <head>
-        <HeadContent />
+        <HeadController />
       </head>
       <body cz-shortcut-listen="true" className="scrollbar-simple">
         <ProgressProvider color="var(--primary)" options={{ showSpinner: true }}>
