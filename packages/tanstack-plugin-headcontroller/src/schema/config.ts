@@ -20,7 +20,7 @@ const titleTemplateSchema = z.object({
 type _TitleTemplateType = z.infer<typeof titleTemplateSchema>;
 
 const ogpSchema = z.object({
-  mode: z.enum(["use-head-content", "none"]),
+  mode: z.enum(["use-meta-title", "none"]),
 });
 type _OGPConfigType = z.infer<typeof ogpSchema>;
 

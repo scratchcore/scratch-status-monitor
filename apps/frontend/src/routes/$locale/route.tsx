@@ -39,6 +39,9 @@ export const Route = createFileRoute("/$locale")({
           default: t.title,
           template: `%s | ${t.title_short}`,
         },
+        ogp: {
+          mode: "use-meta-title",
+        },
       },
     });
   },

@@ -1,8 +1,17 @@
 import { useRouterState } from "@tanstack/react-router";
 import { validateHeadControllerOptions } from "./context/validator";
 import { collectHeadDataFromRoutes } from "./data";
+import { ogpTitlePlugin } from "./plugins/ogp-title";
 import { titleTemplatePlugin } from "./plugins/title-template";
 import { HeadRender } from "./render";
+import type { ContextType } from "./schema/context";
+import type { HeadType } from "./types";
+
+export type ctxType = {
+  head: HeadType.index;
+  context: ContextType.HeadControllerOptions;
+  values: Record<string, any>;
+};
 
 export const HeadController = () => {
   const routes = useRouterState({ select: (s) => s.matches });
@@ -15,22 +24,24 @@ export const HeadController = () => {
     context: validateHeadControllerOptions(currentRouteData?.context),
   };
 
-  let ctx: Record<string, any> = {
+  let ctx: ctxType = {
+    head: resolvedHead,
     context: route.context,
+    values: {},
   };
-  const plugins = [titleTemplatePlugin];
-  const head_meta = resolvedHead.meta?.map((m) => {
-    return plugins.reduce((acc, plugin) => {
-      const result = plugin(ctx, acc);
-      ctx = result.ctx || ctx; // プラグインがctxを返す場合は更新
-      return result.m;
-    }, m);
-  });
+  const plugins = [titleTemplatePlugin, ogpTitlePlugin];
+  const head = plugins.reduce((acc, plugin) => {
+    console.log({ plugin: plugin.name, ctx: ctx.values });
+    const pluginResult = plugin(ctx, acc);
+    ctx = {
+      ...ctx,
+      ...pluginResult,
+    };
+    return pluginResult.head;
+  }, ctx.head);
 
   const result = {
-    ...resolvedHead,
-    meta: head_meta,
+    ...head,
   };
-  console.log("HeadController result:", result.meta);
   return <HeadRender head={result} />;
 };

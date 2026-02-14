@@ -1,6 +1,8 @@
-import type { PluginsType } from "../types/plugins";
+import type { ctxType } from "../controller";
+import type { HeadType } from "../types";
 
-export const titleTemplatePlugin = (ctx: Record<string, any>, m: PluginsType.head.meta.result) => {
+export const titleTemplatePlugin = (ctx: ctxType, head: HeadType.index) => {
+  const m = head.meta?.find((m) => m?.title);
   if (m?.title) {
     // 現在のタイトルを取得
     let title = m.title;
@@ -13,15 +15,18 @@ export const titleTemplatePlugin = (ctx: Record<string, any>, m: PluginsType.hea
       if (title !== config.default) {
         const template = config.template;
         title = template.replace("%s", title);
-        ctx.title = title;
+        ctx.values.title = title;
       }
     }
     const result = {
       ...m,
       title,
     };
-    console.log("titleTemplatePlugin result:", result);
-    return { m: result, ctx };
+    const updatedHead = {
+      ...head,
+      meta: head.meta?.map((meta) => (meta === m ? result : meta)),
+    };
+    return { ctx, head: updatedHead };
   }
-  return { m };
+  return { ctx, head };
 };
