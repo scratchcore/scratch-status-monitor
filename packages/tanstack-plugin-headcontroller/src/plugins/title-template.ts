@@ -1,6 +1,6 @@
 import type { PluginsType } from "../types/plugins";
 
-export const titleTemplatePlugin = (ctx: Record<string, any>, m: PluginsType.Head.Meta) => {
+export const titleTemplatePlugin = (ctx: Record<string, any>, m: PluginsType.head.meta.result) => {
   if (m?.title) {
     // 現在のタイトルを取得
     let title = m.title;
@@ -16,7 +16,12 @@ export const titleTemplatePlugin = (ctx: Record<string, any>, m: PluginsType.Hea
         ctx.title = title;
       }
     }
-    return { ...m, title };
+    const result = {
+      ...m,
+      title,
+    };
+    console.log("titleTemplatePlugin result:", result);
+    return { m: result, ctx };
   }
-  return m;
+  return { m };
 };

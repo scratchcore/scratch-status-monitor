@@ -15,16 +15,22 @@ export const HeadController = () => {
     context: validateHeadControllerOptions(currentRouteData?.context),
   };
 
-  const ctx = {
+  let ctx: Record<string, any> = {
     context: route.context,
   };
+  const plugins = [titleTemplatePlugin];
   const head_meta = resolvedHead.meta?.map((m) => {
-    return titleTemplatePlugin(ctx, m);
+    return plugins.reduce((acc, plugin) => {
+      const result = plugin(ctx, acc);
+      ctx = result.ctx || ctx; // プラグインがctxを返す場合は更新
+      return result.m;
+    }, m);
   });
 
   const result = {
     ...resolvedHead,
     meta: head_meta,
   };
+  console.log("HeadController result:", result.meta);
   return <HeadRender head={result} />;
 };
