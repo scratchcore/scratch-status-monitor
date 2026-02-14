@@ -1,0 +1,46 @@
+{
+  "name": "@scratchcore/tanstack-plugin-headcontroller",
+  "version": "0.0.1",
+  "description": "TanStack Router の Document Head コントローラー",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "scripts": {
+    "build": "tsc --project tsconfig.json",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "biome lint src/",
+    "lint:fix": "biome check --fix src/",
+    "format": "biome format --write src/",
+    "check": "biome check src/"
+  },
+  "keywords": [
+    "scratch-status-monitor",
+    "tanstack",
+    "router",
+    "head",
+    "controller",
+    "react"
+  ],
+  "author": "scratchcore",
+  "license": "MIT",
+  "packageManager": "pnpm@10.28.2",
+  "dependencies": {
+    "@tanstack/react-router": "^1.159.5",
+    "react": "^19.2.4",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.3.14",
+    "@types/node": "^22.19.9",
+    "@types/react": "^19.2.13",
+    "typescript": "^5.9.3"
+  }
+}

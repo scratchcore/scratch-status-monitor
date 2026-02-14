@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { getIntlayer } from "intlayer";
+import { scrollToTop } from "@/utils/onenter.scrollTo";
 import { NotFoundComponent } from "./404";
 
 // Catch-all route for unknown paths - renders the 404 page
@@ -19,7 +20,5 @@ export const Route = createFileRoute("/$locale/$")({
     };
   },
   component: NotFoundComponent,
-  onEnter: () => {
-    window.scrollTo(0, 0);
-  },
+  onEnter: scrollToTop,
 });

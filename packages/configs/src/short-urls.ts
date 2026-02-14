@@ -6,7 +6,15 @@ const REPO_SLUG = "scratch-status-monitor";
 export const shortUrls: ssmrcType.shortUrl[] = [
   {
     key: "contact",
-    url: "https://docs.google.com/forms/d/e/1FAIpQLSexvsgzQ6FDh-402RtAFybh1rFwJerG1AOMcjk_DLIVxeTS4w/viewform"
+    url: "https://docs.google.com/forms/d/e/1FAIpQLSexvsgzQ6FDh-402RtAFybh1rFwJerG1AOMcjk_DLIVxeTS4w/viewform",
+  },
+  {
+    key: "funding",
+    url: "/funding/bmc",
+  },
+  {
+    key: "funding/bmc",
+    url: "https://buymeacoffee.com/toakiryu",
   },
   {
     key: "gh/org",

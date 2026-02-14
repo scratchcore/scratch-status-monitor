@@ -31,8 +31,8 @@ const config = defineConfig({
         routeFileIgnorePattern: ".content.(ts|tsx|js|mjs|cjs|jsx|json|jsonc|json5)$",
       },
     }),
-    nitro(),
     sitemapPlugin(),
+    nitro(),
     viteReact(),
   ],
 });

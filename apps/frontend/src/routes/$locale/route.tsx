@@ -1,7 +1,9 @@
+import { headControllerContextEdit } from "@scratchcore/tanstack-plugin-headcontroller";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
-import { defaultLocale, validatePrefix } from "intlayer";
+import { defaultLocale, getIntlayer, validatePrefix } from "intlayer";
 import { Footer } from "@/components/footer";
 import { icons } from "@/seo";
+import { ogp } from "@/seo/ogp";
 import fontCss from "@/styles/fonts.css?url";
 import typographyCss from "@/styles/typography.css?url";
 import appCss from "@/styles.css?url";
@@ -9,34 +11,6 @@ import { fonts } from "@/utils/fonts";
 import { NotFoundComponent } from "./404";
 
 export const Route = createFileRoute("/$locale")({
-  head: () => ({
-    meta: [
-      {
-        charSet: "utf-8",
-      },
-      {
-        name: "viewport",
-        content: "width=device-width, initial-scale=1",
-      },
-      ...(icons({ themeColor: "#000000" }).meta ?? []),
-    ],
-    links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
-      {
-        rel: "stylesheet",
-        href: typographyCss,
-      },
-      ...fonts(),
-      {
-        rel: "stylesheet",
-        href: fontCss,
-      },
-      ...(icons({ themeColor: "#000000", pngSizes: [128, 192, 256, 512] }).links ?? []),
-    ],
-  }),
   beforeLoad: ({ params }) => {
     // Get locale from route params (not from server headers, as beforeLoad runs on both client and server)
     const localeParam = params.locale;
@@ -55,6 +29,53 @@ export const Route = createFileRoute("/$locale")({
       params: { locale: localePrefix ?? defaultLocale },
       to: "/$locale/404",
     });
+  },
+  context(ctx) {
+    const locale = ctx.params.locale;
+    const t = getIntlayer("seo", locale);
+    return headControllerContextEdit(ctx.context, {
+      configs: {
+        titleTemplate: {
+          default: t.title,
+          template: `%s | ${t.title_short}`,
+        },
+        ogp: {
+          mode: "use-meta-title",
+        },
+      },
+    });
+  },
+  head: ({ params }) => {
+    const locale = params.locale;
+    const t = getIntlayer("seo", locale);
+    return {
+      meta: [
+        ...(icons({ themeColor: "#000000" }).meta ?? []),
+        ...ogp({
+          title: t.title,
+          excerpt: t.description,
+          coverImage: "/wp-content/scrac/cat/icons/icon.256x256.png",
+          cardType: "summary",
+          type: "website",
+        }),
+      ],
+      links: [
+        {
+          rel: "stylesheet",
+          href: appCss,
+        },
+        {
+          rel: "stylesheet",
+          href: typographyCss,
+        },
+        ...fonts(),
+        {
+          rel: "stylesheet",
+          href: fontCss,
+        },
+        ...(icons({ themeColor: "#000000", pngSizes: [128, 192, 256, 512] }).links ?? []),
+      ],
+    };
   },
   component: RootDocument,
   notFoundComponent: NotFoundComponent,

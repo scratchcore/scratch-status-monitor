@@ -2,4 +2,4 @@
 User-agent: *
 Disallow:
 
-Sitemap: https://scra.cc/sitemap.xml
+Sitemap: https://ssm.scra.cc/sitemap.xml
