@@ -13,6 +13,7 @@
     "check": "biome check",
     "vercel:dev": "nlx vercel dev",
     "vercel:build": "nlx vercel build",
+    "vercel:preview": "pnpm run build && nlx vercel deploy --prebuilt",
     "vercel:deploy": "pnpm run build && nlx vercel deploy --prebuilt --prod",
     "machine-translate": "inlang machine translate --project project.inlang"
   },
