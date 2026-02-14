@@ -11,7 +11,9 @@
     "format": "biome format",
     "lint": "biome lint",
     "check": "biome check",
-    "deploy": "pnpm run build && vercel deploy --prebuilt --prod",
+    "vercel:dev": "nlx vercel dev",
+    "vercel:build": "nlx vercel build",
+    "vercel:deploy": "pnpm run build && nlx vercel deploy --prebuilt --prod",
     "machine-translate": "inlang machine translate --project project.inlang"
   },
   "dependencies": {
