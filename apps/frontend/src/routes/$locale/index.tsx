@@ -2,7 +2,6 @@ import { ssmrc } from "@scratchcore/ssm-configs";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
-import { useIntlayer } from "react-intlayer";
 import { toast } from "sonner";
 import { StatusPageProvider } from "@/components/common/status/layout/context";
 import { InfoHeader } from "@/components/common/status/layout/info-header";
@@ -20,6 +19,7 @@ import {
 import type { StatusPageLoaderData } from "@/lib/status-page/types";
 import { buildHreflangLinks } from "@/seo/hreflang";
 import { seo } from "@/seo/seo";
+import { GiscusWidget } from "@/utils/giscus";
 import { scrollToTop } from "@/utils/onenter.scrollTo";
 
 const DEFAULT_LOADER_DATA: StatusPageLoaderData = {
@@ -56,7 +56,6 @@ export const Route = createFileRoute("/$locale/")({
 function App() {
   const loaderData = Route.useLoaderData();
   const queryClient = useQueryClient();
-  const _t = useIntlayer("status");
 
   // BroadcastChannel を初期化
   useEffect(() => {
@@ -159,6 +158,8 @@ function App() {
 
         <InfoHeader />
         <Monitors />
+
+        <GiscusWidget />
       </div>
     </StatusPageProvider>
   );
