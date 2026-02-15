@@ -31,7 +31,6 @@ export const HeadController = () => {
   };
   const plugins = [titleTemplatePlugin, ogpTitlePlugin];
   const head = plugins.reduce((acc, plugin) => {
-    console.log({ plugin: plugin.name, ctx: ctx.values });
     const pluginResult = plugin(ctx, acc);
     ctx = {
       ...ctx,

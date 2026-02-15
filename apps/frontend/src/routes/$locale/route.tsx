@@ -1,6 +1,6 @@
 import { headControllerContextEdit } from "@scratchcore/tanstack-plugin-headcontroller";
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
-import { defaultLocale, getIntlayer, validatePrefix } from "intlayer";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { getIntlayer } from "intlayer";
 import { Footer } from "@/components/footer";
 import { icons } from "@/seo";
 import { ogp } from "@/seo/ogp";
@@ -10,29 +10,35 @@ import appCss from "@/styles.css?url";
 import { fonts } from "@/utils/fonts";
 import { NotFoundComponent } from "./404";
 
+// OGP 設定
+const OGP_CONFIG = {
+  coverImage: "/wp-content/scrac/cat/icons/icon.256x256.png",
+  cardType: "summary" as const,
+  type: "website" as const,
+};
+
+// アイコン設定
+const ICON_CONFIG = {
+  themeColor: "#000000",
+};
+
+const ICON_CONFIG_WITH_SIZES = {
+  ...ICON_CONFIG,
+  pngSizes: [128, 192, 256, 512],
+};
+
+// スタイルシート
+const STYLESHEETS = [
+  { rel: "stylesheet", href: appCss },
+  { rel: "stylesheet", href: typographyCss },
+  { rel: "stylesheet", href: fontCss },
+];
+
 export const Route = createFileRoute("/$locale")({
-  beforeLoad: ({ params }) => {
-    // Get locale from route params (not from server headers, as beforeLoad runs on both client and server)
-    const localeParam = params.locale;
-    // If no locale provided (optional param), it's valid (will use default)
-    // In prefix-all mode, the locale is required to be a valid locale
-    const { isValid, localePrefix } = validatePrefix(localeParam, {
-      mode: "prefix-all",
-    });
-
-    if (isValid) {
-      // If locale is valid, continue
-      return;
-    }
-
-    throw redirect({
-      params: { locale: localePrefix ?? defaultLocale },
-      to: "/$locale/404",
-    });
-  },
   context(ctx) {
     const locale = ctx.params.locale;
     const t = getIntlayer("seo", locale);
+
     return headControllerContextEdit(ctx.context, {
       configs: {
         titleTemplate: {
@@ -48,33 +54,19 @@ export const Route = createFileRoute("/$locale")({
   head: ({ params }) => {
     const locale = params.locale;
     const t = getIntlayer("seo", locale);
+
     return {
       meta: [
-        ...(icons({ themeColor: "#000000" }).meta ?? []),
+        ...(icons(ICON_CONFIG).meta ?? []),
         ...ogp({
           title: t.title,
           excerpt: t.description,
-          coverImage: "/wp-content/scrac/cat/icons/icon.256x256.png",
-          cardType: "summary",
-          type: "website",
+          coverImage: OGP_CONFIG.coverImage,
+          cardType: OGP_CONFIG.cardType,
+          type: OGP_CONFIG.type,
         }),
       ],
-      links: [
-        {
-          rel: "stylesheet",
-          href: appCss,
-        },
-        {
-          rel: "stylesheet",
-          href: typographyCss,
-        },
-        ...fonts(),
-        {
-          rel: "stylesheet",
-          href: fontCss,
-        },
-        ...(icons({ themeColor: "#000000", pngSizes: [128, 192, 256, 512] }).links ?? []),
-      ],
+      links: [...STYLESHEETS, ...fonts(), ...(icons(ICON_CONFIG_WITH_SIZES).links ?? [])],
     };
   },
   component: RootDocument,

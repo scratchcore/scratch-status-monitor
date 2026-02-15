@@ -24,6 +24,39 @@ export function getContent(locale: string, dir: string) {
   };
 }
 
+export function getAllPolicy(locale: string) {
+  const {
+    internationalization: { defaultLocale },
+  } = configuration;
+
+  // デフォルト言語のコンテンツ
+  const defaultContents = allPolicies
+    .map((item) => {
+      return item._meta.fileName === `${defaultLocale}.md` && item;
+    })
+    .filter((item) => item !== false);
+
+  // 指定された言語のコンテンツ
+  const localeContents = allPolicies
+    .map((item) => {
+      return item._meta.fileName === `${locale}.md` && item;
+    })
+    .filter((item) => item !== false);
+
+  // デフォルト言語のコンテンツをベースに、指定された言語のコンテンツがあればそれを優先して返す
+  const mergedContents = defaultContents.map((defaultContent) => {
+    const matchedLocaleContent = localeContents.find(
+      (localeContent) => localeContent._meta.directory === defaultContent._meta.directory
+    );
+    return {
+      isDefault: !matchedLocaleContent,
+      res: matchedLocaleContent ?? defaultContent,
+    };
+  });
+
+  return mergedContents;
+}
+
 export function getPolicy(locale: string, dir: string) {
   const {
     internationalization: { defaultLocale },

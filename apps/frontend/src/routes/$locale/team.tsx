@@ -2,7 +2,6 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { ArticleLayout } from "@/components/markdown/layout";
 import { getContent } from "@/lib/cc-loader.functions";
 import { buildHreflangLinks } from "@/seo/hreflang";
-import { mergeHead, whenHead } from "@/seo/merge";
 import { scrollToTop } from "@/utils/onenter.scrollTo";
 
 const PAGE_KEY = "team";
@@ -24,19 +23,14 @@ export const Route = createFileRoute("/$locale/team")({
       content,
     };
   },
-  head: ({ params, loaderData }) =>
-    mergeHead(
+  head: (ctx) => ({
+    meta: [
       {
-        links: buildHreflangLinks({ locale: params.locale, path: "/team" }),
+        title: ctx.loaderData?.content.res.title,
       },
-      whenHead(loaderData, (data) => ({
-        meta: [
-          {
-            title: data.content.res.title,
-          },
-        ],
-      }))
-    ),
+    ],
+    links: buildHreflangLinks({ locale: ctx.params.locale, path: "/team" }),
+  }),
   component: RouteComponent,
   onEnter: scrollToTop,
 });

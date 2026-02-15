@@ -20,6 +20,7 @@ import { CookieNotice } from "@/components/cookie-notice";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import BMCWidget from "@/lib/bmc-widget";
+import { localeMiddleware } from "@/middleware/locale";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 
 type RouterContext = HeadControllerContext<{
@@ -54,6 +55,9 @@ function RootErrorComponent() {
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({
+  server: {
+    middleware: [localeMiddleware],
+  },
   head: () => ({
     meta: [
       {
