@@ -1,22 +1,23 @@
-type SupportedLocale = "ja" | "en";
+import { configuration } from "intlayer";
+
+export const locales = configuration.internationalization.locales;
+export type LocalesType = typeof locales;
+export const localeCodeMap = locales.map((locale) => locale.split("-")[0]);
+export type LocaleCodeType = (typeof localeCodeMap)[number];
+export type LocaleCodeMapType = LocaleCodeType[];
 
 /**
  * ロケールをIntl用のロケール文字列に変換
  */
-export function localeToIntl(locale: SupportedLocale): string {
-  const localeMap: Record<SupportedLocale, string> = {
-    ja: "ja-JP",
-    en: "en-US",
-  };
-
-  return localeMap[locale] || "ja-JP";
+export function localeToIntl(locale: LocaleCodeType): string {
+  return locales.find((l) => l.startsWith(locale)) ?? locale;
 }
 
 /**
  * ロケールに応じた短い日付フォーマッター
  * ユーザーのタイムゾーンで表示
  */
-export function getShortDateFormatter(locale: SupportedLocale) {
+export function getShortDateFormatter(locale: LocaleCodeType) {
   const intlLocale = localeToIntl(locale);
   return new Intl.DateTimeFormat(intlLocale, {
     day: "2-digit",
@@ -29,7 +30,7 @@ export function getShortDateFormatter(locale: SupportedLocale) {
  * ロケールに応じた完全な日時フォーマッター
  * ユーザーのタイムゾーンで表示
  */
-export function getFullDateTimeFormatter(locale: SupportedLocale) {
+export function getFullDateTimeFormatter(locale: LocaleCodeType) {
   const intlLocale = localeToIntl(locale);
   return new Intl.DateTimeFormat(intlLocale, {
     year: "numeric",
@@ -44,7 +45,7 @@ export function getFullDateTimeFormatter(locale: SupportedLocale) {
 /**
  * ロケールに応じた月日フォーマッター
  */
-export function getMonthDayFormatter(locale: SupportedLocale) {
+export function getMonthDayFormatter(locale: LocaleCodeType) {
   const intlLocale = localeToIntl(locale);
   return new Intl.DateTimeFormat(intlLocale, {
     month: "short",
@@ -55,7 +56,7 @@ export function getMonthDayFormatter(locale: SupportedLocale) {
 /**
  * ロケールに応じた時刻フォーマッター
  */
-export function getTimeFormatter(locale: SupportedLocale) {
+export function getTimeFormatter(locale: LocaleCodeType) {
   const intlLocale = localeToIntl(locale);
   return new Intl.DateTimeFormat(intlLocale, {
     hour: "2-digit",
@@ -68,7 +69,7 @@ export function getTimeFormatter(locale: SupportedLocale) {
  * @param value ISO 8601形式の日付文字列
  * @param locale ロケール
  */
-export function formatDateShort(value: string, locale: SupportedLocale): string {
+export function formatDateShort(value: string, locale: LocaleCodeType): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
   return getShortDateFormatter(locale).format(date);
@@ -79,7 +80,7 @@ export function formatDateShort(value: string, locale: SupportedLocale): string 
  * @param value ISO 8601形式の日付文字列
  * @param locale ロケール
  */
-export function formatDateTime(value: string, locale: SupportedLocale): string {
+export function formatDateTime(value: string, locale: LocaleCodeType): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
   return getFullDateTimeFormatter(locale).format(date);
@@ -90,7 +91,7 @@ export function formatDateTime(value: string, locale: SupportedLocale): string {
  * @param value 数値
  * @param locale ロケール
  */
-export function formatNumber(value: number, locale: SupportedLocale): string {
+export function formatNumber(value: number, locale: LocaleCodeType): string {
   const intlLocale = localeToIntl(locale);
   return value.toLocaleString(intlLocale);
 }

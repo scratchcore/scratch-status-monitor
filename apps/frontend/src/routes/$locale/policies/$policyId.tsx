@@ -1,8 +1,8 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, notFound } from "@tanstack/react-router";
 import { ArticleLayout } from "@/components/markdown/layout";
 import { getPolicy } from "@/lib/cc-loader.functions";
 import { buildHreflangLinks } from "@/seo/hreflang";
-import { mergeHead, whenHead } from "@/seo/merge";
+import { scrollToTop } from "@/utils/onenter.scrollTo";
 
 export const Route = createFileRoute("/$locale/policies/$policyId")({
   loader: ({ params }) => {
@@ -10,10 +10,7 @@ export const Route = createFileRoute("/$locale/policies/$policyId")({
     const content = getPolicy(locale, policyId);
 
     if (!content) {
-      throw redirect({
-        to: "/$locale/404",
-        params: { locale },
-      });
+      throw notFound();
     }
 
     return {
@@ -21,26 +18,19 @@ export const Route = createFileRoute("/$locale/policies/$policyId")({
       content,
     };
   },
-  head: ({ params, loaderData }) =>
-    mergeHead(
+  head: (ctx) => ({
+    meta: [
       {
-        links: buildHreflangLinks({
-          locale: params.locale,
-          path: `/policies/${params.policyId}`,
-        }),
+        title: ctx.loaderData?.content.res.title,
       },
-      whenHead(loaderData, (data) => ({
-        meta: [
-          {
-            title: data.content.res.title,
-          },
-        ],
-      }))
-    ),
+    ],
+    links: buildHreflangLinks({
+      locale: ctx.params.locale,
+      path: `/policies/${ctx.params.policyId}`,
+    }),
+  }),
   component: RouteComponent,
-  onEnter: () => {
-    window.scrollTo(0, 0);
-  },
+  onEnter: scrollToTop,
 });
 
 function RouteComponent() {

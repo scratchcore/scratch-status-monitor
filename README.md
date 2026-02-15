@@ -1,15 +1,24 @@
-# Scratch Status Monitor
+# Scratch Status Monitor (SSM)
 
-> [!IMPORTANT]
-> [https://scratchstats.com](https://scratchstats.com) プロジェクトとは関係ありません。
+Scratch Status Monitor (SSM) is an unofficial status page that monitors the operational status of Scratch services.
 
-このプロジェクトは、[Scratch](https://scratch.mit.edu) サービスの様々な機能の稼働状況を監視して、ユーザーにわかりやすく伝えることを目的としています。
+## Website
 
-## 目的
+https://ssm.scra.cc
 
-Scratchを普段から利用している人は、`クラウド変数が使えない`, `傾向が更新されない`, `プロジェクトが表示されない` などの多くの問題に度々遭遇します。
+## Documentation
 
-例えば、稼働状況を簡単に確認できるサイトが存在しない場合、クラウド変数ではなぜ使えないのか原因がわかりません。
-自分の環境に問題があるのか、サーバーに問題があるのかすらわかりません。
+- About: https://ssm.scra.cc/about
+- Policies: https://ssm.scra.cc/policies
+- Support: https://ssm.scra.cc/funding
 
-このような不便を改善するためにステータスサイトが必要なのです。
+## Repository Purpose
+
+This repository contains the source code for SSM.
+
+## Contributing
+
+Contributions, bug reports, and suggestions are welcome.
+
+Please open an Issue:
+https://github.com/scratchcore/scratch-status-monitor/issues
