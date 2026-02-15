@@ -11,8 +11,9 @@ export const Route = createFileRoute("/s/$")({
     if (!mapping) {
       // マッピングが見つからない場合、ホームへリダイレクト
       console.warn(`Short URL not found: ${pathKey}`);
+      const redirectPath = `/${pathKey}`;
       throw redirect({
-        to: "/",
+        to: redirectPath,
         replace: true,
       });
     }
