@@ -16,6 +16,11 @@ export const localeMiddleware = createMiddleware().server(async ({ next, request
 
   console.log("[localeMiddleware] リクエストパス:", pathname);
 
+  if (pathname === "/s" || pathname.startsWith("/s/")) {
+    console.log("[localeMiddleware] /s ルートは処理対象外");
+    return next();
+  }
+
   // パスから locale を抽出 (例: /fr/page → fr, /ja/page → ja)
   const pathSegments = pathname.split("/").filter(Boolean);
   const locale = pathSegments[0];
