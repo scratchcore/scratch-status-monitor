@@ -12,22 +12,22 @@
     "check": "biome check src/"
   },
   "dependencies": {
-    "@orpc/openapi": "^1.13.4",
-    "@orpc/server": "^1.13.4",
+    "@orpc/openapi": "^1.13.5",
+    "@orpc/server": "^1.13.5",
     "@scalar/hono-api-reference": "^0.9.40",
     "@scratchcore/ssm-configs": "workspace:*",
     "@scratchcore/ssm-types": "workspace:*",
     "@supabase/supabase-js": "^2.95.3",
-    "hono": "^4.11.8",
-    "supabase": "^2.75.5",
+    "hono": "^4.11.9",
+    "supabase": "^2.76.8",
     "uuid": "^13.0.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.3.14",
-    "@cloudflare/workers-types": "^4.20260207.0",
-    "@types/node": "^25.2.1",
+    "@biomejs/biome": "^2.3.15",
+    "@cloudflare/workers-types": "^4.20260214.0",
+    "@types/node": "^25.2.3",
     "tsx": "^4.21.0",
-    "wrangler": "^4.63.0"
+    "wrangler": "^4.65.0"
   }
 }
