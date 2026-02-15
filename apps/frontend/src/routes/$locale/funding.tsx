@@ -1,4 +1,4 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, notFound } from "@tanstack/react-router";
 import { ArticleLayout } from "@/components/markdown/layout";
 import { getContent } from "@/lib/cc-loader.functions";
 import { buildHreflangLinks } from "@/seo/hreflang";
@@ -12,10 +12,7 @@ export const Route = createFileRoute("/$locale/funding")({
     const content = getContent(locale, PAGE_KEY);
 
     if (!content) {
-      throw redirect({
-        to: "/$locale/404",
-        params: { locale },
-      });
+      throw notFound();
     }
 
     return {

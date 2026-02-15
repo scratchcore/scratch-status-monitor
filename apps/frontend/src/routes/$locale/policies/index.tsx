@@ -1,5 +1,5 @@
 import { RiExternalLinkFill } from "@remixicon/react";
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, notFound } from "@tanstack/react-router";
 import { LocalizedLink } from "@/components/LocalizedLink";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -20,10 +20,7 @@ export const Route = createFileRoute("/$locale/policies/")({
     const content = getAllPolicy(locale);
 
     if (!content) {
-      throw redirect({
-        to: "/$locale/404",
-        params: { locale },
-      });
+      throw notFound();
     }
 
     return {

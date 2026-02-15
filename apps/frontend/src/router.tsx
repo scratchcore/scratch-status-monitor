@@ -3,6 +3,7 @@ import { initHeadControllerConfigs } from "@scratchcore/tanstack-plugin-headcont
 import { createRouter } from "@tanstack/react-router";
 import { setupRouterSsrQueryIntegration } from "@tanstack/react-router-ssr-query";
 import * as TanstackQuery from "./integrations/tanstack-query/root-provider";
+import { NotFoundComponent } from "./routes/$locale/404";
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";
 
@@ -20,6 +21,7 @@ export const getRouter = () => {
     },
     scrollRestorationBehavior: "smooth",
     defaultPreload: "intent",
+    defaultNotFoundComponent: NotFoundComponent,
   });
 
   setupRouterSsrQueryIntegration({
