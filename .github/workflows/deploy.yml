@@ -25,6 +25,8 @@ env:
 
 jobs:
   build:
+    outputs:
+      skip: ${{ env.skip }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout your repository using git
@@ -54,6 +56,7 @@ jobs:
         # PUBLIC_POKEAPI: 'https://pokeapi.co/api/v2' # 変数の値にはシングルクォートを使用してください。（オプション）
 
   deploy:
+    if: needs.build.outputs.skip != 'true'
     needs: build
     runs-on: ubuntu-latest
     environment:
