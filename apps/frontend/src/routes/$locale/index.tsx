@@ -148,7 +148,7 @@ function App() {
       nextRefreshAt={nextRefreshAt}
       refreshIntervalMs={refreshIntervalMs}
     >
-      <div className="max-w-3xl mx-auto p-4 lg:py-8">
+      <div className="max-w-3xl p-4 lg:py-8 mx-auto">
         {/* エラーアラート */}
         {error && (
           <Callout variant="error" title="重要なお知らせ" className="my-5">

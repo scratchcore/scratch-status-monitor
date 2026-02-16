@@ -25,7 +25,7 @@ export function NotFoundComponent() {
   const { backHome, lostMessage, subtitle, title } = useIntlayer("not-found");
 
   return (
-    <div className="max-w-3xl mx-auto flex flex-col items-center justify-center px-4 text-center pt-20">
+    <div className="flex flex-col items-center justify-center text-center max-w-3xl px-4 pt-20 mx-auto">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute top-1/4 left-1/4 h-64 w-64 animate-pulse rounded-full bg-primary/30 blur-3xl" />
         <div className="absolute right-1/4 bottom-1/4 h-96 w-96 animate-pulse rounded-full bg-secondary/30 blur-3xl" />
