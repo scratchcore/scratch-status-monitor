@@ -3,7 +3,7 @@
   "root": false,
   "extends": "//",
   "files": {
-    "includes": ["**/*", "!**/src/routeTree.gen.ts", "!**/src/styles.css"]
+    "includes": ["**/*"]
   },
   "linter": {
     "rules": {
@@ -19,5 +19,22 @@
         "noSvgWithoutTitle": "warn"
       }
     }
-  }
+  },
+  "overrides": [
+    {
+      "includes": ["**/*.astro"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useConst": "off",
+            "useImportType": "off"
+          },
+          "correctness": {
+            "noUnusedVariables": "off",
+            "noUnusedImports": "off"
+          }
+        }
+      }
+    }
+  ]
 }

@@ -7,6 +7,10 @@
       "cwd": "."
     },
     {
+      "name": "Transparency > root",
+      "cwd": "./apps/transparency"
+    },
+    {
       "name": "Backend > root",
       "cwd": "./apps/backend"
     },

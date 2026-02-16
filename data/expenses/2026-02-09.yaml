@@ -1,0 +1,12 @@
+# yaml-language-server: $schema=../../apps/transparency/.astro/collections/expenses.schema.json
+payment_at: 2026-02-08T15:00:00.000Z
+from: "Cloudflare, Inc."
+standard: "JAPAN"
+tax_percent: 10.0
+items:
+  - name: "Remaining time on Workers Paid after 09 Feb 2026"
+    price: 3.93
+    quantity: 1
+    period:
+      start_at: 2026-02-08T15:00:00.000Z
+      end_at: 2026-03-01T15:00:00.000Z
