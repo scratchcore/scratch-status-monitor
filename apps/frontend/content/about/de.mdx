@@ -1,0 +1,121 @@
+---
+title: Übersicht
+summary: Ein Statusseitensystem, das die Verfügbarkeit der Scratch-Dienste in Echtzeit überwacht und sie für Nutzer klar darstellt
+updated_at: 2026-02-16
+---
+
+import {
+  RiTargetLine,
+  RiWirelessChargingLine,
+  RiToolsLine,
+  RiBarChartLine,
+  RiSpaceShip2Line,
+  RiShakeHandsLine,
+  RiGithubFill,
+} from "@remixicon/react";
+
+# Scratch Status Monitor (SSM)
+
+Der Scratch Status Monitor (SSM) ist ein Statusseitensystem, das den Betriebszustand verschiedener Funktionen von [Scratch](https://scratch.mit.edu) überwacht und diese Informationen klar und verständlich darstellt.
+
+<Callout variant="warning" title="Hinweis">
+  Dieses Projekt ist nicht mit [scratchstats.com](https://scratchstats.com)
+  verbunden.
+</Callout>
+
+## <RiTargetLine className="inline-block pb-1" size={30} /> Ziel
+
+Menschen, die Scratch regelmäßig nutzen, stoßen häufig auf Probleme wie:
+
+- Cloud-Variablen sind nicht verfügbar
+- Trends werden nicht aktualisiert
+- Projekte werden nicht geladen
+- Kommentare können nicht gepostet werden
+
+Wenn solche Probleme auftreten, ist die größte Herausforderung, **nicht zu wissen, wo die Ursache liegt**:
+
+- Liegt das Problem an meiner lokalen Umgebung?
+- Liegt das Problem an den Scratch-Servern?
+- Ist es eine vorübergehende Störung oder ein längerfristiges Problem?
+
+Um diese Unannehmlichkeiten zu verringern, **visualisiert SSM den Status der Scratch-Dienste in Echtzeit**.
+
+## <RiWirelessChargingLine className="inline-block pb-1" size={30} /> Hauptfunktionen
+
+### Echtzeit-Überwachung
+
+- Regelmäßige Überprüfung der Scratch-API-Endpunkte
+- Automatische Aktualisierung alle 5 Minuten
+- Verfolgung von Antwortzeiten und Fehlerraten
+
+### Aufzeichnung des Verfügbarkeitsverlaufs
+
+- Speichert den bisherigen Servicestatus als Zeitreihendaten
+- Ermöglicht die Analyse der Auswirkungen bei Störungen
+- Langfristige Trendübersicht durch Diagramme
+
+### Klare Statusanzeigen
+
+- **Betriebsbereit**: Alles funktioniert normal
+- **Beeinträchtigt**: In einigen Bereichen wurden kleinere Probleme erkannt
+- **Ausfall**: Es liegen schwerwiegende Serviceprobleme vor
+
+## <RiToolsLine className="inline-block pb-1" size={30} /> Tech-Stack
+
+### Frontend
+
+- **TanStack Router** - Dateibasierte Routing-Struktur
+- **React** - UI-Komponenten
+- **TanStack Query** - Verwaltung des Server-Status
+- **shadcn/ui** - UI-Komponentenbibliothek
+- **Tailwind CSS** - Styling
+
+### Backend
+
+- **Hono** - Leichtgewichtiges Web-Framework
+- **oRPC** - Typsichere RPC-Kommunikation
+- **Cloudflare Workers** - Edge-Computing
+- **Supabase** - Datenbank
+
+### Infrastruktur
+
+- **Cloudflare CDN** - Globale Inhaltsauslieferung
+- **Cloudflare Cron Triggers** - Geplante Überwachungsaufgaben
+- **GitHub Actions** - CI/CD
+
+## <RiBarChartLine className="inline-block pb-1" size={30} /> Überwachte Dienste
+
+Derzeit werden folgende Scratch-Dienste überwacht:
+
+- Projekt-API
+- Cloud-Variablen-Server
+- Trends-API
+- Nutzerprofil-API
+- Kommentarsystem
+- Weitere kritische Endpunkte
+
+## <RiSpaceShip2Line className="inline-block pb-1" size={30} /> Roadmap
+
+- Detailliertere Fehlerkategorisierung
+- Erweiterte Mehrsprachigkeitsunterstützung
+- Benachrichtigungen bei Vorfällen (Discord, E-Mail usw.)
+- Zusätzliche Leistungsmetriken
+- Benutzerdefinierte Überwachungseinstellungen
+
+## <RiShakeHandsLine className="inline-block pb-1" size={30} /> Mitwirken
+
+Dieses Projekt ist Open Source. Fehlerberichte, Funktionsvorschläge und Pull Requests sind willkommen.
+
+<div className="flex flex-wrap gap-3 my-4 not-typography">
+
+<a
+  className="inline-flex items-center gap-2 rounded-md border border-input h-9 px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+  href="/s/gh/repo"
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  <RiGithubFill size={16} />
+  <span>GitHub-Repository</span>
+</a>
+
+</div>

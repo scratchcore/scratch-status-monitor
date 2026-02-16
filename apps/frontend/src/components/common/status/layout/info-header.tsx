@@ -7,8 +7,8 @@ import { useStatusPageCountdownContext, useStatusPageDataContext } from "./conte
 export function InfoHeader() {
   const s = useStatusPageDataContext();
   const c = useStatusPageCountdownContext();
-  const t = useIntlayer("status");
   const { locale } = useLocale();
+  const t = useIntlayer("status");
 
   // 最新の履歴レコードからタイムスタンプを取得
   const latestTimestamp = s.histories[0]?.newestRecord || new Date().toISOString();
@@ -34,7 +34,8 @@ export function InfoHeader() {
       {c.formattedRemaining ? (
         <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
           {t.header.nextUpdate}: {c.formattedRemaining}
-          {s.refreshHint ? `（${s.refreshHint}）` : ""}
+          {" - "}
+          {t.header.refreshHint({ time: s.refreshHint })}
         </p>
       ) : null}
     </div>

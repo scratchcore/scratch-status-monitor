@@ -15,6 +15,7 @@ import { Route as LocaleIndexRouteImport } from './routes/$locale/index'
 import { Route as SSplatRouteImport } from './routes/s/$'
 import { Route as LocaleTeamRouteImport } from './routes/$locale/team'
 import { Route as LocaleFundingRouteImport } from './routes/$locale/funding'
+import { Route as LocaleFeedbackRouteImport } from './routes/$locale/feedback'
 import { Route as LocaleAboutRouteImport } from './routes/$locale/about'
 import { Route as Locale404RouteImport } from './routes/$locale/404'
 import { Route as LocaleSplatRouteImport } from './routes/$locale/$'
@@ -51,6 +52,11 @@ const LocaleFundingRoute = LocaleFundingRouteImport.update({
   path: '/funding',
   getParentRoute: () => LocaleRouteRoute,
 } as any)
+const LocaleFeedbackRoute = LocaleFeedbackRouteImport.update({
+  id: '/feedback',
+  path: '/feedback',
+  getParentRoute: () => LocaleRouteRoute,
+} as any)
 const LocaleAboutRoute = LocaleAboutRouteImport.update({
   id: '/about',
   path: '/about',
@@ -83,6 +89,7 @@ export interface FileRoutesByFullPath {
   '/$locale/$': typeof LocaleSplatRoute
   '/$locale/404': typeof Locale404Route
   '/$locale/about': typeof LocaleAboutRoute
+  '/$locale/feedback': typeof LocaleFeedbackRoute
   '/$locale/funding': typeof LocaleFundingRoute
   '/$locale/team': typeof LocaleTeamRoute
   '/s/$': typeof SSplatRoute
@@ -95,6 +102,7 @@ export interface FileRoutesByTo {
   '/$locale/$': typeof LocaleSplatRoute
   '/$locale/404': typeof Locale404Route
   '/$locale/about': typeof LocaleAboutRoute
+  '/$locale/feedback': typeof LocaleFeedbackRoute
   '/$locale/funding': typeof LocaleFundingRoute
   '/$locale/team': typeof LocaleTeamRoute
   '/s/$': typeof SSplatRoute
@@ -109,6 +117,7 @@ export interface FileRoutesById {
   '/$locale/$': typeof LocaleSplatRoute
   '/$locale/404': typeof Locale404Route
   '/$locale/about': typeof LocaleAboutRoute
+  '/$locale/feedback': typeof LocaleFeedbackRoute
   '/$locale/funding': typeof LocaleFundingRoute
   '/$locale/team': typeof LocaleTeamRoute
   '/s/$': typeof SSplatRoute
@@ -124,6 +133,7 @@ export interface FileRouteTypes {
     | '/$locale/$'
     | '/$locale/404'
     | '/$locale/about'
+    | '/$locale/feedback'
     | '/$locale/funding'
     | '/$locale/team'
     | '/s/$'
@@ -136,6 +146,7 @@ export interface FileRouteTypes {
     | '/$locale/$'
     | '/$locale/404'
     | '/$locale/about'
+    | '/$locale/feedback'
     | '/$locale/funding'
     | '/$locale/team'
     | '/s/$'
@@ -149,6 +160,7 @@ export interface FileRouteTypes {
     | '/$locale/$'
     | '/$locale/404'
     | '/$locale/about'
+    | '/$locale/feedback'
     | '/$locale/funding'
     | '/$locale/team'
     | '/s/$'
@@ -207,6 +219,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LocaleFundingRouteImport
       parentRoute: typeof LocaleRouteRoute
     }
+    '/$locale/feedback': {
+      id: '/$locale/feedback'
+      path: '/feedback'
+      fullPath: '/$locale/feedback'
+      preLoaderRoute: typeof LocaleFeedbackRouteImport
+      parentRoute: typeof LocaleRouteRoute
+    }
     '/$locale/about': {
       id: '/$locale/about'
       path: '/about'
@@ -249,6 +268,7 @@ interface LocaleRouteRouteChildren {
   LocaleSplatRoute: typeof LocaleSplatRoute
   Locale404Route: typeof Locale404Route
   LocaleAboutRoute: typeof LocaleAboutRoute
+  LocaleFeedbackRoute: typeof LocaleFeedbackRoute
   LocaleFundingRoute: typeof LocaleFundingRoute
   LocaleTeamRoute: typeof LocaleTeamRoute
   LocaleIndexRoute: typeof LocaleIndexRoute
@@ -260,6 +280,7 @@ const LocaleRouteRouteChildren: LocaleRouteRouteChildren = {
   LocaleSplatRoute: LocaleSplatRoute,
   Locale404Route: Locale404Route,
   LocaleAboutRoute: LocaleAboutRoute,
+  LocaleFeedbackRoute: LocaleFeedbackRoute,
   LocaleFundingRoute: LocaleFundingRoute,
   LocaleTeamRoute: LocaleTeamRoute,
   LocaleIndexRoute: LocaleIndexRoute,
