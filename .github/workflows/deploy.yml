@@ -14,6 +14,9 @@ permissions:
   pages: write
   id-token: write
 
+env:
+  BUILD_PATH: "./apps/transparency"
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -22,6 +25,8 @@ jobs:
         uses: actions/checkout@v5
       - name: Install, build, and upload your site
         uses: withastro/action@v5
+        with:
+          working-directory: ${{ env.BUILD_PATH }}
         # with:
           # path: . # リポジトリ内のAstroプロジェクトのルート位置です。（オプション）
           # node-version: 24 # サイトのビルドに使用するNodeのバージョンです。デフォルトは22です。（オプション）
