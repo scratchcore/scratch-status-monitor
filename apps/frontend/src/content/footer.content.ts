@@ -66,6 +66,12 @@ const footerContent = {
         de: "Finanzierung",
         fr: "Financement",
       }),
+      transparency: t({
+        ja: "透明性",
+        en: "Transparency",
+        de: "Transparenz",
+        fr: "Transparence",
+      }),
       issues: t({
         ja: "問題",
         en: "Issues",

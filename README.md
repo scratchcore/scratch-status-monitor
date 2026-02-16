@@ -11,6 +11,7 @@ https://ssm.scra.cc
 - About: https://ssm.scra.cc/about
 - Policies: https://ssm.scra.cc/policies
 - Support: https://ssm.scra.cc/funding
+- Transparency: https://transparency.ssm.scra.cc
 
 ## Repository Purpose
 
