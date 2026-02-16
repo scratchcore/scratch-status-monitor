@@ -9,6 +9,10 @@ export const shortUrls: ssmrcType.shortUrl[] = [
     url: "https://docs.google.com/forms/d/e/1FAIpQLSexvsgzQ6FDh-402RtAFybh1rFwJerG1AOMcjk_DLIVxeTS4w/viewform",
   },
   {
+    key: "transparency",
+    url: "https://transparency.ssm.scra.cc",
+  },
+  {
     key: "funding",
     url: "/funding/bmc",
   },
