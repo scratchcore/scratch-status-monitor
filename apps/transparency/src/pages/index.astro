@@ -1,0 +1,113 @@
+---
+import { getCollection } from "astro:content";
+
+const expenses = (await getCollection("expenses")).sort(
+  (a, b) => b.data.payment_at.valueOf() - a.data.payment_at.valueOf()
+);
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" href="/favicon.ico" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>Transparency | Scratch Status Monitor</title>
+	</head>
+	<body class="font-mono">
+		<main class="max-w-xl mx-auto px-3 pt-10">
+			<h1 class="text-3xl font-extrabold">
+				Transparency
+				<br />
+				<span class="opacity-60">by</span>
+				<br />
+				Scratch Status Monitor
+			</h1>
+			<div class="flex flex-col gap-5 mt-10">
+				<section>
+					<div>
+						<h2 class="text-xl font-bold">Expenses</h2>
+					</div>
+					<ul
+						class="flex flex-col gap-4 max-w-lg mx-auto mt-5 *:p-3 *:border *:border-dashed"
+					>
+						{
+							expenses.map((expense) => {
+								// 税額
+								const taxAmount =
+									(expense.data.items.reduce(
+										(sum, item) => sum + item.price,
+										0,
+									) *
+										expense.data.tax_percent) /
+									100;
+								// 税抜き
+								const totalExcludingTax = expense.data.items.reduce(
+									(sum, item) => sum + item.price,
+									0,
+								);
+								// 税込
+								const totalDue = totalExcludingTax + taxAmount;
+								return (
+									<li id={`expenses-card-${expense.id}`} class="text-sm bg-background shadow">
+										<div class="flex flex-col gap-1.5 *:flex *:justify-between *:gap-2">
+											<time
+												class="text-base font-semibold"
+												datetime={expense.data.payment_at.toISOString()}
+											>
+												{expense.data.payment_at.toDateString()}
+											</time>
+											<div>
+												<span class="opacity-60">From</span>
+												<span>{expense.data.from}</span>
+											</div>
+										</div>
+										<h4 class="font-semibold uppercase opacity-60 mt-5">
+											Items
+										</h4>
+										<hr class="mt-1" />
+										<div class="flex flex-col gap-1.5 mt-3">
+											{expense.data.items.map((item) => (
+												<div class="flex justify-between gap-2">
+													<span class="font-normal">{item.name}</span>
+													<span>
+														{/** 小数点第２章まで表示 */}
+														{"$" + item.price.toFixed(2)}
+													</span>
+												</div>
+											))}
+										</div>
+										<hr class="mt-3" />
+										<div class="flex justify-between gap-2 mt-3">
+											<span>Subtotal</span>
+											<span>{"$" + totalExcludingTax.toFixed(2)}</span>
+										</div>
+										<hr class="mt-3" />
+										<div class="flex flex-col gap-1.5 mt-2 *:flex *:justify-between *:gap-2">
+											<div>
+												<span>Total excluding tax</span>
+												<span>{"$" + totalExcludingTax.toFixed(2)}</span>
+											</div>
+											<div>
+												<span class="opacity-60">
+													Tax - {expense.data.standard} {`(${expense.data.tax_percent}%)`}
+												</span>
+												<span>{"$" + taxAmount.toFixed(2)}</span>
+											</div>
+										</div>
+										<hr class="mt-3" />
+										<div class="flex justify-between gap-2 mt-3">
+											<span>Total due</span>
+											<span>{"$" + totalDue.toFixed(2)}</span>
+										</div>
+									</li>
+								);
+							})
+						}
+					</ul>
+				</section>
+			</div>
+		</main>
+	</body>
+</html>
