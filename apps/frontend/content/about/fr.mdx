@@ -1,0 +1,120 @@
+---
+title: Aperçu
+summary: Un système de page de statut qui surveille la disponibilité des services Scratch en temps réel et la communique clairement aux utilisateurs
+updated_at: 2026-02-16
+---
+
+import {
+  RiTargetLine,
+  RiWirelessChargingLine,
+  RiToolsLine,
+  RiBarChartLine,
+  RiSpaceShip2Line,
+  RiShakeHandsLine,
+  RiGithubFill,
+} from "@remixicon/react";
+
+# Scratch Status Monitor (SSM)
+
+Le Scratch Status Monitor (SSM) est un système de page de statut conçu pour surveiller l'état opérationnel des diverses fonctionnalités de [Scratch](https://scratch.mit.edu) et présenter ces informations aux utilisateurs de manière claire et compréhensible.
+
+<Callout variant="warning" title="Remarque">
+  Ce projet n'est pas affilié à [scratchstats.com](https://scratchstats.com).
+</Callout>
+
+## <RiTargetLine className="inline-block pb-1" size={30} /> Objectif
+
+Les personnes qui utilisent Scratch régulièrement rencontrent souvent des problèmes tels que :
+
+- Les variables cloud ne sont pas disponibles
+- Les tendances ne sont pas mises à jour
+- Les projets ne se chargent pas
+- Les commentaires ne peuvent pas être publiés
+
+Lorsque ces problèmes surviennent, le plus grand défi est de **ne pas savoir où se situe la cause** :
+
+- Y a-t-il un problème avec mon environnement local ?
+- Y a-t-il un problème avec les serveurs Scratch ?
+- S'agit-il d'une panne temporaire ou d'un problème à long terme ?
+
+Pour résoudre ces désagréments, SSM **visualise l'état des services Scratch en temps réel**.
+
+## <RiWirelessChargingLine className="inline-block pb-1" size={30} /> Fonctionnalités principales
+
+### Surveillance en temps réel
+
+- Vérification périodique des points de terminaison de l'API Scratch
+- Actualisation automatique toutes les 5 minutes
+- Suivi du temps de réponse et du taux d'erreur
+
+### Enregistrement de l'historique de disponibilité
+
+- Stocke l'état passé du service sous forme de données chronologiques
+- Permet l'analyse d'impact lors d'incidents
+- Visibilité des tendances à long terme via des graphiques
+
+### Indicateurs de statut clairs
+
+- **Opérationnel** : Tout fonctionne normalement
+- **Dégradé** : Problèmes mineurs détectés dans certaines zones
+- **Arrêt** : Des problèmes de service majeurs se produisent
+
+## <RiToolsLine className="inline-block pb-1" size={30} /> Stack technique
+
+### Frontend
+
+- **TanStack Router** - Routage basé sur les fichiers
+- **React** - Composants d'interface utilisateur
+- **TanStack Query** - Gestion de l'état du serveur
+- **shadcn/ui** - Bibliothèque de composants UI
+- **Tailwind CSS** - Stylisation
+
+### Backend
+
+- **Hono** - Framework web léger
+- **oRPC** - Communication RPC typée
+- **Cloudflare Workers** - Edge computing
+- **Supabase** - Base de données
+
+### Infrastructure
+
+- **Cloudflare CDN** - Distribution de contenu globale
+- **Cloudflare Cron Triggers** - Tâches de surveillance planifiées
+- **GitHub Actions** - CI/CD
+
+## <RiBarChartLine className="inline-block pb-1" size={30} /> Services surveillés
+
+Actuellement, les services Scratch suivants sont surveillés :
+
+- API de projet
+- Serveur de variables cloud
+- API de tendances
+- API de profil utilisateur
+- Système de commentaires
+- Autres points de terminaison critiques
+
+## <RiSpaceShip2Line className="inline-block pb-1" size={30} /> Feuille de route
+
+- Catégorisation plus détaillée des erreurs
+- Support multilingue étendu
+- Notifications d'alerte (Discord, e-mail, etc.)
+- Métriques de performance supplémentaires
+- Paramètres de surveillance personnalisés
+
+## <RiShakeHandsLine className="inline-block pb-1" size={30} /> Contribution
+
+Ce projet est open source. Les rapports de bugs, les suggestions de fonctionnalités et les pull requests sont les bienvenus.
+
+<div className="flex flex-wrap gap-3 my-4 not-typography">
+
+<a
+  className="inline-flex items-center gap-2 rounded-md border border-input h-9 px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+  href="/s/gh/repo"
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  <RiGithubFill size={16} />
+  <span>Dépôt GitHub</span>
+</a>
+
+</div>

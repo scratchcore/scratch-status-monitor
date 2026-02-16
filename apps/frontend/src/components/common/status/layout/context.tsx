@@ -36,7 +36,7 @@ export function useStatusPageCountdownContext() {
 export interface StatusPageDataContextType {
   histories: HistoryResponse[];
   refreshIntervalMs?: number;
-  refreshHint: string | null;
+  refreshHint: number | null;
   overallStatus: StatusLevel;
   overallTooltip: keyof typeof colorMapping;
   colorSlug: string;
@@ -114,7 +114,7 @@ export function StatusPageProvider({ children, ...props }: StatusPageProviderPro
       return null;
     }
     const minutes = Math.round(refreshIntervalMs / 60000);
-    return `${minutes}分ごとに自動更新`;
+    return minutes;
   }, [refreshIntervalMs]);
 
   // 履歴から全体的なステータスを計算

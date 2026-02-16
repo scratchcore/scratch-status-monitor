@@ -1,5 +1,4 @@
 import {
-  RiCopyrightLine,
   RiCreativeCommonsByLine,
   RiCreativeCommonsNcLine,
   RiExternalLinkLine,
@@ -31,6 +30,10 @@ export function Footer() {
         { name: t.links.about, to: "/about" },
         { name: t.links.usage, to: "/usage" },
         { name: t.links.howItWorks, to: "/how-it-works" },
+        {
+          name: t.links.feedback,
+          to: "/feedback",
+        },
         {
           name: "FAQ",
           href: "/s/gh/faq",
@@ -130,8 +133,7 @@ export function Footer() {
           <div className="flex flex-wrap items-start justify-between gap-8 md:px-4 lg:px-8">
             <div className="flex flex-col gap-3 lg:gap-4">
               <div className="text-sm font-medium text-muted-foreground/80">
-                <RiCopyrightLine className="inline-flex pb-1" size={18} />
-                <time>2024-2026</time> ScratchCore. All rights reserved.
+                Copyright © <time>2024-2026</time> ScratchCore. All rights reserved.
               </div>
               <div className="flex flex-wrap items-center gap-4"></div>
             </div>

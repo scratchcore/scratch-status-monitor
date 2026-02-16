@@ -30,6 +30,10 @@ export const shortUrls: ssmrcType.shortUrl[] = [
     url: `https://github.com/${ORG_NAME}/${REPO_SLUG}/issues`,
   },
   {
+    key: "gh/issues.nc",
+    url: `https://github.com/${ORG_NAME}/${REPO_SLUG}/issues/new/choose`,
+  },
+  {
     key: "gh/discussions",
     url: `https://github.com/${ORG_NAME}/${REPO_SLUG}/discussions`,
   },

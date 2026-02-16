@@ -52,12 +52,12 @@ export const LocaleSwitcher: FC = () => {
       value={languages.find((l) => l.value === locale)}
       onValueChange={(e) => (e ? handleLocaleChange(e?.value) : void 0)}
     >
-      <ComboboxInput className="w-fit max-w-30" placeholder="Select a language">
+      <ComboboxInput className="w-fit max-w-40" placeholder="Select a language">
         <InputGroupAddon>
           <RiTranslate2 />
         </InputGroupAddon>
       </ComboboxInput>
-      <ComboboxContent className="w-30">
+      <ComboboxContent className="w-40">
         <ComboboxEmpty>No items found.</ComboboxEmpty>
         <ComboboxList>
           {(item) => (
