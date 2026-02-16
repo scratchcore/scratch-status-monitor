@@ -11,7 +11,7 @@ export interface ArticleLayoutProps {
 }
 export function ArticleLayout(props: ArticleLayoutProps) {
   return (
-    <div className="mx-auto max-w-3xl p-4 lg:py-8">
+    <div className="max-w-3xl p-4 lg:py-8 mx-auto">
       <HeaderNotice isDefault={props.isDefault} locale={props.locale} />
       <UpdatedAtContent updated_at={props.updated_at} locale={props.locale} />
       <article className="typography w-full max-w-full!">
