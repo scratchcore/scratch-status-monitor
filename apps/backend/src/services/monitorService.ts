@@ -15,6 +15,7 @@ export async function checkAllMonitors(): Promise<StatusResponseType> {
   const monitorsToCheck = ssmrc.monitors.map((item) => ({
     id: item.id,
     url: item.url,
+    check: item.check,
   }));
 
   // 並行してチェック実行

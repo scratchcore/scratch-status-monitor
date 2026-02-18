@@ -24,7 +24,7 @@ export async function getMonitorHistoryHandler(input: {
   const validated = z
     .object({
       monitorId: UUIDSchema,
-      limit: z.number().int().min(1).max(500).default(100).optional(),
+      limit: z.number().int().min(1).max(1000).default(100).optional(),
       offset: z.number().int().min(0).default(0).optional(),
     })
     .parse(input);
@@ -96,7 +96,7 @@ export async function getAllMonitorsHistoryHandler(input: {
   // 入力バリデーション
   const validated = z
     .object({
-      limit: z.number().int().min(1).max(500).default(100).optional(),
+      limit: z.number().int().min(1).max(1000).default(100).optional(),
       offset: z.number().int().min(0).default(0).optional(),
     })
     .parse(input);

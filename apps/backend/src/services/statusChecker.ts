@@ -1,4 +1,9 @@
-import { StatusCheckResult, type StatusLevel as StatusLevelType } from "@scratchcore/ssm-types";
+import {
+  StatusCheckResult,
+  type StatusLevel as StatusLevelType,
+  type ssmrcSchema,
+} from "@scratchcore/ssm-types";
+import type z from "zod";
 import { BACKEND_DEFAULTS } from "../config/defaults";
 
 interface CheckOptions {
@@ -24,12 +29,43 @@ function determineStatusFromCode(statusCode: number): StatusLevelType {
   return "down";
 }
 
+// レスポンス Body の length をチェックする場合の実装例
+async function checkLength(
+  res: Response,
+  opts: { min?: number | undefined; max?: number | undefined } = {
+    min: 0,
+  }
+): Promise<{
+  status: StatusLevelType;
+  message?: string;
+}> {
+  try {
+    const text = await res.text();
+    console.log(`Response body length: ${text.length}`);
+    const length = text.length;
+    console.log(`Checking length: ${length} (min: ${opts.min}, max: ${opts.max})`);
+    if (opts.max !== undefined && length > opts.max) {
+      return { status: "down", message: `Response body too long: ${length} > ${opts.max}` };
+    }
+    if (opts.min !== undefined && length < opts.min) {
+      return { status: "degraded", message: `Response body too short: ${length} < ${opts.min}` };
+    }
+    return { status: "up" };
+  } catch (error) {
+    return {
+      status: "down",
+      message: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
+
 /**
  * 単一のエンドポイントをチェック
  */
 export async function checkMonitorStatus(
   id: string,
   url: string,
+  check: z.infer<typeof ssmrcSchema.e.monitors.e.e.check> | undefined,
   options: CheckOptions = {}
 ): Promise<StatusCheckResult> {
   const timeout = options.timeout || BACKEND_DEFAULTS.TIMEOUT_MS;
@@ -39,21 +75,37 @@ export async function checkMonitorStatus(
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeout);
 
-    const response = await fetch(url, {
-      method: "HEAD",
-      signal: controller.signal,
-    });
+    const runFetch = async (opts: RequestInit) => {
+      const res = await fetch(url, {
+        signal: controller.signal,
+        ...opts,
+      });
+      clearTimeout(timeoutId);
+      const time = Date.now() - startTime;
+      return { res, time };
+    };
 
-    clearTimeout(timeoutId);
+    let result: { res: Response; time: number };
+    let status: StatusLevelType;
 
-    const responseTime = Date.now() - startTime;
-    const status = determineStatusFromCode(response.status);
+    switch (check?.type) {
+      case "length": {
+        result = await runFetch({ method: "GET" });
+        status = (await checkLength(result.res, check?.expect)).status;
+        break;
+      }
+      default: {
+        result = await runFetch({ method: "HEAD" });
+        status = determineStatusFromCode(result.res.status);
+        break;
+      }
+    }
 
     return StatusCheckResult.parse({
       id,
       status,
-      statusCode: response.status,
-      responseTime,
+      statusCode: result.res.status,
+      responseTime: result.time,
       checkedAt: new Date(),
     });
   } catch (error) {
@@ -85,10 +137,16 @@ export async function checkMonitorStatus(
  * 複数のエンドポイントを並行チェック
  */
 export async function checkMultipleMonitors(
-  monitors: Array<{ id: string; url: string }>,
+  monitors: Array<{
+    id: string;
+    url: string;
+    check?: z.infer<typeof ssmrcSchema.e.monitors.e.e.check>;
+  }>,
   options: CheckOptions = {}
 ): Promise<StatusCheckResult[]> {
-  const promises = monitors.map((monitor) => checkMonitorStatus(monitor.id, monitor.url, options));
+  const promises = monitors.map((monitor) =>
+    checkMonitorStatus(monitor.id, monitor.url, monitor.check, options)
+  );
 
   return Promise.all(promises);
 }

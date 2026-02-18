@@ -1,5 +1,5 @@
-import { ssmrc, type ssmrcType } from "@scratchcore/ssm-configs";
-import type { StatusCheckResult as StatusCheckResultType } from "@scratchcore/ssm-types";
+import { ssmrc } from "@scratchcore/ssm-configs";
+import type { StatusCheckResult as StatusCheckResultType, ssmrcType } from "@scratchcore/ssm-types";
 import {
   CategoryStatus,
   MonitorStatus,
@@ -29,7 +29,7 @@ function aggregateStatus(statuses: StatusLevelType[]): StatusLevelType {
  * モニター構成とチェック結果からモニターステータスを構築
  */
 export function buildMonitorStatus(
-  config: ssmrcType.monitor,
+  config: ssmrcType.e.monitor[number],
   checkResult: StatusCheckResultType
 ): MonitorStatusType {
   return MonitorStatus.parse({
@@ -49,7 +49,7 @@ export function buildMonitorStatus(
  * カテゴリー別の集計を計算
  */
 export function calculateCategoryStatus(
-  category: ssmrcType.category,
+  category: ssmrcType.e.category[number],
   monitors: MonitorStatusType[]
 ): CategoryStatus {
   const categoryMonitors = monitors.filter((m) => m.category === category.id);

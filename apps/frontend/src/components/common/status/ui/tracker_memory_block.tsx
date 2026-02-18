@@ -1,8 +1,10 @@
 import * as HoverCardPrimitives from "@radix-ui/react-hover-card";
 import { RiCheckboxCircleFill, RiErrorWarningFill, RiSettings5Fill } from "@remixicon/react";
 import { useState } from "react";
+import { useLocale } from "react-intlayer";
 import { Separator } from "@/components/ui/separator";
 import type { TrackerBlockProps } from "@/components/ui/tracker";
+import { getFullDateTimeFormatter } from "@/lib/i18n/formatters";
 import { cx } from "@/lib/utils";
 
 export interface MemoryBlockProps extends TrackerBlockProps {
@@ -17,6 +19,7 @@ export const TrackerMemoryBlock = ({
   defaultBackgroundColor,
 }: MemoryBlockProps) => {
   const [open, setOpen] = useState(false);
+  const { locale } = useLocale();
   return (
     <HoverCardPrimitives.Root open={open} onOpenChange={setOpen} openDelay={0} closeDelay={0}>
       <HoverCardPrimitives.Trigger onClick={() => setOpen(true)} asChild>
@@ -63,7 +66,9 @@ export const TrackerMemoryBlock = ({
             {tooltip}
           </p>
           <Separator />
-          <p className="px-3 py-2 text-xs text-gray-500 dark:text-gray-500">{date}</p>
+          <p className="px-3 py-2 text-xs text-gray-500 dark:text-gray-500">
+            {getFullDateTimeFormatter(locale).format(new Date(date))}
+          </p>
         </HoverCardPrimitives.Content>
       </HoverCardPrimitives.Portal>
     </HoverCardPrimitives.Root>

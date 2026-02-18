@@ -1,3 +1,4 @@
+import type { Locale } from "intlayer";
 import * as React from "react";
 import type * as RechartsPrimitive from "recharts";
 import { formatNumber } from "@/lib/i18n/formatters";
@@ -27,7 +28,7 @@ interface CustomChartTooltipContentProps
   hideName?: boolean;
   indicator?: "line" | "dot" | "dashed";
   nameKey?: string;
-  locale?: "ja" | "en";
+  locale?: Locale;
   /**
    * 値のカスタムフォーマッター
    * @param value - 元の値

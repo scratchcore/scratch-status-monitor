@@ -17,20 +17,32 @@ type __ssmrcType = z.infer<typeof __ssmrcSchema>;
 export const _ssmrcSchema = {
   i: __ssmrcSchema,
   e: {
-    category: __ssmrcSchema.pick({ category: true }).shape.category,
-    monitors: __ssmrcSchema.pick({ monitors: true }).shape.monitors,
-    checks: __ssmrcSchema.pick({ checks: true }).shape.checks,
-    cache: __ssmrcSchema.pick({ cache: true }).shape.cache,
-    shortUrls: __ssmrcSchema.pick({ shortUrls: true }).shape.shortUrls,
+    category: {
+      i: __ssmrcSchema.pick({ category: true }).shape.category,
+      e: _categorySchema,
+    },
+    monitors: {
+      i: __ssmrcSchema.pick({ monitors: true }).shape.monitors,
+      e: _monitorsSchema,
+    },
+    checks: {
+      i: __ssmrcSchema.pick({ checks: true }).shape.checks,
+      e: _checksSchema,
+    },
+    cache: {
+      i: __ssmrcSchema.pick({ cache: true }).shape.cache,
+      e: _cacheSchema,
+    },
+    shortUrls: { i: __ssmrcSchema.pick({ shortUrls: true }).shape.shortUrls, e: _shortUrlSchema },
   },
 };
 export namespace _ssmrcType {
   export type i = __ssmrcType;
   export namespace e {
-    export type category = z.infer<typeof _categorySchema.i>;
-    export type monitor = z.infer<typeof _monitorsSchema.i>;
-    export type checks = z.infer<typeof _checksSchema.i>;
-    export type cache = z.infer<typeof _cacheSchema.i>;
-    export type shortUrl = z.infer<typeof _shortUrlSchema.i>;
+    export type category = z.infer<typeof _ssmrcSchema.e.category.i>;
+    export type monitor = z.infer<typeof _ssmrcSchema.e.monitors.i>;
+    export type checks = z.infer<typeof _ssmrcSchema.e.checks.i>;
+    export type cache = z.infer<typeof _ssmrcSchema.e.cache.i>;
+    export type shortUrl = z.infer<typeof _ssmrcSchema.e.shortUrls.i>;
   }
 }
