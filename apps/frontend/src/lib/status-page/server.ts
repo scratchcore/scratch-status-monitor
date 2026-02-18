@@ -128,7 +128,7 @@ export const fetchHistories = async (params?: {
  * すべての履歴データを取得（hasMore が false になるまで繰り返し取得）
  */
 export const fetchAllHistories = async (): Promise<StatusPageLoaderData> => {
-  const PAGE_SIZE = 100;
+  const PAGE_SIZE = 1000;
   let offset = 0;
   const historiesMap = new Map<string, StatusPageLoaderData["histories"][number]>();
   let hasMore = true;
