@@ -1,9 +1,9 @@
-import type { ssmrcType } from "./types";
+import type { ssmrcType } from "@scratchcore/ssm-types";
 
 const ORG_NAME = "scratchcore";
 const REPO_SLUG = "scratch-status-monitor";
 
-export const shortUrls: ssmrcType.shortUrl[] = [
+export const shortUrls: ssmrcType.e.shortUrl[] = [
   {
     key: "contact",
     url: "https://docs.google.com/forms/d/e/1FAIpQLSexvsgzQ6FDh-402RtAFybh1rFwJerG1AOMcjk_DLIVxeTS4w/viewform",
