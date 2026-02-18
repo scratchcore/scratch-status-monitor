@@ -45,6 +45,7 @@ function floorToInterval(date: Date, intervalMs: number): Date {
 export interface HistoryService {
   saveRecord(monitorId: string, result: StatusCheckResultType): Promise<void>;
   getRecords(monitorId: string, limit?: number, offset?: number): Promise<HistoryRecord[]>;
+  getTotalCount(monitorId: string): Promise<number>;
   deleteRecords(monitorId: string): Promise<void>;
   cleanup(retentionDays: number): Promise<void>;
   restoreFromBackup(): Promise<void>; // Supabase では no-op
@@ -106,6 +107,11 @@ class InMemoryHistoryService implements HistoryService {
         bucketedAt,
       });
     });
+  }
+
+  async getTotalCount(monitorId: string): Promise<number> {
+    const data = this.histories.get(monitorId);
+    return data ? data.records.length : 0;
   }
 
   async deleteRecords(monitorId: string): Promise<void> {
@@ -198,6 +204,22 @@ class SupabaseHistoryService implements HistoryService {
         bucketedAt: new Date(record.bucketed_at),
       })
     );
+  }
+
+  async getTotalCount(monitorId: string): Promise<number> {
+    const { count, error } = await this.client
+      .from(HISTORY_TABLE)
+      .select("*", { count: "exact", head: true })
+      .eq("monitor_id", monitorId);
+
+    if (error) {
+      logger.error("Failed to fetch count", {
+        error: error instanceof Error ? error.message : String(error),
+      });
+      return 0;
+    }
+
+    return count ?? 0;
   }
 
   async deleteRecords(monitorId: string): Promise<void> {
