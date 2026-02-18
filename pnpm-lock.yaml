@@ -350,6 +350,9 @@ importers:
       '@biomejs/biome':
         specifier: 2.3.14
         version: 2.3.14
+      '@scratchcore/ssm-types':
+        specifier: workspace:*
+        version: link:../types
       '@types/node':
         specifier: ^22.19.11
         version: 22.19.11

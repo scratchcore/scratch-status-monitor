@@ -1,6 +1,6 @@
-import type { ssmrcType } from "./types";
+import type { ssmrcType } from "@scratchcore/ssm-types";
 
-export const monitors: ssmrcType.monitor[] = [
+export const monitors: ssmrcType.e.monitor[] = [
   {
     id: "c79c0e1e-8292-45ee-8dba-58e672d32184",
     label: "Website",
@@ -30,12 +30,24 @@ export const monitors: ssmrcType.monitor[] = [
     label: "Explore API",
     category: "api",
     url: "https://api.scratch.mit.edu/explore/projects?limit=1&offset=0&language=en&mode=trending&q=*",
+    check: {
+      type: "length",
+      expect: {
+        min: 1,
+      },
+    },
   },
   {
     id: "02c50c46-12fa-4e97-8ac2-cbdc6d0752e9",
     label: "Search API",
     category: "api",
     url: "https://api.scratch.mit.edu/search/projects?limit=1&offset=0&language=en&mode=popular&q=cat",
+    check: {
+      type: "length",
+      expect: {
+        min: 1,
+      },
+    },
   },
   {
     id: "1a394936-53de-4a24-b221-058361c0a8ab",

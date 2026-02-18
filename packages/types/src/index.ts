@@ -19,7 +19,6 @@ export {
   SuccessResponse,
   type SuccessResponse as SuccessResponseType,
 } from "./error.js";
-
 // History関連
 export {
   HistoryRecord,
@@ -35,6 +34,8 @@ export {
 export type { Monitor, MonitorConfig } from "./monitor.js";
 // Serialization helpers
 export type { Serialized, SerializedInfer } from "./serialized.js";
+// Config関連
+export { _ssmrcSchema as ssmrcSchema, type _ssmrcType as ssmrcType } from "./ssmrc/index.js";
 // Status関連
 export {
   CategoryStatus,

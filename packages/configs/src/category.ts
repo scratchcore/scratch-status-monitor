@@ -1,6 +1,6 @@
-import type { ssmrcType } from "./types";
+import type { ssmrcType } from "@scratchcore/ssm-types";
 
-export const category: ssmrcType.category[] = [
+export const category: ssmrcType.e.category[] = [
   {
     id: "main",
     label: "Main",
