@@ -12,7 +12,7 @@
     "astro": "^5.17.2"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.0",
+    "@biomejs/biome": "2.4.0",
     "@unocss/astro": "^66.6.0",
     "@unocss/reset": "^66.6.0",
     "unocss": "^66.6.0"
