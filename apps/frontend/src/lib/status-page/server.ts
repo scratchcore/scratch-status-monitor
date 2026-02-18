@@ -3,7 +3,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { getEnv } from "@/plugins/envrc";
 import type { HistoryApiEnvelope, StatusPageLoaderData } from "./types";
 
-const FETCH_TIMEOUT_MS = 30000; // 30秒
+const FETCH_TIMEOUT_MS = 30000; // 20秒
 const CRON_GRACE_MS = 2 * 60 * 1000;
 
 const getAlignedRefreshTiming = (
@@ -27,7 +27,7 @@ const fetchHistoriesServerFn = createServerFn({ method: "GET" })
     const env = getEnv();
     const { VITE_BACKEND_URL: baseUrl, API_TOKEN } = env;
 
-    const limit = data?.limit ?? 100;
+    const limit = data?.limit ?? 1000;
     const offset = data?.offset ?? 0;
 
     const url = `${baseUrl}/history?limit=${limit}&offset=${offset}`;

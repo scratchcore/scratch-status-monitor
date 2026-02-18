@@ -65,7 +65,7 @@ export const createApiRouter = () => {
   /**
    * ステータスエンドポイント
    */
-  // GET /api/status - 現在のステータスを取得
+  // GET api:status - 現在のステータスを取得
   registerEndpoint({
     method: "get",
     path: "/status",
@@ -95,7 +95,7 @@ export const createApiRouter = () => {
     })
   );
 
-  // // POST /api/status/refresh - ステータスを強制更新
+  // // POST api:status/refresh - ステータスを強制更新
   // registerEndpoint({
   //   method: "post",
   //   path: "/status/refresh",
@@ -126,7 +126,7 @@ export const createApiRouter = () => {
   /**
    * 履歴エンドポイント
    */
-  // GET /api/history - 全モニターの履歴を取得
+  // GET api:history - 全モニターの履歴を取得
   registerEndpoint({
     method: "get",
     path: "/history",
@@ -136,7 +136,7 @@ export const createApiRouter = () => {
     operationId: "getAllHistory",
     parameters: {
       query: {
-        limit: z.number().int().min(1).max(500).default(100),
+        limit: z.number().int().min(1).max(1000).default(100),
         offset: z.number().int().min(0).default(0),
       },
     },
@@ -172,7 +172,7 @@ export const createApiRouter = () => {
     })
   );
 
-  // GET /api/history/:monitorId - 特定のモニターの履歴を取得
+  // GET api:history/:monitorId - 特定のモニターの履歴を取得
   registerEndpoint({
     method: "get",
     path: "/history/:monitorId",
@@ -185,7 +185,7 @@ export const createApiRouter = () => {
         monitorId: UUIDSchema,
       },
       query: {
-        limit: z.number().int().min(1).max(500).default(100),
+        limit: z.number().int().min(1).max(1000).default(100),
         offset: z.number().int().min(0).default(0),
       },
     },
@@ -231,7 +231,7 @@ export const createApiRouter = () => {
   /**
    * 統計情報エンドポイント
    */
-  // GET /api/stats/:monitorId - モニターの統計情報を取得
+  // GET api:stats/:monitorId - モニターの統計情報を取得
   registerEndpoint({
     method: "get",
     path: "/stats/:monitorId",

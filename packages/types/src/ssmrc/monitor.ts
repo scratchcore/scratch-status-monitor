@@ -3,10 +3,12 @@ import z from "zod";
 const __monitorCheckSchema = z.union([
   z.object({
     type: z.literal("length"),
-    expect: {
-      min: z.number().int().min(0).optional(),
-      max: z.number().int().min(0).optional(),
-    },
+    expect: z
+      .object({
+        min: z.number().int().min(0).optional(),
+        max: z.number().int().min(0).optional(),
+      })
+      .partial(),
   }),
   z.object({
     type: z.literal("status"),

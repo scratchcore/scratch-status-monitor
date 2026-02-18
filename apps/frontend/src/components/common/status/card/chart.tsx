@@ -1,4 +1,5 @@
 import { ssmrc } from "@scratchcore/ssm-configs";
+import type { Locale } from "intlayer";
 import { memo, useDeferredValue, useMemo } from "react";
 import { useLocale } from "react-intlayer";
 import { Area, CartesianGrid, ComposedChart, ReferenceLine, XAxis, YAxis } from "recharts";
@@ -65,7 +66,7 @@ function floorToInterval(date: Date, intervalMs: number): Date {
  * 日時をフォーマット（フル形式）
  * ロケールとタイムゾーンに対応
  */
-const formatFullDateTime = (date: Date, locale: "ja" | "en"): string => {
+const formatFullDateTime = (date: Date, locale: Locale): string => {
   return getFullDateTimeFormatter(locale).format(date);
 };
 
@@ -73,7 +74,7 @@ const formatFullDateTime = (date: Date, locale: "ja" | "en"): string => {
  * X軸用のラベルをフォーマット
  * ロケールとタイムゾーンに対応
  */
-const formatXAxisLabel = (date: Date, locale: "ja" | "en"): string => {
+const formatXAxisLabel = (date: Date, locale: Locale): string => {
   const hours = date.getHours();
   const minutes = date.getMinutes();
   const isStartOfDay = hours === 0 && minutes === 0;
@@ -96,7 +97,7 @@ const ChartContent = memo(function ChartContent({
 }: {
   chartData: ChartPoint[];
   dateChangeTimestamps: number[];
-  locale: "ja" | "en";
+  locale: Locale;
 }) {
   if (chartData.length === 0) {
     return (

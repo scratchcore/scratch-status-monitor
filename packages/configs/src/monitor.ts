@@ -1,6 +1,6 @@
 import type { ssmrcType } from "@scratchcore/ssm-types";
 
-export const monitors: ssmrcType.e.monitor[] = [
+export const monitors: ssmrcType.e.monitor = [
   {
     id: "c79c0e1e-8292-45ee-8dba-58e672d32184",
     label: "Website",
@@ -33,7 +33,7 @@ export const monitors: ssmrcType.e.monitor[] = [
     check: {
       type: "length",
       expect: {
-        min: 1,
+        min: 3,
       },
     },
   },
@@ -45,7 +45,7 @@ export const monitors: ssmrcType.e.monitor[] = [
     check: {
       type: "length",
       expect: {
-        min: 1,
+        min: 3,
       },
     },
   },
