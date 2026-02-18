@@ -33,10 +33,12 @@ export async function getMonitorHistoryHandler(input: {
     const { monitorId, limit = 100, offset = 0 } = validated;
 
     const historyService = getHistoryService();
-    // hasMore 判定のため、1件多く取得（offset を考慮）
-    const allRecords = await historyService.getRecords(monitorId, limit + 1, offset);
-    const records = allRecords.slice(0, limit);
-    const hasMore = allRecords.length > limit;
+    // 総レコード数を取得してhasMoreを正確に判定
+    const [records, totalCount] = await Promise.all([
+      historyService.getRecords(monitorId, limit, offset),
+      historyService.getTotalCount(monitorId),
+    ]);
+    const hasMore = offset + limit < totalCount;
 
     // モニター情報を取得
     const status = await getStatus();
@@ -108,10 +110,12 @@ export async function getAllMonitorsHistoryHandler(input: {
     const historyService = getHistoryService();
     const results = await Promise.all(
       status.monitors.map(async (monitor) => {
-        // hasMore 判定のため、1件多く取得（offset を考慮）
-        const allRecords = await historyService.getRecords(monitor.id, limit + 1, offset);
-        const records = allRecords.slice(0, limit);
-        const hasMore = allRecords.length > limit;
+        // 総レコード数を取得してhasMoreを正確に判定
+        const [records, totalCount] = await Promise.all([
+          historyService.getRecords(monitor.id, limit, offset),
+          historyService.getTotalCount(monitor.id),
+        ]);
+        const hasMore = offset + limit < totalCount;
 
         // 統計情報を計算（全レコードを使用して正確な統計を算出）
         const allRecordsForStats = await historyService.getRecords(

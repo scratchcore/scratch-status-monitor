@@ -157,9 +157,9 @@ export const fetchAllHistories = async (): Promise<StatusPageLoaderData> => {
     hasMore = Array.from(historiesMap.values()).some((h) => h.hasMore);
     offset += PAGE_SIZE;
 
-    // 安全装置：最大10ページまで（1000レコード）
-    if (offset >= PAGE_SIZE * 10) {
-      console.warn("Maximum page limit reached (10 pages)");
+    // 安全装置：最大10ページまで
+    if (offset >= PAGE_SIZE * 20) {
+      console.warn("Maximum page limit reached (20 pages)");
       break;
     }
   }
