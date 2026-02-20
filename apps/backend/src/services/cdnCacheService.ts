@@ -1,8 +1,8 @@
-import { ssmrc } from "@scratchcore/ssm-configs";
+import { ssmrc } from "@scracc/ssm-configs";
 import type {
   HistoryResponse as HistoryResponseType,
   StatusResponse as StatusResponseType,
-} from "@scratchcore/ssm-types";
+} from "@scracc/ssm-types";
 
 export const CACHE_NAMESPACE = "ssm-api";
 const CACHE_TTL_SECONDS = Math.floor(ssmrc.cache.statusTtlMs / 1000);

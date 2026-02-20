@@ -1,5 +1,5 @@
 {
-  "name": "@scratchcore/ssm-backend",
+  "name": "@scracc/ssm-backend",
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",
@@ -15,8 +15,8 @@
     "@orpc/openapi": "^1.13.5",
     "@orpc/server": "^1.13.5",
     "@scalar/hono-api-reference": "^0.9.41",
-    "@scratchcore/ssm-configs": "workspace:*",
-    "@scratchcore/ssm-types": "workspace:*",
+    "@scracc/ssm-configs": "workspace:*",
+    "@scracc/ssm-types": "workspace:*",
     "@supabase/supabase-js": "^2.96.0",
     "hono": "^4.11.9",
     "supabase": "^2.76.9",

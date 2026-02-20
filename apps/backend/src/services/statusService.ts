@@ -1,12 +1,12 @@
-import { ssmrc } from "@scratchcore/ssm-configs";
-import type { StatusCheckResult as StatusCheckResultType, ssmrcType } from "@scratchcore/ssm-types";
+import { ssmrc } from "@scracc/ssm-configs";
+import type { StatusCheckResult as StatusCheckResultType, ssmrcType } from "@scracc/ssm-types";
 import {
   CategoryStatus,
   MonitorStatus,
   type MonitorStatus as MonitorStatusType,
   type StatusLevel as StatusLevelType,
   StatusResponse,
-} from "@scratchcore/ssm-types";
+} from "@scracc/ssm-types";
 import { BACKEND_DEFAULTS } from "../config/defaults";
 
 /**

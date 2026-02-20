@@ -1,4 +1,4 @@
-import { ssmrc } from "@scratchcore/ssm-configs";
+import { ssmrc } from "@scracc/ssm-configs";
 import { getHistoryService } from "./historyService";
 import { createLogger } from "./logger";
 

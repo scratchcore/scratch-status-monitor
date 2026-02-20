@@ -1,4 +1,4 @@
-import type { ssmrcType } from "@scratchcore/ssm-types";
+import type { ssmrcType } from "@scracc/ssm-types";
 
 export const category: ssmrcType.e.category = [
   {

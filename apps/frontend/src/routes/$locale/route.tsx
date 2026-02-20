@@ -1,4 +1,4 @@
-import { headControllerContextEdit } from "@scratchcore/tanstack-plugin-headcontroller";
+import { headControllerContextEdit } from "@scracc/tanstack-plugin-headcontroller";
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { getIntlayer } from "intlayer";
 import { Footer } from "@/components/footer";

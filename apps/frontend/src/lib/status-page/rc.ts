@@ -5,7 +5,7 @@ import type {
   SerializedInfer,
   StatusLevelType,
   StatusResponse as StatusResponseSchema,
-} from "@scratchcore/ssm-types";
+} from "@scracc/ssm-types";
 
 // シリアライズされた型（Date -> string）
 export type StatusLevel = StatusLevelType;

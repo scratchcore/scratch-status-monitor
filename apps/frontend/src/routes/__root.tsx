@@ -1,8 +1,5 @@
 import { ProgressProvider } from "@bprogress/react";
-import {
-  HeadController,
-  type HeadControllerContext,
-} from "@scratchcore/tanstack-plugin-headcontroller";
+import { HeadController, type HeadControllerContext } from "@scracc/tanstack-plugin-headcontroller";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import type { QueryClient } from "@tanstack/react-query";
 import {

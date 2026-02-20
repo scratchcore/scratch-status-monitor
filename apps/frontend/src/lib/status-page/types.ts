@@ -1,7 +1,4 @@
-import type {
-  HistoryResponse as HistoryResponseSchema,
-  SerializedInfer,
-} from "@scratchcore/ssm-types";
+import type { HistoryResponse as HistoryResponseSchema, SerializedInfer } from "@scracc/ssm-types";
 
 // シリアライズされた型（Date -> string）
 export type HistoryResponse = SerializedInfer<typeof HistoryResponseSchema>;

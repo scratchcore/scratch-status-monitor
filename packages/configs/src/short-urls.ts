@@ -1,6 +1,6 @@
-import type { ssmrcType } from "@scratchcore/ssm-types";
+import type { ssmrcType } from "@scracc/ssm-types";
 
-const ORG_NAME = "scratchcore";
+const ORG_NAME = "scracc";
 const REPO_SLUG = "scratch-status-monitor";
 
 export const shortUrls: ssmrcType.e.shortUrl = [

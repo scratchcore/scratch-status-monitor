@@ -1,7 +1,7 @@
 import type {
   HistoryResponse as HistoryResponseType,
   HistoryStats as HistoryStatsType,
-} from "@scratchcore/ssm-types";
+} from "@scracc/ssm-types";
 import { z } from "zod";
 import { BACKEND_DEFAULTS } from "../config/defaults";
 import { APIError } from "../middleware/errorHandler";

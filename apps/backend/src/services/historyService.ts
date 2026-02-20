@@ -1,9 +1,9 @@
-import { ssmrc } from "@scratchcore/ssm-configs";
+import { ssmrc } from "@scracc/ssm-configs";
 import {
   HistoryRecord,
   HistoryStats,
   type StatusCheckResult as StatusCheckResultType,
-} from "@scratchcore/ssm-types";
+} from "@scracc/ssm-types";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { v4 as uuidv4 } from "uuid";
 import { createLogger } from "./logger";
