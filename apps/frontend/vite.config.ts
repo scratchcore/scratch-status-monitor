@@ -25,7 +25,22 @@ const config = defineConfig({
     intlayer(),
     contentCollections(),
     tailwindcss(),
-    devtools(),
+    devtools({
+      eventBusConfig: {
+        port: 4000,
+        debug: false,
+      },
+      editor: {
+        name: "VSCode",
+        open: async (path, lineNumber, columnNumber) => {
+          const { exec } = await import("node:child_process");
+          exec(
+            // or windsurf/cursor/webstorm
+            `code -g "${(path).replaceAll("$", "\\$")}${lineNumber ? `:${lineNumber}` : ""}${columnNumber ? `:${columnNumber}` : ""}"`
+          );
+        },
+      },
+    }),
     tanstackStart({
       router: {
         routeFileIgnorePattern: ".content.(ts|tsx|js|mjs|cjs|jsx|json|jsonc|json5)$",

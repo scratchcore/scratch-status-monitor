@@ -2,7 +2,7 @@ import {
   StatusCheckResult,
   type StatusLevel as StatusLevelType,
   type ssmrcSchema,
-} from "@scratchcore/ssm-types";
+} from "@scracc/ssm-types";
 import type z from "zod";
 import { BACKEND_DEFAULTS } from "../config/defaults";
 

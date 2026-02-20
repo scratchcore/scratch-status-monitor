@@ -1,5 +1,5 @@
 {
-  "name": "@scratchcore/ssm-frontend",
+  "name": "@scracc/ssm-frontend",
   "private": true,
   "type": "module",
   "scripts": {
@@ -41,9 +41,9 @@
     "@radix-ui/react-slot": "^1.2.4",
     "@radix-ui/react-switch": "^1.2.6",
     "@remixicon/react": "^4.9.0",
-    "@scratchcore/ssm-configs": "workspace:*",
-    "@scratchcore/ssm-types": "workspace:*",
-    "@scratchcore/tanstack-plugin-headcontroller": "workspace:*",
+    "@scracc/ssm-configs": "workspace:*",
+    "@scracc/ssm-types": "workspace:*",
+    "@scracc/tanstack-plugin-headcontroller": "workspace:*",
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/match-sorter-utils": "^8.19.4",
     "@tanstack/react-db": "^0.1.70",

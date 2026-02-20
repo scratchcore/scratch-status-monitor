@@ -1,5 +1,5 @@
-import { ssmrc } from "@scratchcore/ssm-configs";
-import { StatusResponse, type StatusResponse as StatusResponseType } from "@scratchcore/ssm-types";
+import { ssmrc } from "@scracc/ssm-configs";
+import { StatusResponse, type StatusResponse as StatusResponseType } from "@scracc/ssm-types";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createLogger } from "./logger";
 

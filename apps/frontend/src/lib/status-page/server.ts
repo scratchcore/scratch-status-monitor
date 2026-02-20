@@ -1,4 +1,4 @@
-import { ssmrc } from "@scratchcore/ssm-configs";
+import { ssmrc } from "@scracc/ssm-configs";
 import { createServerFn } from "@tanstack/react-start";
 import { getEnv } from "@/plugins/envrc";
 import type { HistoryApiEnvelope, StatusPageLoaderData } from "./types";

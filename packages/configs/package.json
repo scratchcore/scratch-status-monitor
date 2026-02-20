@@ -1,5 +1,5 @@
 {
-  "name": "@scratchcore/ssm-configs",
+  "name": "@scracc/ssm-configs",
   "version": "0.0.1",
   "description": "バックエンド・フロントエンド間で共有する設定パッケージ",
   "type": "module",
@@ -31,7 +31,7 @@
   "packageManager": "pnpm@10.30.0",
   "devDependencies": {
     "@biomejs/biome": "2.4.0",
-    "@scratchcore/ssm-types": "workspace:*",
+    "@scracc/ssm-types": "workspace:*",
     "@types/node": "^22.19.11",
     "typescript": "^5.9.3"
   }

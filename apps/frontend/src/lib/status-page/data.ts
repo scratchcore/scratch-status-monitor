@@ -1,4 +1,4 @@
-import { ssmrc } from "@scratchcore/ssm-configs";
+import { ssmrc } from "@scracc/ssm-configs";
 import {
   formatDateShort as formatDateShortI18n,
   formatDateTime as formatDateTimeI18n,

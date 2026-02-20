@@ -1,5 +1,5 @@
 {
-  "name": "@scratchcore/tanstack-plugin-headcontroller",
+  "name": "@scracc/tanstack-plugin-headcontroller",
   "version": "0.0.1",
   "description": "TanStack Router の Document Head コントローラー",
   "type": "module",

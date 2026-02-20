@@ -1,5 +1,5 @@
 import { BProgress } from "@bprogress/core";
-import { initHeadControllerConfigs } from "@scratchcore/tanstack-plugin-headcontroller";
+import { initHeadControllerConfigs } from "@scracc/tanstack-plugin-headcontroller";
 import { createRouter } from "@tanstack/react-router";
 import { setupRouterSsrQueryIntegration } from "@tanstack/react-router-ssr-query";
 import * as TanstackQuery from "./integrations/tanstack-query/root-provider";

@@ -1,4 +1,4 @@
-import { ssmrc } from "@scratchcore/ssm-configs";
+import { ssmrc } from "@scracc/ssm-configs";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/s/$")({

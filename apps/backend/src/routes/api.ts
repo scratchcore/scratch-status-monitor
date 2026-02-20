@@ -1,4 +1,4 @@
-import { HistoryResponse, HistoryStats, StatusResponse } from "@scratchcore/ssm-types";
+import { HistoryResponse, HistoryStats, StatusResponse } from "@scracc/ssm-types";
 import { type Context, Hono } from "hono";
 import { z } from "zod";
 import {
