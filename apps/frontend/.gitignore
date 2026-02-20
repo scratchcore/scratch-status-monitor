@@ -19,3 +19,4 @@ todos.json
 
 public/sitemap.xml
 .vercel
+.env*.local
