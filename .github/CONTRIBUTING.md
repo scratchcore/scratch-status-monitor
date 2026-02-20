@@ -28,7 +28,7 @@
 
 ## 問題の報告
 
-バグやその他の問題を発見した場合は、GitHub の [Issues](../../issues) ページで報告してください。
+バグやその他の問題を発見した場合は、GitHub の [Issues](/issues) ページで報告してください。
 
 ### Issue の作成時に含めるべき情報
 
@@ -40,7 +40,7 @@
 6. **環境情報**: OS、ブラウザ、バージョンなどの環境情報を記載してください
 7. **スクリーンショット/ログ**: 可能であれば、スクリーンショットやエラーログを添付してください
 
-詳細は [バグレポートテンプレート](ISSUE_TEMPLATE/bug_report.ja.md) を参照してください。
+詳細は [バグレポートテンプレート](.github/ISSUE_TEMPLATE/bug_report.ja.md) を参照してください。
 
 ## プルリクエストの送信
 
@@ -101,7 +101,7 @@
 9. **プルリクエストを作成**
 
    - GitHub で Pull Request を作成してください
-   - [プルリクエストテンプレート](PULL_REQUEST_TEMPLATE.ja.md) に従って情報を記入してください
+   - [プルリクエストテンプレート](.github/PULL_REQUEST_TEMPLATE.ja.md) に従って情報を記入してください
    - レビュアーへの説明を詳記してください
 
 ## セットアップ
@@ -173,7 +173,7 @@ pnpm type-check
   - 定数: UPPER_SNAKE_CASE
 - **ファイル名**: kebab-case
 
-詳細は [biome.json](../biome.json) を参照してください。
+詳細は [biome.json](biome.json) を参照してください。
 
 ## テスト
 
