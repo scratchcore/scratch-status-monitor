@@ -1,21 +1,106 @@
 <!--
-Thank you for contributing to this project! You must fill out the information below before we can review this pull request. By explaining why you're making a change (or linking to an issue) and what changes you've made, we can triage your pull request to the best possible team for review.
+Thank you for contributing! Please fill out the information below to help us review your pull request more efficiently.
+This allows us to understand the context, scope, and impact of your changes.
+
+日本語版：https://github.com/scracc/scratch-status-monitor/blob/main/.github/PULL_REQUEST_TEMPLATE.ja.md
 -->
 
-### Why:
+## Change Type
 
-Closes: 
+What type of change does this PR include?
 
-<!-- If there's an existing issue for your change, please link to it above.
-If there's _not_ an existing issue, please open one first to make it more likely that this update will be accepted -->
+- [ ] 🐛 Bug Fix
+- [ ] ✨ Feature
+- [ ] 📝 Documentation
+- [ ] ♻️ Refactoring
+- [ ] ⚡ Performance Improvement
+- [ ] 🔒 Security
+- [ ] 🔧 Configuration
+- [ ] 🧪 Test
+- [ ] 🚀 Deployment / CI-CD
+- [ ] 📦 Dependencies
 
-### What's being changed (if available, include any code snippets, screenshots, or gifs):
+## Affected Areas
 
-<!-- Let us know what you are changing. Share anything that could provide the most context. -->
+Which area(s) does this change affect?
 
-### Check off the following:
+- [ ] Frontend (`apps/frontend`)
+- [ ] Backend (`apps/backend`)
+- [ ] Transparency (`apps/transparency`)
+- [ ] Types Package (`packages/types`)
+- [ ] Configs Package (`packages/configs`)
+- [ ] TanStack Plugin (`packages/tanstack-plugin-headcontroller`)
+- [ ] Other
 
-- [ ] I have reviewed my changes in staging, available via the **View deployment** link in this PR's timeline (this link will be available after opening the PR).
+## Related Issue
 
-  - For content changes, you will also see an automatically generated comment with links directly to pages you've modified. The comment won't appear if your PR only edits files in the `data` directory.
-- [ ] For content changes, I have completed the [self-review checklist](https://docs.github.com/en/contributing/collaborating-on-github-docs/self-review-checklist).
+Closes: #
+
+<!-- Please link to the related issue above. If there's no existing issue, consider opening one first. -->
+
+## Description
+
+Please provide a clear and comprehensive description of your changes:
+
+### Summary
+
+A brief summary of the changes made.
+
+### Changes Made
+
+- [ ] Change 1
+- [ ] Change 2
+- [ ] Change 3 (add more as needed)
+
+### Why This Change?
+
+Explain the motivation behind this change. What problem does it solve?
+
+## Testing
+
+How have you tested these changes?
+
+- [ ] Unit tests added/updated
+- [ ] Integration tests added/updated
+- [ ] Manual testing completed
+- [ ] No tests needed (explain below)
+
+### Test Instructions
+
+Please provide steps to verify the changes:
+
+1. Step 1
+2. Step 2
+3. Step 3
+
+## Screenshots / GIFs (if applicable)
+
+<!-- For UI/UX changes, please add screenshots or GIFs showing the before and after. -->
+
+## Breaking Changes
+
+Does this PR introduce breaking changes?
+
+- [ ] Yes (describe below)
+- [ ] No
+
+### Breaking Change Description
+
+<!-- If yes, please describe the breaking changes and migration path. -->
+
+## Checklist
+
+Please review and check the following:
+
+- [ ] My code follows the project's style guidelines
+- [ ] I have performed a self-review of my own code
+- [ ] I have commented my code, particularly in hard-to-understand areas
+- [ ] I have made corresponding changes to the documentation
+- [ ] My changes generate no new warnings
+- [ ] I have added tests that prove my fix is effective or that my feature works
+- [ ] New and existing unit tests pass locally with my changes
+- [ ] Any dependent changes have been merged and published
+
+## Notes for Reviewers
+
+<!-- Add any additional information or special instructions for reviewers. -->

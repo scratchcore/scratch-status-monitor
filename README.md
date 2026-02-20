@@ -22,4 +22,4 @@ This repository contains the source code for SSM.
 Contributions, bug reports, and suggestions are welcome.
 
 Please open an Issue:
-https://github.com/scratchcore/scratch-status-monitor/issues
+https://github.com/scracc/scratch-status-monitor/issues
