@@ -1,6 +1,6 @@
 # Contributing
 
-> English | [日本語](CONTRIBUTING.md)
+> English | [日本語](https://github.com/scracc/scratch-status-monitor/blob/main/.github/CONTRIBUTING.md)
 
 We welcome contributions from the community! Help us make this project better by contributing in the following ways.
 
@@ -28,7 +28,7 @@ By participating in this project and its community, you agree to maintain a resp
 
 ## Reporting Issues
 
-If you find a bug or other issue, please report it on the GitHub [Issues](../../issues) page.
+If you find a bug or other issue, please report it on the GitHub [Issues](https://github.com/scracc/scratch-status-monitor/issues) page.
 
 ### Information to Include When Creating an Issue
 
@@ -40,7 +40,7 @@ If you find a bug or other issue, please report it on the GitHub [Issues](../../
 6. **Environment Information**: Include OS, browser version, and other relevant information
 7. **Screenshots/Logs**: Attach screenshots or error logs if possible
 
-See the [bug report template](ISSUE_TEMPLATE/bug_report.md) for more details.
+See the [bug report template](https://github.com/scracc/scratch-status-monitor/blob/main/.github/ISSUE_TEMPLATE/bug_report.md) for more details.
 
 ## Submitting Pull Requests
 
@@ -102,7 +102,7 @@ See the [bug report template](ISSUE_TEMPLATE/bug_report.md) for more details.
 9. **Create a Pull Request**
 
    - Create the PR on GitHub
-   - Fill in the [pull request template](PULL_REQUEST_TEMPLATE.md)
+   - Fill in the [pull request template](https://github.com/scracc/scratch-status-monitor/blob/main/.github/PULL_REQUEST_TEMPLATE.md)
    - Provide a clear description for reviewers
 
 ## Setup
@@ -174,7 +174,7 @@ pnpm type-check
   - Constants: UPPER_SNAKE_CASE
 - **File Names**: kebab-case
 
-See [biome.json](../biome.json) for more details.
+See [biome.json](https://github.com/scracc/scratch-status-monitor/blob/main/biome.json) for more details.
 
 ## Testing
 
