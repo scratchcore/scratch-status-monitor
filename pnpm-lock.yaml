@@ -54,8 +54,8 @@ importers:
         specifier: ^4.11.10
         version: 4.11.10
       supabase:
-        specifier: ^2.76.9
-        version: 2.76.9
+        specifier: ^2.76.12
+        version: 2.76.12
       uuid:
         specifier: ^13.0.0
         version: 13.0.0
@@ -5558,8 +5558,8 @@ packages:
   style-to-object@1.0.14:
     resolution: {integrity: sha512-LIN7rULI0jBscWQYaSswptyderlarFkjQ+t79nzty8tcIAceVomEVlLzH5VP4Cmsv6MtKhs7qaAiwlcp+Mgaxw==}
 
-  supabase@2.76.9:
-    resolution: {integrity: sha512-BHQ9kSetU7QUm9eLUzGtzlIvkktVnQZ8ypar8Bck9PQZdRE/ugXLLHBg/qqlWTxYRS7QV7Vn/rGLVhWclVMm+g==}
+  supabase@2.76.12:
+    resolution: {integrity: sha512-UAWUjwmSOnxWNN07UOwL9Wb12HOx5jMrQ0HTSi+dKPqRc5g9kJCkp2q3i5gVNLq7NWNzpCZRixRXIQJznOGqGw==}
     engines: {npm: '>=8'}
     hasBin: true
 
@@ -5596,10 +5596,9 @@ packages:
     resolution: {integrity: sha512-g9ljZiwki/LfxmQADO3dEY1CbpmXT5Hm2fJ+QaGKwSXUylMybePR7/67YW7jOrrvjEgL1Fmz5kzyAjWVWLlucg==}
     engines: {node: '>=6'}
 
-  tar@7.5.7:
-    resolution: {integrity: sha512-fov56fJiRuThVFXD6o6/Q354S7pnWMJIVlDBYijsTNx6jKSE4pvrDTs6lUnmGvNyfJwFQQwWy3owKz1ucIhveQ==}
+  tar@7.5.9:
+    resolution: {integrity: sha512-BTLcK0xsDh2+PUe9F6c2TlRp4zOOBMTkoQHQIWSIzI0R7KG46uEwq4OPk2W7bZcprBMsuaeFsqwYr7pjh6CuHg==}
     engines: {node: '>=18'}
-    deprecated: Old versions of tar are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
   taze@19.9.2:
     resolution: {integrity: sha512-If8bq7lSckIMPfXV+C9jjEfdsQnRryh/foKfpX/ah6zI0TrQfUGWSGCaaD32Bqy5/KGRmLZie3EwMSr3Au21XQ==}
@@ -12231,12 +12230,12 @@ snapshots:
     dependencies:
       inline-style-parser: 0.2.7
 
-  supabase@2.76.9:
+  supabase@2.76.12:
     dependencies:
       bin-links: 6.0.0
       https-proxy-agent: 7.0.6
       node-fetch: 3.3.2
-      tar: 7.5.7
+      tar: 7.5.9
     transitivePeerDependencies:
       - supports-color
 
@@ -12266,7 +12265,7 @@ snapshots:
 
   tapable@2.3.0: {}
 
-  tar@7.5.7:
+  tar@7.5.9:
     dependencies:
       '@isaacs/fs-minipass': 4.0.1
       chownr: 3.0.0
