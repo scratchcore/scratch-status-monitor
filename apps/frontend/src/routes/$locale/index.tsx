@@ -1,4 +1,5 @@
 import { ssmrc } from "@scracc/ssm-configs";
+import { logger } from "@scracc/tanstack-plugin-logger";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
@@ -29,25 +30,28 @@ const DEFAULT_LOADER_DATA: StatusPageLoaderData = {
 };
 
 export const Route = createFileRoute("/$locale/")({
+  loader: async () => {
+    try {
+      return await getCachedHistories();
+    } catch (error) {
+      logger(
+        {
+          level: "error",
+          name: "StatusPageLoader",
+        },
+        "Failed to load status page data:",
+        error
+      );
+      // デフォルトデータを返してアプリを続行
+      return DEFAULT_LOADER_DATA;
+    }
+  },
   head: ({ params }) => {
     const { locale } = params;
     return {
       meta: seo(locale),
       links: buildHreflangLinks({ locale, path: "/" }),
     };
-  },
-  loader: async () => {
-    try {
-      return await getCachedHistories();
-    } catch (error) {
-      console.error(
-        "[Status Page Loader] 履歴の取得に失敗しました:",
-        error instanceof Error ? error.message : String(error),
-        error
-      );
-      // デフォルトデータを返してアプリを続行
-      return DEFAULT_LOADER_DATA;
-    }
   },
   component: App,
   onEnter: scrollToTop,

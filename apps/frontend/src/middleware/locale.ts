@@ -1,3 +1,4 @@
+import { logger } from "@scracc/tanstack-plugin-logger";
 import { createMiddleware } from "@tanstack/react-start";
 import { validatePrefix } from "intlayer";
 import { getPreferredLocale } from "@/lib/i18n/get-preferred-locale";
@@ -14,10 +15,23 @@ export const localeMiddleware = createMiddleware().server(async ({ next, request
   const url = new URL(request.url);
   const pathname = url.pathname;
 
-  // console.log("[localeMiddleware] リクエストパス:", pathname);
+  logger(
+    {
+      level: "info",
+      name: "localeMiddleware",
+    },
+    "Request received:",
+    pathname
+  );
 
   if (pathname === "/s" || pathname.startsWith("/s/")) {
-    // console.log("[localeMiddleware] /s ルートは処理対象外");
+    logger(
+      {
+        level: "info",
+        name: "localeMiddleware",
+      },
+      "Short URL path detected, skipping locale middleware:"
+    );
     return next();
   }
 
@@ -25,13 +39,27 @@ export const localeMiddleware = createMiddleware().server(async ({ next, request
   const pathSegments = pathname.split("/").filter(Boolean);
   const locale = pathSegments[0];
 
-  // console.log("[localeMiddleware] 抽出された locale:", locale || "(なし)");
+  logger(
+    {
+      level: "info",
+      name: "localeMiddleware",
+    },
+    "Extracted locale:",
+    locale || "(none)"
+  );
 
   // locale がある場合は検証
   if (locale) {
     const { isValid } = validatePrefix(locale, { mode: "prefix-all" });
 
-    // console.log("[localeMiddleware] locale 検証結果:", { locale, isValid });
+    logger(
+      {
+        level: "info",
+        name: "localeMiddleware",
+      },
+      "Locale validation result:",
+      { locale, isValid }
+    );
 
     // 無効な locale の場合は優先言語を取得してリダイレクト
     if (!isValid) {
@@ -39,11 +67,18 @@ export const localeMiddleware = createMiddleware().server(async ({ next, request
       const preferredLocale = await getPreferredLocale();
       const redirectPath = `/${preferredLocale}${pathname}`;
 
-      // console.log("[localeMiddleware] 無効な locale からリダイレクト:", {
-      //   from: pathname,
-      //   to: redirectPath,
-      //   preferredLocale,
-      // });
+      logger(
+        {
+          level: "info",
+          name: "localeMiddleware",
+        },
+        "Invalid locale detected, redirecting:",
+        JSON.stringify({
+          from: pathname,
+          to: redirectPath,
+          preferredLocale,
+        })
+      );
 
       return new Response(null, {
         status: 302,
@@ -58,11 +93,18 @@ export const localeMiddleware = createMiddleware().server(async ({ next, request
     const redirectPath =
       pathname === "/" ? `/${preferredLocale}` : `/${preferredLocale}${pathname}`;
 
-    // console.log("[localeMiddleware] locale がないパスからリダイレクト:", {
-    //   from: pathname,
-    //   to: redirectPath,
-    //   preferredLocale,
-    // });
+    logger(
+      {
+        level: "info",
+        name: "localeMiddleware",
+      },
+      "No locale in path, redirecting to preferred locale:",
+      JSON.stringify({
+        from: pathname,
+        to: redirectPath,
+        preferredLocale,
+      })
+    );
 
     return new Response(null, {
       status: 302,
@@ -73,6 +115,12 @@ export const localeMiddleware = createMiddleware().server(async ({ next, request
   }
 
   // 検証成功時は次のミドルウェアに進む
-  // console.log("[localeMiddleware] 検証成功、次のミドルウェアに進む:", { locale });
+  logger(
+    {
+      level: "info",
+      name: "localeMiddleware",
+    },
+    `Validation successful, proceeding to next middleware: ${locale}`
+  );
   return next();
 });

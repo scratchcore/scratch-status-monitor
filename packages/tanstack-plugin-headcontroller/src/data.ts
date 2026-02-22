@@ -33,7 +33,7 @@ export function collectHeadDataFromRoutes(routeMatches: MakeRouteMatchUnion[]): 
     meta: routeMatches.flatMap((m) => m.meta ?? []),
     links: routeMatches.flatMap((m) => m.links ?? []),
     styles: routeMatches.flatMap((m) => m.styles ?? []),
-    scripts: routeMatches.flatMap((m) =>  m.headScripts ?? [])
+    scripts: routeMatches.flatMap((m) => m.headScripts ?? []),
   };
   return resolvedHead;
 }

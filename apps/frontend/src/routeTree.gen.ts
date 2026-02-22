@@ -13,6 +13,7 @@ import { Route as LocaleRouteRouteImport } from './routes/$locale/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LocaleIndexRouteImport } from './routes/$locale/index'
 import { Route as SSplatRouteImport } from './routes/s/$'
+import { Route as ApiMetricsRouteImport } from './routes/api/metrics'
 import { Route as LocaleTeamRouteImport } from './routes/$locale/team'
 import { Route as LocaleFundingRouteImport } from './routes/$locale/funding'
 import { Route as LocaleFeedbackRouteImport } from './routes/$locale/feedback'
@@ -40,6 +41,11 @@ const LocaleIndexRoute = LocaleIndexRouteImport.update({
 const SSplatRoute = SSplatRouteImport.update({
   id: '/s/$',
   path: '/s/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiMetricsRoute = ApiMetricsRouteImport.update({
+  id: '/api/metrics',
+  path: '/api/metrics',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LocaleTeamRoute = LocaleTeamRouteImport.update({
@@ -92,6 +98,7 @@ export interface FileRoutesByFullPath {
   '/$locale/feedback': typeof LocaleFeedbackRoute
   '/$locale/funding': typeof LocaleFundingRoute
   '/$locale/team': typeof LocaleTeamRoute
+  '/api/metrics': typeof ApiMetricsRoute
   '/s/$': typeof SSplatRoute
   '/$locale/': typeof LocaleIndexRoute
   '/$locale/policies/$policyId': typeof LocalePoliciesPolicyIdRoute
@@ -105,6 +112,7 @@ export interface FileRoutesByTo {
   '/$locale/feedback': typeof LocaleFeedbackRoute
   '/$locale/funding': typeof LocaleFundingRoute
   '/$locale/team': typeof LocaleTeamRoute
+  '/api/metrics': typeof ApiMetricsRoute
   '/s/$': typeof SSplatRoute
   '/$locale': typeof LocaleIndexRoute
   '/$locale/policies/$policyId': typeof LocalePoliciesPolicyIdRoute
@@ -120,6 +128,7 @@ export interface FileRoutesById {
   '/$locale/feedback': typeof LocaleFeedbackRoute
   '/$locale/funding': typeof LocaleFundingRoute
   '/$locale/team': typeof LocaleTeamRoute
+  '/api/metrics': typeof ApiMetricsRoute
   '/s/$': typeof SSplatRoute
   '/$locale/': typeof LocaleIndexRoute
   '/$locale/policies/$policyId': typeof LocalePoliciesPolicyIdRoute
@@ -136,6 +145,7 @@ export interface FileRouteTypes {
     | '/$locale/feedback'
     | '/$locale/funding'
     | '/$locale/team'
+    | '/api/metrics'
     | '/s/$'
     | '/$locale/'
     | '/$locale/policies/$policyId'
@@ -149,6 +159,7 @@ export interface FileRouteTypes {
     | '/$locale/feedback'
     | '/$locale/funding'
     | '/$locale/team'
+    | '/api/metrics'
     | '/s/$'
     | '/$locale'
     | '/$locale/policies/$policyId'
@@ -163,6 +174,7 @@ export interface FileRouteTypes {
     | '/$locale/feedback'
     | '/$locale/funding'
     | '/$locale/team'
+    | '/api/metrics'
     | '/s/$'
     | '/$locale/'
     | '/$locale/policies/$policyId'
@@ -172,6 +184,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LocaleRouteRoute: typeof LocaleRouteRouteWithChildren
+  ApiMetricsRoute: typeof ApiMetricsRoute
   SSplatRoute: typeof SSplatRoute
 }
 
@@ -203,6 +216,13 @@ declare module '@tanstack/react-router' {
       path: '/s/$'
       fullPath: '/s/$'
       preLoaderRoute: typeof SSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/metrics': {
+      id: '/api/metrics'
+      path: '/api/metrics'
+      fullPath: '/api/metrics'
+      preLoaderRoute: typeof ApiMetricsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/$locale/team': {
@@ -295,6 +315,7 @@ const LocaleRouteRouteWithChildren = LocaleRouteRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LocaleRouteRoute: LocaleRouteRouteWithChildren,
+  ApiMetricsRoute: ApiMetricsRoute,
   SSplatRoute: SSplatRoute,
 }
 export const routeTree = rootRouteImport
@@ -302,10 +323,11 @@ export const routeTree = rootRouteImport
   ._addFileTypes<FileRouteTypes>()
 
 import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
+import type { startInstance } from './start.ts'
 declare module '@tanstack/react-start' {
   interface Register {
     ssr: true
     router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
   }
 }

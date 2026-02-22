@@ -43,6 +43,7 @@
     "@remixicon/react": "^4.9.0",
     "@scracc/ssm-configs": "workspace:*",
     "@scracc/ssm-types": "workspace:*",
+    "@scracc/tanstack-plugin-logger": "workspace:*",
     "@scracc/tanstack-plugin-headcontroller": "workspace:*",
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/match-sorter-utils": "^8.19.4",

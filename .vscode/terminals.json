@@ -39,6 +39,10 @@
       "cwd": "./packages/configs"
     },
     {
+      "name": "pkg > tanstack-plugin-logger",
+      "cwd": "./packages/tanstack-plugin-logger"
+    },
+    {
       "name": "pkg > tanstack-plugin-headcontroller",
       "cwd": "./packages/tanstack-plugin-headcontroller"
     }
