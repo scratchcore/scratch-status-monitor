@@ -15,6 +15,7 @@ export type ctxType = {
 
 export const HeadController = () => {
   const routes = useRouterState({ select: (s) => s.matches });
+
   const resolvedHead = collectHeadDataFromRoutes(routes);
 
   // 現在のルート
