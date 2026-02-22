@@ -24,13 +24,15 @@ export const localeMiddleware = createMiddleware().server(async ({ next, request
     pathname
   );
 
-  if (pathname === "/s" || pathname.startsWith("/s/")) {
+  const skipPaths = ["/s", "/api"];
+  if (skipPaths.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`))) {
     logger(
       {
         level: "info",
         name: "localeMiddleware",
       },
-      "Short URL path detected, skipping locale middleware:"
+      "Skipping locale middleware for path:",
+      pathname
     );
     return next();
   }
