@@ -7,8 +7,6 @@ export function HeaderNotice({ locale, isDefault }: { locale: string; isDefault:
   let content = "";
   const isDefaultLocale = locale === defaultLocale;
 
-  console.log({ locale, isDefault, isDefaultLocale });
-
   if (isDefaultLocale) {
     return null;
   }

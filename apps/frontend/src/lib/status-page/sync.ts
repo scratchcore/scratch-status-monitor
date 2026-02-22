@@ -1,3 +1,4 @@
+import { logger } from "@scracc/tanstack-plugin-logger";
 import { CACHE_KEY, STATUS_PAGE_QUERY_KEY } from "./config";
 import { fetchCachedHistories } from "./server";
 import type { StatusPageLoaderData } from "./types";
@@ -28,7 +29,13 @@ export const initializeBroadcastChannel = (queryClient: QueryClient): void => {
     };
   } catch (_e) {
     // BroadcastChannel が使用不可の環境では何もしない
-    console.warn("BroadcastChannel not available");
+    logger(
+      {
+        level: "warn",
+        name: "Broadcast",
+      },
+      "BroadcastChannel is not available in this environment. Cache synchronization between tabs will not work."
+    );
   }
 };
 

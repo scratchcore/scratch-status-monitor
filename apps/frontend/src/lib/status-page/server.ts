@@ -1,4 +1,5 @@
 import { ssmrc } from "@scracc/ssm-configs";
+import { logger } from "@scracc/tanstack-plugin-logger";
 import { createServerFn } from "@tanstack/react-start";
 import { getEnv } from "@/plugins/envrc";
 import type { HistoryApiEnvelope, StatusPageLoaderData } from "./types";
@@ -32,10 +33,14 @@ const fetchHistoriesServerFn = createServerFn({ method: "GET" })
 
     const url = `${baseUrl}/history?limit=${limit}&offset=${offset}`;
 
-    console.log("[fetchHistoriesServerFn] リクエスト開始:", {
-      url,
-      timestamp: new Date().toISOString(),
-    });
+    logger(
+      {
+        level: "info",
+        name: "Histories",
+      },
+      "Request start:",
+      url
+    );
 
     const startTime = performance.now();
 
@@ -53,13 +58,14 @@ const fetchHistoriesServerFn = createServerFn({ method: "GET" })
 
       const elapsed = performance.now() - startTime;
 
-      console.log("[fetchHistoriesServerFn] レスポンス受信:", {
-        status: historyResponse.status,
-        statusText: historyResponse.statusText,
-        url: historyResponse.url,
-        elapsed: `${elapsed.toFixed(2)}ms`,
-        timestamp: new Date().toISOString(),
-      });
+      logger(
+        {
+          level: "info",
+          name: "Histories",
+        },
+        "Response received:",
+        `${elapsed.toFixed(2)}ms`
+      );
 
       if (!historyResponse.ok) {
         let errorMessage = `HTTPエラー: ${historyResponse.status} ${historyResponse.statusText}`;
@@ -72,24 +78,38 @@ const fetchHistoriesServerFn = createServerFn({ method: "GET" })
           // レスポンス読み込み失敗は無視
         }
 
-        console.error("[fetchHistoriesServerFn] リクエスト失敗:", {
-          status: historyResponse.status,
-          statusText: historyResponse.statusText,
-          url: historyResponse.url,
-          elapsed: `${elapsed.toFixed(2)}ms`,
-          headers: Object.fromEntries(historyResponse.headers.entries()),
-          message: errorMessage,
-        });
+        logger(
+          {
+            level: "error",
+            name: "Histories",
+          },
+          "Failed to fetch histories:",
+          {
+            status: historyResponse.status,
+            statusText: historyResponse.statusText,
+            url: historyResponse.url,
+            elapsed: `${elapsed.toFixed(2)}ms`,
+            headers: Object.fromEntries(historyResponse.headers.entries()),
+            message: errorMessage,
+          }
+        );
 
         throw new Error(errorMessage);
       }
 
       const historyJson = (await historyResponse.json()) as HistoryApiEnvelope;
 
-      console.log("[fetchHistoriesServerFn] データ取得成功:", {
-        recordCount: historyJson.data?.length ?? 0,
-        elapsed: `${elapsed.toFixed(2)}ms`,
-      });
+      logger(
+        {
+          level: "info",
+          name: "Histories",
+        },
+        "Data parsed:",
+        JSON.stringify({
+          recordCount: historyJson.data?.length ?? 0,
+          elapsed: `${elapsed.toFixed(2)}ms`,
+        })
+      );
 
       const { nextRefreshAt, refreshIntervalMs } = getAlignedRefreshTiming();
 
@@ -104,8 +124,15 @@ const fetchHistoriesServerFn = createServerFn({ method: "GET" })
       const elapsed = performance.now() - startTime;
 
       if (error instanceof DOMException && error.name === "AbortError") {
-        const message = `[fetchHistoriesServerFn] タイムアウト: ${FETCH_TIMEOUT_MS}ms以内にレスポンスがありません`;
-        console.error(message, { elapsed: `${elapsed.toFixed(2)}ms` });
+        const message = `Timeout after ${FETCH_TIMEOUT_MS}ms while fetching ${url}`;
+        logger(
+          {
+            level: "error",
+            name: "Histories",
+          },
+          message,
+          `${elapsed.toFixed(2)}ms`
+        );
         throw new Error(
           `バックエンドが応答しません (タイムアウト: ${(FETCH_TIMEOUT_MS / 1000).toFixed(0)}秒)。バックエンドのCPU使用率を確認してください。`
         );
@@ -159,7 +186,13 @@ export const fetchAllHistories = async (): Promise<StatusPageLoaderData> => {
 
     // 安全装置：最大10ページまで
     if (offset >= PAGE_SIZE * 20) {
-      console.warn("Maximum page limit reached (20 pages)");
+      logger(
+        {
+          level: "warn",
+          name: "Histories",
+        },
+        "Maximum page limit reached (20 pages)"
+      );
       break;
     }
   }

@@ -1,4 +1,5 @@
 import { ssmrc } from "@scracc/ssm-configs";
+import { logger } from "@scracc/tanstack-plugin-logger";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/s/$")({
@@ -10,7 +11,13 @@ export const Route = createFileRoute("/s/$")({
 
     if (!mapping) {
       // マッピングが見つからない場合、ホームへリダイレクト
-      console.warn(`Short URL not found: ${pathKey}`);
+      logger(
+        {
+          level: "warn",
+          name: "ShortURL",
+        },
+        `Short URL not found: ${pathKey}`
+      );
       const redirectPath = `/${pathKey}`;
       throw redirect({
         to: redirectPath,

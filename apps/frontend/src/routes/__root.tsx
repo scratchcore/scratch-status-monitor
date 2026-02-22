@@ -1,5 +1,6 @@
 import { ProgressProvider } from "@bprogress/react";
 import { HeadController, type HeadControllerContext } from "@scracc/tanstack-plugin-headcontroller";
+import { requestLogger } from "@scracc/tanstack-plugin-logger";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import type { QueryClient } from "@tanstack/react-query";
 import {
@@ -53,7 +54,7 @@ function RootErrorComponent() {
 
 export const Route = createRootRouteWithContext<RouterContext>()({
   server: {
-    middleware: [localeMiddleware],
+    middleware: [requestLogger, localeMiddleware],
   },
   head: () => ({
     meta: [
